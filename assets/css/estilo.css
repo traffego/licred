@@ -257,7 +257,6 @@
 
 
 
-
     .tns-item {
       padding-right: 10px;
     }
@@ -464,6 +463,53 @@
   stroke-width: 2.5;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+/* Estilo dos cards do visualizar.php */
+.cardBox {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: white;
+    text-align: center;
+    transition: 0.2s;
+}
+
+.cardBox:hover {
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+}
+
+.cardBox .title {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.cardBox .subtitle {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.cardBox .bi {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* Estilo das tabelas */
+.table th, .table td {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.badge {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
 }
 
 
