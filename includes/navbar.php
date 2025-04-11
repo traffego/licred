@@ -2,74 +2,165 @@
 $pagina_atual = basename($_SERVER['PHP_SELF']);
 require_once __DIR__ . '/../config.php';
 ?>
-<?php if ($pagina_atual !== 'login.php'): ?>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-    <div class="container-fluid px-4">
 
-        <!-- LOGO -->
-        <a class="navbar-brand" href="<?= BASE_URL ?>dashboard.php">
-            <img src="<?= BASE_URL ?>assets/img/logo.png" class="bg-light p-2 rounded-5" height="40" alt="Logo">
+<nav class="navbar navbar-expand-lg navbar-dark bg-blue-dark">
+    <div class="container">
+        <!-- Logo e Nome -->
+        <a class="navbar-brand" href="<?= BASE_URL ?>">
+            <img src="<?= BASE_URL ?>assets/img/logo.png" alt="Logo" height="30" class="me-2">
         </a>
 
-        <!-- HAMBURGER -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <!-- Botão Mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- LINKS -->
-        <div class="collapse navbar-collapse bg-dark navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav fw-semibold">
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?= str_contains($pagina_atual, 'clientes') ? 'active' : '' ?>" href="#" id="menuClientes"
-                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Clientes
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark shadow-sm" aria-labelledby="menuClientes">
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>clientes/index.php">Listar Clientes</a></li>
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>clientes/novo.php">Novo Cliente</a></li>
-                    </ul>
-                </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?= (str_contains($pagina_atual, 'emprestimos') || str_contains($pagina_atual, 'parcela')) ? 'active' : '' ?>"
-                        href="#" id="menuEmprestimos" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Empréstimos
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark shadow-sm" aria-labelledby="menuEmprestimos">
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>emprestimos/index.php">Listar Empréstimos</a></li>
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>parcela/visualizar.php">Parcelas</a></li>
-                    </ul>
-                </li>
-
+        <!-- Menu Principal -->
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav mx-auto">
+                <!-- Dashboard -->
                 <li class="nav-item">
-                    <a class="nav-link <?= str_contains($pagina_atual, 'relatorios') ? 'active' : '' ?>" href="<?= BASE_URL ?>relatorios/emprestimos.php">
-                        Relatórios
+                    <a class="nav-link <?= $pagina_atual === 'dashboard.php' ? 'active' : '' ?>" 
+                       href="<?= BASE_URL ?>dashboard.php">
+                            <i class="bi bi-speedometer2 me-1"></i>
+                            Dashboard
                     </a>
                 </li>
 
+                <!-- Empréstimos -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?= str_contains($pagina_atual, 'configuracoes') ? 'active' : '' ?>" href="#" id="menuConfiguracoes"
-                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        🛠️ Configurações
+                    <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['emprestimos/index.php', 'emprestimos/novo.php', 'emprestimos/visualizar.php']) ? 'active' : '' ?>" 
+                       href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-cash-stack me-1"></i>
+                            Empréstimos
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-dark shadow-sm" aria-labelledby="menuConfiguracoes">
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>configuracoes/feriados.php">Feriados</a></li>
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>configuracoes/integracoes.php">Integrações</a></li>
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>configuracoes/preferencias.php">Preferências</a></li>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<?= BASE_URL ?>emprestimos/"><i class="bi bi-list-ul me-2"></i>Listar</a></li>
+                        <li><a class="dropdown-item" href="<?= BASE_URL ?>emprestimos/novo.php"><i class="bi bi-plus-circle me-2"></i>Novo</a></li>
                     </ul>
                 </li>
 
-                <!-- MANTIDO: BOTÃO DE SAIR ORIGINAL -->
-                <li class="nav-item">
-                    <a href="<?= BASE_URL ?>logout.php" class="nav-link">
-    Sair
-</a>
+                <!-- Clientes -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['clientes/index.php', 'clientes/novo.php', 'clientes/visualizar.php']) ? 'active' : '' ?>" 
+                       href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-people me-1"></i>
+                            Clientes
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<?= BASE_URL ?>clientes/"><i class="bi bi-list-ul me-2"></i>Listar</a></li>
+                        <li><a class="dropdown-item" href="<?= BASE_URL ?>clientes/novo.php"><i class="bi bi-person-plus me-2"></i>Novo</a></li>
+                    </ul>
                 </li>
 
+                <!-- Relatórios -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['relatorios/diario.php', 'relatorios/mensal.php']) ? 'active' : '' ?>" 
+                       href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-graph-up me-1"></i>
+                            Relatórios
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<?= BASE_URL ?>relatorios/diario.php"><i class="bi bi-calendar-day me-2"></i>Diário</a></li>
+                        <li><a class="dropdown-item" href="<?= BASE_URL ?>relatorios/mensal.php"><i class="bi bi-calendar-month me-2"></i>Mensal</a></li>
+                    </ul>
+                </li>
+
+                <!-- Cobranças -->
+                <li class="nav-item">
+                    <a class="nav-link <?= $pagina_atual === 'cobrancas/pendentes.php' ? 'active' : '' ?>" 
+                       href="<?= BASE_URL ?>cobrancas/pendentes.php">
+                            <i class="bi bi-bell me-1"></i>
+                            Cobranças
+                    </a>
+                </li>
             </ul>
+
+            <!-- Menu do Usuário -->
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle me-1 d-none d-lg-inline"></i>
+                    <?= $_SESSION['usuario_nome'] ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="<?= BASE_URL ?>configuracoes/"><i class="bi bi-gear me-2"></i>Configurações</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="<?= BASE_URL ?>logout.php"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>
-<?php endif; ?>
+
+<!-- Botão de Fechar Mobile -->
+<button class="btn-close btn-close-white d-lg-none position-fixed top-0 end-0 m-3" 
+        style="z-index: 1050; display: none;" 
+        data-bs-toggle="collapse" 
+        data-bs-target="#navbarMain"></button>
+
+<style>
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar .container {
+    max-width: 1200px;
+}
+
+.nav-link {
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 0.25rem;
+}
+
+.nav-link.active {
+    background-color: rgba(255,255,255,0.2);
+    border-radius: 0.25rem;
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 0.5rem;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(13,110,253,0.1);
+}
+
+.dropdown-item i {
+    width: 1.25rem;
+    text-align: center;
+}
+
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        padding: 1rem 0;
+    }
+    
+    .dropdown-menu {
+        border: none;
+        box-shadow: none;
+        background-color: rgba(255,255,255,0.1);
+    }
+    
+    .dropdown-item {
+        color: rgba(255,255,255,0.8);
+    }
+    
+    .dropdown-item:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+    }
+}
+</style>

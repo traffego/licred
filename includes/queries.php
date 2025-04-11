@@ -102,3 +102,33 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
 
     return $lista;
 }
+
+function calcularTotalParcelasAtrasadas($conn) {
+    $stmt = $conn->query("SELECT json_parcelas FROM emprestimos WHERE status != 'quitado'");
+    $total_atrasado = 0;
+
+    while ($row = $stmt->fetch_assoc()) {
+        $parcelas = json_decode($row['json_parcelas'], true);
+        
+        if (is_array($parcelas)) {
+            foreach ($parcelas as $p) {
+                // Verifica se a parcela está atrasada (não paga e data vencida)
+                if (empty($p['paga']) && !empty($p['data'])) {
+                    $data_vencimento = DateTime::createFromFormat('d/m/Y', $p['data']);
+                    if ($data_vencimento < new DateTime()) {
+                        $valor = (float) str_replace(',', '.', $p['valor']);
+                        $total_atrasado += $valor;
+                    }
+                }
+            }
+        }
+    }
+
+    return $total_atrasado;
+}
+
+function contarEmprestimosAtivos($conn) {
+    $stmt = $conn->query("SELECT COUNT(*) as total FROM emprestimos WHERE status != 'quitado'");
+    $resultado = $stmt->fetch_assoc();
+    return $resultado['total'] ?? 0;
+}
