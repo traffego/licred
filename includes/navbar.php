@@ -7,7 +7,7 @@ require_once __DIR__ . '/../config.php';
     <div class="container">
         <!-- Logo e Nome -->
         <a class="navbar-brand" href="<?= BASE_URL ?>">
-            <img src="<?= BASE_URL ?>assets/img/logo.png" alt="Logo" height="30" class="me-2">
+            <img id="logo-img" src="<?= BASE_URL ?>assets/img/logo.png" alt="Logo" height="30" class="me-2">
         </a>
 
         <!-- Botão Mobile -->
@@ -79,8 +79,9 @@ require_once __DIR__ . '/../config.php';
             <!-- Menu do Usuário -->
             <div class="dropdown">
                 <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
-                    <i class="bi bi-person-circle me-1 d-none d-lg-inline"></i>
-                    <?= $_SESSION['usuario_nome'] ?>
+                    <i class="bi bi-person-circle me-1"></i>
+                    <span class="d-none d-lg-inline"><?= $_SESSION['usuario_nome'] ?></span>
+                    <span class="d-lg-none">Ver Perfil</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="<?= BASE_URL ?>configuracoes/"><i class="bi bi-gear me-2"></i>Configurações</a></li>
@@ -105,6 +106,20 @@ require_once __DIR__ . '/../config.php';
 
 .navbar .container {
     max-width: 1200px;
+}
+
+.navbar-brand {
+    position: relative;
+    padding: 0.5rem;
+    border-radius: 12px;
+    background: rgba(229, 213, 213, 0.39);
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+}
+
+.navbar-brand img {
+    position: relative;
+    z-index: 1;
 }
 
 .nav-link {

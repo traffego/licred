@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/estilo2.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/estilo.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/volt.css">
+    <script src="<?= BASE_URL ?>assets/js/logo-detector.js"></script>
     <style>
     /* Breadcrumb personalizado */
     .breadcrumb {
