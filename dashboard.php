@@ -6,40 +6,36 @@ require_once __DIR__ . '/includes/queries.php';
 
 $emprestimos = buscarTodosEmprestimosComCliente($conn);
 $ultimos_emprestimos = array_slice($emprestimos, 0, 5); // Pega apenas os 5 mais recentes
+$total_atrasado = calcularTotalParcelasAtrasadas($conn);
+$total_emprestimos_ativos = contarEmprestimosAtivos($conn);
 ?>
 
 <div class="container py-1">
     <h2 class="mb-4 text-uppercase">🚀 Painel Financeiro</h2>
-    <div class="row g-4 mb-5">
+
+    <!-- Área de Ações Rápidas Modernizada -->
+    <div class="row g-3 mb-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">Ações Rápidas</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <a href="emprestimos/novo.php" class="btn btn-lg btn-success w-100 d-flex align-items-center justify-content-center gap-2">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-muted">Ações Rápidas</h6>
+                        <div class="d-flex gap-2">
+                            <a href="emprestimos/novo.php" class="btn btn-sm btn-success d-flex align-items-center gap-2">
                                 <i class="bi bi-plus-circle-fill"></i>
-                                Novo Empréstimo
+                                <span class="d-none d-md-inline">Novo Empréstimo</span>
                             </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="clientes/novo.php" class="btn btn-lg btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                            <a href="clientes/novo.php" class="btn btn-sm btn-primary d-flex align-items-center gap-2">
                                 <i class="bi bi-person-plus-fill"></i>
-                                Novo Cliente
+                                <span class="d-none d-md-inline">Novo Cliente</span>
                             </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="relatorios/diario.php" class="btn btn-lg btn-info w-100 d-flex align-items-center justify-content-center gap-2 text-white">
+                            <a href="relatorios/diario.php" class="btn btn-sm btn-info text-white d-flex align-items-center gap-2">
                                 <i class="bi bi-graph-up"></i>
-                                Relatório Diário
+                                <span class="d-none d-md-inline">Relatório Diário</span>
                             </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="cobrancas/pendentes.php" class="btn btn-lg btn-warning w-100 d-flex align-items-center justify-content-center gap-2">
+                            <a href="cobrancas/pendentes.php" class="btn btn-sm btn-warning d-flex align-items-center gap-2">
                                 <i class="bi bi-bell-fill"></i>
-                                Cobranças Pendentes
+                                <span class="d-none d-md-inline">Cobranças</span>
                             </a>
                         </div>
                     </div>
@@ -47,25 +43,27 @@ $ultimos_emprestimos = array_slice($emprestimos, 0, 5); // Pega apenas os 5 mais
             </div>
         </div>
     </div>
+
+    <!-- Cards Informativos -->
     <div class="row">
         <div class="col-12 col-md-4 mb-3">
             <div class="cardBox bg-red icon-bg-bi" data-icon="bi-exclamation-triangle">
                 <span class="title">Parcelas atrasadas</span>
-                <span class="subtitle py-2">R$25.900,23</span>
+                <span class="subtitle py-2">R$ <?= number_format($total_atrasado, 2, ',', '.') ?></span>
             </div>
         </div>
 
         <div class="col-12 col-md-4 mb-3">
-            <div class="cardBox bg-green icon-bg-bi" data-icon="bi-cash-coin">
+            <div class="cardBox bg-dark icon-bg-bi" data-icon="bi-cash-coin">
                 <span class="title">Saldo Disponível</span>
                 <span class="subtitle py-2">R$25.900,23</span>
             </div>
         </div>
 
         <div class="col-12 col-md-4 mb-3">
-            <div class="cardBox bg-dark-sapphire icon-bg-bi" data-icon="bi-receipt">
+            <div class="cardBox bg-gray icon-bg-bi" data-icon="bi-receipt">
                 <span class="title">Emprestimos</span>
-                <span class="subtitle py-2">5 contratos</span>
+                <span class="subtitle py-2"><?= $total_emprestimos_ativos ?> contratos</span>
             </div>
         </div>
     </div>
@@ -164,8 +162,31 @@ $ultimos_emprestimos = array_slice($emprestimos, 0, 5); // Pega apenas os 5 mais
     
     /* Ajusta o tamanho dos botões */
     .btn-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-sm:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-sm i {
+        font-size: 1rem;
+    }
+
+    .gap-2 {
+        gap: 0.5rem;
+    }
+
+    .shadow-sm {
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+    }
+
+    .border-0 {
+        border: none;
     }
 
     /* Estilo para linhas clicáveis */

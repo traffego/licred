@@ -1,4 +1,5 @@
 :root {
+ 
   --bg-blue-dark: linear-gradient(to right, rgb(58 60 84), rgb(7 16 45));
   --border-blue-dark: 1px solid rgb(30 35 65);
 
@@ -14,9 +15,8 @@
   --bg-orange: linear-gradient(to right, rgb(255 200 100), rgb(180 80 0));
   --border-orange: 1px solid rgb(190 100 20);
 
---bg-green: linear-gradient(to right, rgb(80 130 80), rgb(30 70 30));
---border-green: 1px solid rgb(40 90 40);
-
+  --bg-green: linear-gradient(to right, rgb(80 130 80), rgb(30 70 30));
+  --border-green: 1px solid rgb(40 90 40);
 
   --bg-green-teal: linear-gradient(to right, rgb(64 224 208), rgb(0 80 80));
   --border-green-teal: 1px solid rgb(20 100 100);
@@ -30,9 +30,6 @@
   --bg-black-soft: linear-gradient(to right, rgb(50 50 50), rgb(10 10 10));
   --border-black-soft: 1px solid rgb(30 30 30);
 }
-
-
-
 
 .bg-blue-dark {
   background: var(--bg-blue-dark);
@@ -84,25 +81,22 @@
   border: var(--border-black-soft);
 }
 
-
-.icon-bg-bi {
-  position: relative;
-  overflow: hidden;
+/* Cards */
+.cardBox {
+  width: 100%;
+  /* background-color: rgb(7 16 45); */
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border-radius: 20px;
+  transition: 0.2s;
 }
 
-.icon-bg-bi .bi {
-      position: absolute;
-      bottom: -10px;
-      right: -10px;
-      font-size: 100px;
-      color: rgba(255, 255, 255, 0.06);
-      transform: rotate(-15deg);
-      pointer-events: none;
-      z-index: 0;
-    }
+.cardBox:hover {
+  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+}
 
-
-
+/* Tipografia */
 .titleinterno {
   font-weight: 800;
   text-transform: uppercase;
@@ -113,55 +107,44 @@
   letter-spacing: 1px;
   background: linear-gradient(45deg, #04051dea 0%, #2b566e 100%);
   border-radius: 12px;
-}/* From Uiverse.io by alexruix */ 
-/*Neo Brutalism pricing card*/
-
-
-
-/* From Uiverse.io by Yaya12085 */ 
-.cardBox {
-  width: 100%;
-  background-color: rgb(7 16 45);
-/*  background: linear-gradient(to top right, rgb(7 16 45), rgb(58 60 84));*/
-/*  background: -webkit-linear-gradient(to top right, rgb(7 16 45), rgb(58 60 84));*/
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  border-radius: 20px;
-/*  border: 1px solid rgb(84 90 106);*/
-}
-
-.small-text, .title,.desc {
-  font-weight: 600;
-}
-
-.title,.desc {
-  margin: 8px 0;
-}
-
-.small-text {
-  color: #ffff;
-  font-size: 16px;
 }
 
 .title {
-  color: #fff;
-  font-size: 26px;
-  line-height: 26px;
+  color: #fff !important;
+  font-size: 26px !important;
+  line-height: 26px !important;
+  margin-bottom: 0.5rem;
 }
-
 
 .subtitle {
-  color: #fff;
-    font-size: 21px;
-    line-height: 21px;
-    font-weight: 400;
+  color: #fff !important;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
+
 .desc {
   color: rgb(151 153 167);
   font-size: 13px;
 }
 
+/* Ícones */
+.icon-bg-bi {
+  position: relative;
+  overflow: hidden;
+}
+
+.icon-bg-bi .bi {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  font-size: 100px;
+  color: rgba(255, 255, 255, 0.06);
+  transform: rotate(-15deg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Botões */
 .buttons {
   display: flex;
   align-items: center;
@@ -189,20 +172,6 @@
   background-color: #fff;
 }
 
-.icon {
-  height: 25px;
-  width: 25px;
-}
-
-.icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-.icon svg:last-child {
-  fill: #000
-}
-
 .button-text {
   display: flex;
   flex-direction: column;
@@ -214,302 +183,199 @@
   font-weight: 600;
 }
 
-.google span:first-child {
-  color: rgb(219 206 253);
-}
-
-.apple span:first-child {
-  color: rgb(81 87 108);
-}
-
-.google span:last-child {
-  color: #fff;
-  font-weight: 800;
-}
-
-.apple span:last-child {
-  color: #000;
-  font-weight: 800;
-}
-
-
-    .card-custom {
-      position: relative;
-      color: #fff !important;
-      border-radius: 12px;
-      overflow: hidden;
-      min-width: 5%;
-      height: 150px;
-    }
-
-
-    .card-custom .icon-bg {
-      position: absolute;
-      right: 10px;
-      bottom: 10px;
-      font-size: 70px;
-      color: rgba(255, 255, 255, 0.1);
-    }
-
-
-
-
-
-
-
-    .tns-item {
-      padding-right: 10px;
-    }
-
-    .tns-nav {
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    .tns-nav button {
-      border: none;
-      background: #ccc;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin: 0 5px;
-      padding: 0;
-      opacity: 0.5;
-      transition: all 0.3s ease;
-    }
-
-    .tns-nav button.tns-nav-active {
-      background: #000;
-      opacity: 1;
-      transform: scale(1.3);
-    }
-
-    .shadow-left, .shadow-right {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 30px;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.shadow-left {
-  left: 0;
-  background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));
-}
-
-.shadow-right {
-  right: 0;
-  background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));
-}
-
-
-
-    .hm-70 {
-    	min-height: 70px !important;
-    }
-
-/*    BOTÃO LOGOUT*/
-
-/* From Uiverse.io by kennyotsu-monochromia */ 
-.Btn {
-  --black: #000000;
-  --ch-black: #141414;
-  --eer-black: #1b1b1b;
-  --night-rider: #2e2e2e;
-  --white: #ffffff;
-  --af-white: #f3f3f3;
-  --ch-white: #e1e1e1;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 45px;
-  height: 45px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+/* Cards personalizados */
+.card-custom {
   position: relative;
+  color: #fff !important;
+  border-radius: 12px;
   overflow: hidden;
-  transition-duration: .3s;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
-  background-color: var(--night-rider);
+  min-width: 5%;
+  height: 150px;
 }
 
-/* plus sign */
-.sign {
-  width: 100%;
-  transition-duration: .3s;
+.card-custom .icon-bg {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  font-size: 70px;
+  color: rgba(255, 255, 255, 0.1);
+}
+
+/* Tabelas */
+.table th, .table td {
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Badges */
+.badge {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Botões pequenos */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .cardBox {
+    padding: 15px;
+  }
+  
+  .title {
+    font-size: 22px;
+  }
+  
+  .subtitle {
+    font-size: 18px;
+  }
+}
+
+/* Navbar */
+.navbar {
+  min-height: 60px;
+  position: relative;
+}
+
+.navbar-brand {
+  padding: 0.5rem 0;
+}
+
+.navbar-brand img {
+  max-height: 40px;
+}
+
+.navbar-nav {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.8) !important;
+  padding: 0.5rem 1rem !important;
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-
-.sign svg {
-  width: 17px;
-}
-
-.sign svg path {
-  fill: var(--af-white);
-}
-/* text */
-.text {
-  position: absolute;
-  right: 0%;
-  width: 0%;
-  opacity: 0;
-  color: var(--af-white);
-  font-size: 1.2em;
-  font-weight: 600;
-  transition-duration: .3s;
-}
-/* hover effect on button width */
-.Btn:hover {
-  width: 125px;
-  border-radius: 5px;
-  transition-duration: .3s;
-}
-
-.Btn:hover .sign {
-  width: 30%;
-  transition-duration: .3s;
-  padding-left: 20px;
-}
-/* hover effect button's text */
-.Btn:hover .text {
-  opacity: 1;
-  width: 70%;
-  transition-duration: .3s;
-  padding-right: 10px;
-}
-/* button click effect*/
-.Btn:active {
-  transform: translate(2px ,2px);
-}
-
-
-/* checkbox das tabelas*/ 
-.cbx {
-  -webkit-perspective: 20;
-  perspective: 20;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -12px;
-  border: 2px solid #e8e8eb;
-  background: #e8e8eb;
-  border-radius: 4px;
-  transform: translate3d(0, 0, 0);
-  cursor: pointer;
+  gap: 0.5rem;
   transition: all 0.3s ease;
 }
 
-.cbx:hover {
-  border-color: #0b76ef;
+.nav-link:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
-.flip {
-  display: block;
-  transition: all 0.4s ease;
-  transform-style: preserve-3d;
-  position: relative;
-  width: 20px;
-  height: 20px;
+.nav-link.active {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
 }
 
-#cbx {
-  display: none;
+.nav-link i {
+  font-size: 1.1rem;
 }
 
-#cbx:checked + .cbx {
-  border-color: #0b76ef;
-}
-
-#cbx:checked + .flip {
-  transform: rotateY(180deg);
-}
-
-.front,
-.back {
-  backface-visibility: hidden;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 20px;
-  height: 20px;
-  border-radius: 2px;
-}
-
-.front {
-  background: #fff;
-  z-index: 1;
-}
-
-.back {
-  transform: rotateY(180deg);
-  background: #0b76ef;
-  text-align: center;
-  color: #fff;
-  line-height: 20px;
-  box-shadow: 0 0 0 1px #0b76ef;
-}
-
-.back svg {
-  margin-top: 3px;
-  fill: none;
-}
-
-.back svg path {
-  stroke: #fff;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* Estilo dos cards do visualizar.php */
-.cardBox {
+/* Menu Mobile */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-blue-dark) !important;
     padding: 1rem;
-    border-radius: 0.5rem;
-    color: white;
-    text-align: center;
-    transition: 0.2s;
+    max-height: 45vh;
+    overflow-y: auto;
+    z-index: 1040;
+    margin-top: 60px;
+  }
+
+  .navbar-collapse.show {
+    display: block !important;
+  }
+
+  .navbar-collapse .navbar-nav {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .navbar-collapse .nav-link {
+    padding: 0.75rem 1rem !important;
+    border-radius: 4px;
+    width: 100%;
+    text-align: left;
+  }
+
+  .navbar-collapse .dropdown-menu {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    margin: 0.5rem 0;
+    width: 100%;
+  }
+
+  .navbar-collapse .dropdown-item {
+    color: rgba(255, 255, 255, 0.8) !important;
+    padding: 0.5rem 1rem;
+  }
+
+  .navbar-collapse .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff !important;
+  }
+
+  .btn-close {
+    display: none !important;
+  }
+
+  .navbar-collapse.show ~ .btn-close {
+    display: block !important;
+  }
+
+  .navbar-collapse .dropdown {
+    width: 100%;
+  }
+
+  .navbar-collapse .dropdown-toggle::after {
+    display: none;
+  }
 }
 
-.cardBox:hover {
-    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+/* Dropdown simplificado */
+.dropdown-menu {
+  background: var(--bg-blue-dark);
+  border: var(--border-blue-dark);
+  padding: 0.5rem;
+  min-width: 200px;
 }
 
-.cardBox .title {
-    display: block;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+.dropdown-item {
+  color: #fff !important;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.cardBox .subtitle {
-    display: block;
-    font-size: 1.2rem;
-    font-weight: bold;
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.cardBox .bi {
-    font-size: 2rem;
-    display: block;
-    margin-bottom: 0.5rem;
+.dropdown-divider {
+  border-color: rgba(255, 255, 255, 0.1);
+  margin: 0.5rem 0;
 }
 
-/* Estilo das tabelas */
-.table th, .table td {
-    padding: 0.5rem;
-    font-size: 0.9rem;
-}
-
-.badge {
-    font-size: 0.8rem;
-    padding: 0.25rem 0.5rem;
-}
-
-.btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
+@media (max-width: 991px) {
+  .dropdown-menu {
+    background: transparent;
+    border: none;
+    padding-left: 2rem;
+  }
 }
 
 
