@@ -120,6 +120,92 @@
       }
     });
   </script>
+
+<!-- Footer -->
+ 
+<footer class="bg-blue-dark text-white mt-5 py-4">
+  <div class="container">
+    <div class="row g-4">
+      <!-- Coluna 1: Logo e Descrição -->
+      <div class="col-md-3 mb-3">
+        <a href="<?= BASE_URL ?>" class="mb-3 d-block">
+          <img id="logo-footer" src="<?= BASE_URL ?>assets/img/logo.png" alt="Logo" height="40">
+        </a>
+        <p class="small opacity-75">Sistema de gestão de empréstimos e controle financeiro desenvolvido para facilitar suas operações.</p>
+      </div>
+      
+      <!-- Coluna 2: Links Rápidos -->
+      <div class="col-md-3 mb-3">
+        <h5 class="fw-bold mb-3">Links Rápidos</h5>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a href="<?= BASE_URL ?>dashboard.php" class="text-white text-decoration-none"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+          <li class="mb-2"><a href="<?= BASE_URL ?>emprestimos/" class="text-white text-decoration-none"><i class="bi bi-cash-stack me-2"></i>Empréstimos</a></li>
+          <li class="mb-2"><a href="<?= BASE_URL ?>clientes/" class="text-white text-decoration-none"><i class="bi bi-people me-2"></i>Clientes</a></li>
+          <li class="mb-2"><a href="<?= BASE_URL ?>relatorios/diario.php" class="text-white text-decoration-none"><i class="bi bi-graph-up me-2"></i>Relatórios</a></li>
+        </ul>
+      </div>
+      
+      <!-- Coluna 3: Contato -->
+      <div class="col-md-3 mb-3">
+        <h5 class="fw-bold mb-3">Contato</h5>
+        <ul class="list-unstyled">
+          <li class="mb-2"><i class="bi bi-envelope me-2"></i>contato@empresa.com</li>
+          <li class="mb-2"><i class="bi bi-telephone me-2"></i>(00) 12345-6789</li>
+          <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>Rua Exemplo, 123</li>
+        </ul>
+      </div>
+      
+      <!-- Coluna 4: Redes Sociais -->
+      <div class="col-md-3 mb-3">
+        <h5 class="fw-bold mb-3">Siga-nos</h5>
+        <div class="d-flex gap-3 fs-4">
+          <a href="#" class="text-white"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="text-white"><i class="bi bi-instagram"></i></a>
+          <a href="#" class="text-white"><i class="bi bi-linkedin"></i></a>
+          <a href="#" class="text-white"><i class="bi bi-whatsapp"></i></a>
+        </div>
+      </div>
+    </div>
+    
+    <hr class="my-4 opacity-25">
+    
+    <!-- Copyright -->
+    <div class="row">
+      <div class="col-md-6">
+        <p class="mb-0 small">&copy; <?= date('Y') ?> Sistema de Empréstimos. Todos os direitos reservados.</p>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <p class="mb-0 small">Desenvolvido com <i class="bi bi-heart-fill text-danger"></i> por Sua Empresa</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Estilo do Footer -->
+<style>
+  .bg-blue-dark {
+    background-color: #0c3559;
+  }
+  
+  footer {
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  }
+  
+  footer a {
+    transition: opacity 0.2s ease;
+  }
+  
+  footer a:hover {
+    opacity: 0.8;
+  }
+  
+  footer .bi {
+    width: 1.25rem;
+    display: inline-block;
+  }
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>assets/js/functions.js"></script>
 </body>
 </html>

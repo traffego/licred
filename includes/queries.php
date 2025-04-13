@@ -132,3 +132,8 @@ function contarEmprestimosAtivos($conn) {
     $resultado = $stmt->fetch_assoc();
     return $resultado['total'] ?? 0;
 }
+
+function buscarTodosClientes(mysqli $conn): array {
+    $stmt = $conn->query("SELECT id, nome FROM clientes WHERE status = 'Ativo' ORDER BY nome ASC");
+    return $stmt->fetch_all(MYSQLI_ASSOC);
+}

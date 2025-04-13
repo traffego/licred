@@ -1,226 +1,252 @@
 <?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/head.php';
+require_once __DIR__ . '/../includes/queries.php';
 
-$cliente = null;
-$cliente_id = null;
-$clientes = [];
-
-if (isset($_POST['id']) && is_numeric($_POST['id'])) {
-    $cliente_id = (int) $_POST['id'];
-    $stmt = $conn->prepare("SELECT id, nome FROM clientes WHERE id = ?");
-    $stmt->bind_param("i", $cliente_id);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
-    $cliente = $resultado->fetch_assoc();
-    $stmt->close();
-} else {
-    $resultado = $conn->query("SELECT id, nome FROM clientes WHERE status = 'Ativo' ORDER BY nome ASC");
-    $clientes = $resultado->fetch_all(MYSQLI_ASSOC);
-}
+// Busca clientes para o select
+$clientes = buscarTodosClientes($conn);
 ?>
 
-<body>
 <div class="container py-4">
-  <h3 class="mb-4">Simular Empréstimo<?= $cliente ? ' para ' . htmlspecialchars($cliente['nome']) : '' ?></h3>
-
-  <form id="simuladorForm" method="POST" action="salvar.php">
-    <?php if ($cliente): ?>
-      <input type="hidden" name="cliente_id" value="<?= $cliente['id'] ?>">
-    <?php else: ?>
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Novo Empréstimo</h4>
+                </div>
+                <div class="card-body">
+                    <form id="formEmprestimo">
+                        <!-- Cliente -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="bi bi-person-fill"></i> Cliente
+                            </h5>
       <div class="mb-3">
-        <label class="form-label">Cliente</label>
-        <select name="cliente_id" class="form-select" required>
+                                <label for="cliente" class="form-label">Selecione o Cliente:</label>
+                                <select class="form-select" id="cliente" name="cliente" required>
           <option value="">Selecione um cliente</option>
-          <?php foreach ($clientes as $c): ?>
-            <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['nome']) ?></option>
+                                    <?php foreach ($clientes as $cliente): ?>
+                                        <option value="<?= $cliente['id'] ?>"><?= htmlspecialchars($cliente['nome']) ?></option>
           <?php endforeach; ?>
         </select>
       </div>
-    <?php endif; ?>
+                        </div>
 
+                        <!-- Configurações -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="bi bi-gear-fill"></i> Configurações
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="tipo_cobranca" class="form-label">Tipo de Cobrança:</label>
+                                        <select class="form-select" id="tipo_cobranca" name="tipo_cobranca" required>
+                                            <option value="">Selecione</option>
+                                            <option value="parcelada_comum">Parcelada Comum</option>
+                                            <option value="reparcelada_com_juros">Reparcelada com Juros</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
     <div class="mb-3">
-      <label class="form-label">Tipo de Empréstimo</label>
-      <select id="tipoEmprestimo" name="tipo" class="form-select">
-        <option value="gota">Gota a Gota</option>
-        <option value="quitacao">Com Quitação</option>
+                                        <label for="usar_tlc" class="form-label">Taxa de Liberação de Crédito (TLC):</label>
+                                        <select class="form-select" id="usar_tlc" name="usar_tlc" required>
+                                            <option value="0">Não</option>
+                                            <option value="1">Sim</option>
       </select>
     </div>
-
+                                </div>
+                                <div class="col-md-6" id="tlc_valor_container" style="display: none;">
     <div class="mb-3">
-      <label class="form-label">Valor Emprestado (R$)</label>
-      <input type="number" id="valorEmprestado" name="valor_emprestado" min="0" step="0.01" class="form-control">
+                                        <label for="tlc_valor" class="form-label">Valor da TLC (R$):</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                            <input type="text" class="form-control" id="tlc_valor" name="tlc_valor">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
     </div>
 
-    <div id="gotaGroup">
+                        <!-- Valores -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="bi bi-cash"></i> Valores
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="capital" class="form-label">Capital (R$):</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-cash"></i></span>
+                                            <input type="text" class="form-control" id="capital" name="capital" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="parcelas" class="form-label">Número de Parcelas:</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-123"></i></span>
+                                            <input type="number" class="form-control" id="parcelas" name="parcelas" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="modo_calculo" class="form-label">Modo de Cálculo:</label>
+                                        <select class="form-select" id="modo_calculo" name="modo_calculo" required>
+                                            <option value="">Selecione</option>
+                                            <option value="parcela">Informar Valor da Parcela</option>
+                                            <option value="taxa">Informar Taxa de Juros</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6" id="taxa_juros_container">
+                                    <div class="mb-3">
+                                        <label for="juros" class="form-label">Taxa de Juros (%):</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-percent"></i></span>
+                                            <input type="text" class="form-control" id="juros" name="juros" step="0.01" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6" id="valor_parcela_container" style="display: none;">
       <div class="mb-3">
-        <label class="form-label">Prazo (em dias)</label>
-        <input type="number" id="prazoDias" name="prazo_dias" min="1" class="form-control">
+                                        <label for="valor_parcela" class="form-label">Valor da Parcela (R$):</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                            <input type="text" class="form-control" id="valor_parcela" name="valor_parcela" step="0.01">
+                                            <button type="button" class="btn btn-outline-secondary" id="btn_arredondar" title="Arredondar para o próximo valor inteiro">
+                                                <i class="bi bi-arrow-up-circle"></i> Arredondar
+                                            </button>
+                                        </div>
+                                    </div>
       </div>
-
+                                <div class="col-md-6">
       <div class="mb-3">
-        <label class="form-label">Valor da Parcela Diária (R$)</label>
-        <input type="number" id="valorParcela" name="valor_parcela" min="0" step="0.01" class="form-control">
+                                        <label for="periodo_pagamento" class="form-label">Período de Pagamento:</label>
+                                        <select class="form-select" id="periodo_pagamento" name="periodo_pagamento" required>
+                                            <option value="">Selecione</option>
+                                            <option value="diario">Diário</option>
+                                            <option value="semanal">Semanal</option>
+                                            <option value="quinzenal">Quinzenal</option>
+                                            <option value="trimestral">Trimestral</option>
+                                            <option value="mensal">Mensal</option>
+                                        </select>
+                                    </div>
+                                </div>
+      </div>
+      
+      <!-- Resumo do Cálculo -->
+      <div class="row mt-3" id="resumo_calculo_container" style="display: none;">
+        <div class="col-12">
+          <div class="alert alert-info mb-3">
+            <h6 class="alert-heading"><i class="bi bi-info-circle"></i> Resumo do Cálculo</h6>
+            <div id="resumo_calculo"></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div id="quitacaoGroup" class="d-none">
+                        <!-- Data e Dias -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="bi bi-calendar-event"></i> Data e Dias
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="data" class="form-label">Data Inicial:</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
+                                            <input type="date" class="form-control" id="data" name="data" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
       <div class="mb-3">
-        <label class="form-label">Taxa de Juros Mensal (%)</label>
-        <input type="number" id="taxaMensal" name="juros_percentual" min="0" step="0.01" value="30" class="form-control">
+                                        <label class="form-label">Dias para Não Gerar Parcelas:</label>
+                                        <div class="d-flex gap-2 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selecionarTodosDias()">
+                                                <i class="bi bi-check-all"></i> Todos
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="limparSelecaoDias()">
+                                                <i class="bi bi-x-lg"></i> Limpar
+                                            </button>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6 col-md-4">
+                                                <div class="form-check">
+                                                    <input type="checkbox" id="domingo" class="form-check-input" value="0" name="dias_semana[]">
+                                                    <label for="domingo" class="form-check-label">Domingo</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4">
+                                                <div class="form-check">
+                                                    <input type="checkbox" id="segunda" class="form-check-input" value="1" name="dias_semana[]">
+                                                    <label for="segunda" class="form-check-label">Segunda</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4">
+                                                <div class="form-check">
+                                                    <input type="checkbox" id="terca" class="form-check-input" value="2" name="dias_semana[]">
+                                                    <label for="terca" class="form-check-label">Terça</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4">
+                                                <div class="form-check">
+                                                    <input type="checkbox" id="quarta" class="form-check-input" value="3" name="dias_semana[]">
+                                                    <label for="quarta" class="form-check-label">Quarta</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4">
+                                                <div class="form-check">
+                                                    <input type="checkbox" id="quinta" class="form-check-input" value="4" name="dias_semana[]">
+                                                    <label for="quinta" class="form-check-label">Quinta</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4">
+                                                <div class="form-check">
+                                                    <input type="checkbox" id="sexta" class="form-check-input" value="5" name="dias_semana[]">
+                                                    <label for="sexta" class="form-check-label">Sexta</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4">
+                                                <div class="form-check">
+                                                    <input type="checkbox" id="sabado" class="form-check-input" value="6" name="dias_semana[]">
+                                                    <label for="sabado" class="form-check-label">Sábado</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4">
+                                                <div class="form-check">
+                                                    <input type="checkbox" id="feriados" class="form-check-input" value="feriados" name="dias_semana[]">
+                                                    <label for="feriados" class="form-check-label">Feriados</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
       </div>
     </div>
 
-    <input type="hidden" name="json_parcelas" id="json_parcelas">
-
-    <div class="mt-4">
-      <button type="submit" id="liberarBtn" class="btn btn-primary" disabled>🔓 Liberar Empréstimo</button>
+                        <!-- Botões -->
+                        <div class="text-end">
+                            <button type="button" class="btn btn-primary" onclick="calcularEmprestimo()">
+                                <i class="bi bi-calculator"></i> Simular
+                            </button>
+                            <button type="button" class="btn btn-success" id="btnGerar" style="display:none">
+                                <i class="bi bi-check-circle"></i> Gerar Empréstimo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-  </form>
-
-  <div id="resultado"></div>
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const tipoEmprestimo = document.getElementById("tipoEmprestimo");
-  const valorEmprestadoInput = document.getElementById("valorEmprestado");
-  const prazoDiasInput = document.getElementById("prazoDias");
-  const valorParcelaInput = document.getElementById("valorParcela");
-  const taxaMensalInput = document.getElementById("taxaMensal");
-  const resultado = document.getElementById("resultado");
-  const gotaGroup = document.getElementById("gotaGroup");
-  const quitacaoGroup = document.getElementById("quitacaoGroup");
-  const liberarBtn = document.getElementById("liberarBtn");
-
-  let preenchendoAutomaticamente = false;
-  let parcelasJson = [];
-
-  function calcularParcela() {
-    const valorEmprestado = parseFloat(valorEmprestadoInput.value);
-    const prazo = parseInt(prazoDiasInput.value);
-    if (!isNaN(valorEmprestado) && !isNaN(prazo) && prazo > 0) {
-      const parcelaSugerida = valorEmprestado * (1 + (prazo / 100)) / prazo;
-      preenchendoAutomaticamente = true;
-      valorParcelaInput.value = parcelaSugerida.toFixed(2);
-      preenchendoAutomaticamente = false;
-      atualizarSimulacao();
-    }
-  }
-
-  function atualizarSimulacao() {
-    const tipo = tipoEmprestimo.value;
-    const valorEmprestado = parseFloat(valorEmprestadoInput.value);
-
-    if (isNaN(valorEmprestado) || valorEmprestado <= 0) {
-      resultado.innerHTML = "";
-      return;
-    }
-
-    if (tipo === "gota") {
-      const prazo = parseInt(prazoDiasInput.value);
-      const valorParcela = parseFloat(valorParcelaInput.value);
-      if (isNaN(prazo) || prazo <= 0 || isNaN(valorParcela)) {
-        resultado.innerHTML = "";
-        return;
-      }
-      const totalComJuros = valorParcela * prazo;
-      const jurosTotal = totalComJuros - valorEmprestado;
-      const jurosPercentual = (jurosTotal / valorEmprestado) * 100;
-
-      parcelasJson = [];
-      let parcelasTable = `<table class="table table-bordered mt-3"><thead><tr><th>Parcela</th><th>Data</th><th>Valor (R$)</th></tr></thead><tbody>`;
-      const hoje = new Date();
-      for (let i = 0; i < prazo; i++) {
-        const data = new Date(hoje);
-        data.setDate(data.getDate() + i);
-        const dataFormatada = data.toLocaleDateString('pt-BR');
-        parcelasJson.push({ parcela: i + 1, data: dataFormatada, valor: valorParcela.toFixed(2) });
-        parcelasTable += `<tr><td>${i + 1}</td><td>${dataFormatada}</td><td>${valorParcela.toFixed(2)}</td></tr>`;
-      }
-      parcelasTable += `</tbody></table>`;
-
-      resultado.innerHTML = `
-        <h4>Resultado - Gota a Gota</h4>
-        <p><strong>Total a receber:</strong> R$ ${totalComJuros.toFixed(2)}</p>
-        <p><strong>Juros estimado:</strong> ${jurosPercentual.toFixed(2)}%</p>
-        ${parcelasTable}
-      `;
-
-      document.getElementById("json_parcelas").value = JSON.stringify(parcelasJson);
-    }
-
-    if (tipo === "quitacao") {
-      const taxaMensal = parseFloat(taxaMensalInput.value) / 100;
-      if (isNaN(taxaMensal)) {
-        resultado.innerHTML = "";
-        return;
-      }
-      const jurosMensal = valorEmprestado * taxaMensal;
-      resultado.innerHTML = `
-        <h4>Resultado - Com Quitação</h4>
-        <p><strong>Juros Mensal:</strong> R$ ${jurosMensal.toFixed(2)}</p>
-        <p>O cliente deve pagar os juros mensais de R$ ${jurosMensal.toFixed(2)} enquanto a dívida não for quitada. Para quitar, ele deve pagar o valor original de R$ ${valorEmprestado.toFixed(2)} mais os juros acumulados até o momento do pagamento.</p>
-      `;
-    }
-
-    liberarBtn.disabled = !validarFormulario();
-  }
-
-  function validarFormulario() {
-    const tipo = tipoEmprestimo.value;
-    const valor = parseFloat(valorEmprestadoInput.value);
-
-    if (isNaN(valor) || valor <= 0) return false;
-
-    if (tipo === "gota") {
-      const prazo = parseInt(prazoDiasInput.value);
-      const parcela = parseFloat(valorParcelaInput.value);
-      return !isNaN(prazo) && prazo > 0 && !isNaN(parcela) && parcela > 0;
-    }
-
-    if (tipo === "quitacao") {
-      const taxa = parseFloat(taxaMensalInput.value);
-      return !isNaN(taxa) && taxa > 0;
-    }
-
-    return false;
-  }
-
-  tipoEmprestimo.addEventListener("change", () => {
-    if (tipoEmprestimo.value === "gota") {
-      gotaGroup.classList.remove("d-none");
-      quitacaoGroup.classList.add("d-none");
-      calcularParcela();
-    } else {
-      gotaGroup.classList.add("d-none");
-      quitacaoGroup.classList.remove("d-none");
-      atualizarSimulacao();
-    }
-  });
-
-  valorEmprestadoInput.addEventListener("input", () => {
-    if (tipoEmprestimo.value === "gota") {
-      calcularParcela();
-    } else {
-      atualizarSimulacao();
-    }
-  });
-
-  prazoDiasInput.addEventListener("input", () => {
-    if (tipoEmprestimo.value === "gota") calcularParcela();
-  });
-
-  valorParcelaInput.addEventListener("input", () => {
-    if (!preenchendoAutomaticamente && tipoEmprestimo.value === "gota") atualizarSimulacao();
-  });
-
-  taxaMensalInput.addEventListener("input", () => {
-    if (tipoEmprestimo.value === "quitacao") atualizarSimulacao();
-  });
-
-  calcularParcela();
-});
-</script>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
 </body>
 </html>
