@@ -5,124 +5,276 @@ require_once __DIR__ . '/../includes/head.php';
 require_once __DIR__ . '/../includes/queries.php';
 
 $emprestimos = buscarTodosEmprestimosComCliente($conn);
+
+// Calcula totais para os cards
+$total_emprestado = 0;
+$total_recebido = 0;
+$total_pendente = 0;
+$emprestimos_ativos = 0;
+$emprestimos_atrasados = 0;
+
+foreach ($emprestimos as $e) {
+    $total_emprestado += $e['valor_emprestado'];
+    $total_recebido += $e['total_pago'];
+    $emprestimos_ativos += ($e['status'] === 'ativo') ? 1 : 0;
+    $emprestimos_atrasados += ($e['status'] === 'atrasado') ? 1 : 0;
+}
+$total_pendente = $total_emprestado - $total_recebido;
+
+// Busca o empréstimo recém criado se houver
+$emprestimo_novo = null;
+if (isset($_GET['sucesso']) && isset($_GET['id'])) {
+    $emprestimo_novo = buscarEmprestimoPorId($conn, $_GET['id']);
+}
 ?>
 
 <div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0">Empréstimos</h3>
-    <a href="novo.php" class="btn btn-primary">+ Novo Empréstimo</a>
-  </div>
+    <?php if (isset($_GET['sucesso'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading"><i class="bi bi-check-circle-fill"></i> Sucesso!</h4>
+            <p class="mb-0"><?= htmlspecialchars($_GET['msg'] ?? 'Operação realizada com sucesso!') ?></p>
+            <?php if ($emprestimo_novo): ?>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Resumo do Empréstimo:</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>Cliente:</strong> <?= htmlspecialchars($emprestimo_novo['cliente_nome']) ?></li>
+                            <li><strong>Valor:</strong> R$ <?= number_format($emprestimo_novo['valor_emprestado'], 2, ',', '.') ?></li>
+                            <li><strong>Parcelas:</strong> <?= $emprestimo_novo['parcelas'] ?>x de R$ <?= number_format($emprestimo_novo['valor_parcela'], 2, ',', '.') ?></li>
+                            <?php if ($emprestimo_novo['juros_percentual'] > 0): ?>
+                                <li><strong>Juros:</strong> <?= number_format($emprestimo_novo['juros_percentual'], 2, ',', '.') ?>%</li>
+                            <?php endif; ?>
+                            <li><strong>Início:</strong> <?= date('d/m/Y', strtotime($emprestimo_novo['data_inicio'])) ?></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="visualizar.php?id=<?= $emprestimo_novo['id'] ?>" class="btn btn-primary">
+                            <i class="bi bi-eye"></i> Ver Detalhes
+                        </a>
+                        <a href="novo.php" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Novo Empréstimo
+                        </a>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+    <?php endif; ?>
 
-  <div class="row g-2 mb-3">
-    <div class="col-md-4">
-      <input type="text" id="filtro-cliente" class="form-control" placeholder="Filtrar por cliente">
+    <?php if (isset($_GET['erro'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> Erro!</h4>
+            <p class="mb-0"><?= htmlspecialchars($_GET['msg'] ?? 'Ocorreu um erro na operação.') ?></p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+  </div>
+    <?php endif; ?>
+
+    <!-- Cards de Resumo -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-md-4">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title">Total Emprestado</h6>
+                    <h4 class="mb-0">R$ <?= number_format($total_emprestado, 2, ',', '.') ?></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title">Total Recebido</h6>
+                    <h4 class="mb-0">R$ <?= number_format($total_recebido, 2, ',', '.') ?></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <h6 class="card-title">Total Pendente</h6>
+                    <h4 class="mb-0">R$ <?= number_format($total_pendente, 2, ',', '.') ?></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title">Empréstimos</h6>
+                    <h4 class="mb-0"><?= count($emprestimos) ?></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card bg-primary bg-opacity-75 text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title">Ativos</h6>
+                    <h4 class="mb-0"><?= $emprestimos_ativos ?></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title">Atrasados</h6>
+                    <h4 class="mb-0"><?= $emprestimos_atrasados ?></h4>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-md-3">
-      <select id="filtro-tipo" class="form-select">
+
+    <!-- Cabeçalho com Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">Empréstimos</h5>
+                        <a href="novo.php" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle"></i> Novo
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="row g-2">
+                        <div class="col-sm-6 col-md-5">
+                            <input type="text" id="filtro-cliente" class="form-control form-control-sm" placeholder="Buscar por cliente...">
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <select id="filtro-tipo" class="form-select form-select-sm">
         <option value="">Todos os tipos</option>
-        <option value="Gota a Gota">Dia a Dia</option>
-        <option value="Quitacao">Quitacao</option>
+                                <option value="parcelada_comum">Parcelada Comum</option>
+                                <option value="reparcelada_com_juros">Reparcelada com Juros</option>
       </select>
     </div>
-    <div class="col-md-3">
-      <select id="filtro-status" class="form-select">
-        <option value="">Todos os status</option>
-        <option value="Ativo">Ativo</option>
-        <option value="Atrasado">Atrasado</option>
-        <option value="Quitado">Quitado</option>
+                        <div class="col-sm-6 col-md-2">
+                            <select id="filtro-status" class="form-select form-select-sm">
+                                <option value="">Status</option>
+                                <option value="ativo">Ativo</option>
+                                <option value="atrasado">Atrasado</option>
+                                <option value="quitado">Quitado</option>
       </select>
     </div>
-  </div>
-
-  <div class="mb-2 text-end">
-    <label class="form-label me-2">Mostrar:</label>
-    <select id="linhasPorPagina" class="form-select d-inline-block w-auto">
+                        <div class="col-sm-6 col-md-2">
+                            <select id="linhasPorPagina" class="form-select form-select-sm">
       <option value="10">10</option>
       <option value="25">25</option>
       <option value="50">50</option>
       <option value="-1">Todos</option>
     </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
   </div>
 
+    <!-- Tabela de Empréstimos (Desktop) e Cards (Mobile) -->
+    <div class="card">
+        <!-- Tabela para Desktop -->
+        <div class="d-none d-md-block">
   <div class="table-responsive">
-    <table class="table table-bordered table-hover" id="tabela-emprestimos">
+                <table class="table table-hover align-middle mb-0" id="tabela-emprestimos">
       <thead class="table-light">
         <tr>
-          <th class="text-center"><input type="checkbox" id="check-todos"></th>
-          <th>Cliente</th>
-          <th>Tipo</th>
-          <th>Valor (Lucro)</th>
-          <th>Status</th>
-          <th>Prazo</th>
-          <th>Ações</th>
+                            <th style="width: 25%">Cliente</th>
+                            <th style="width: 15%">Tipo</th>
+                            <th style="width: 15%">Valor</th>
+                            <th style="width: 15%">Parcelas</th>
+                            <th style="width: 15%">Progresso</th>
+                            <th style="width: 8%">Status</th>
+                            <th style="width: 7%" class="text-end">Ações</th>
         </tr>
       </thead>
       <tbody>
-        <?php foreach ($emprestimos as $e): ?>
-          <tr class=" align-middle hm-70">
-            <td class="text-center">
-              
-              <input type="checkbox" class="check-item" value="<?= $e['id'] ?>">
-            </td>
-            <td class="col-cliente text-left align-middle"><?= htmlspecialchars($e['cliente_nome']) ?></td>
-            <td class="col-tipo text-center align-middle">
-              <?php
-                $tipos = ['gota' => 'Dia a Dia', 'quitacao' => 'Quitação'];
-                echo $tipos[$e['tipo'] ?? ''];
-              ?>
-            </td>
-            <td>R$ <?= number_format($e['valor_emprestado'], 2, ',', '.') ?><br><small class="text-muted">Total pago: R$ <?= number_format($e['total_pago'], 2, ',', '.') ?></small></td>
-            <td class="col-status col d-flex justify-content-center align-items-center hm-70">
-              <?php
-                $statusTexto = '';
-                $statusClasse = '';
-
-                switch (strtolower($e['status'])) {
-                  case 'ativo':
-                    $statusTexto = 'Ativo';
-                    $statusClasse = 'text-primary bg-light border border-primary text-center align-middle';
-                    break;
-                  case 'atrasado':
-                    $statusTexto = 'Atrasado';
-                    $statusClasse = 'text-danger bg-light border border-danger text-center align-middle';
-                    break;
-                  case 'quitado':
-                  case 'finalizado':
-                    $statusTexto = 'Quitado';
-                    $statusClasse = 'text-success bg-light border border-success text-center align-middle';
-                    break;
-                  default:
-                    $statusTexto = ucfirst($e['status']);
-                    $statusClasse = 'text-secondary bg-light border text-center align-middle';
-                }
-              ?>
-              <span class="badge rounded-pill fw-semibold <?= $statusClasse ?>">
-                <?= $statusTexto ?>
-              </span>
-            </td>
-            <td><?= $e['parcelas_pagas'] ?>/<?= $e['total_parcelas'] ?></td>
-            <td>
-              <div class="dropdown">
-                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  Ações
+                        <?php foreach ($emprestimos as $e): 
+                            // Calcula o progresso
+                            $parcelas = json_decode($e['json_parcelas'], true);
+                            $total_parcelas = count($parcelas);
+                            $pagas = 0;
+                            $valor_total_pago = 0;
+                            foreach ($parcelas as $p) {
+                                if ($p['status'] === 'pago') {
+                                    $pagas++;
+                                    $valor_total_pago += $p['valor'];
+                                } elseif ($p['status'] === 'parcial') {
+                                    $valor_total_pago += $p['valor_pago'] ?? 0;
+                                }
+                            }
+                            $progresso = ($total_parcelas > 0) ? ($pagas / $total_parcelas) * 100 : 0;
+                            
+                            // Define as classes de status
+                            $status_class = match($e['status']) {
+                                'ativo' => 'text-bg-primary',
+                                'atrasado' => 'text-bg-danger',
+                                'quitado' => 'text-bg-success',
+                                default => 'text-bg-secondary'
+                            };
+                        ?>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div>
+                                            <div class="fw-bold"><?= htmlspecialchars($e['cliente_nome']) ?></div>
+                                            <small class="text-muted">
+                                                Início: <?= date('d/m/Y', strtotime($e['data_inicio'])) ?>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge text-bg-info">
+                                        <?= ucfirst(str_replace('_', ' ', $e['tipo_de_cobranca'])) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">R$ <?= number_format($e['valor_emprestado'], 2, ',', '.') ?></div>
+                                    <?php if ($e['juros_percentual'] > 0): ?>
+                                        <small class="text-muted">
+                                            <?= $e['juros_percentual'] ?>% juros
+                                        </small>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <div class="fw-bold"><?= $e['parcelas'] ?>x R$ <?= number_format($e['valor_parcela'], 2, ',', '.') ?></div>
+                                    <small class="text-muted">
+                                        <?= $pagas ?> pagas (R$ <?= number_format($valor_total_pago, 2, ',', '.') ?>)
+                                    </small>
+                                </td>
+                                <td style="width: 150px;">
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: <?= $progresso ?>%"
+                                             aria-valuenow="<?= $progresso ?>" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted"><?= number_format($progresso, 1) ?>%</small>
+                                </td>
+                                <td>
+                                    <span class="badge <?= $status_class ?>">
+                                        <?= ucfirst($e['status']) ?>
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <a href="visualizar.php?id=<?= $e['id'] ?>" 
+                                           class="btn btn-sm btn-outline-primary" 
+                                           title="Ver Detalhes">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-success" 
+                                                title="Registrar Pagamento"
+                                                onclick="window.location.href='visualizar.php?id=<?= $e['id'] ?>#pagamento'">
+                                            <i class="bi bi-cash-coin"></i>
+                                        </button>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-info" 
+                                                title="Enviar Cobrança"
+                                                onclick="enviarCobranca(<?= $e['id'] ?>)">
+                                            <i class="bi bi-whatsapp"></i>
                 </button>
-                <ul class="dropdown-menu">
-                  <li>
-                    <form action="visualizar.php" method="POST" style="display:inline;">
-                      <input type="hidden" name="id" value="<?= $e['id'] ?>">
-                      <button type="submit" class="dropdown-item">🕵️ Detalhes</button>
-                    </form>
-                  </li>
-                  <li>
-                    <form action="editar.php" method="POST" style="display:inline;">
-                      <input type="hidden" name="id" value="<?= $e['id'] ?>">
-                      <button type="submit" class="dropdown-item">✏️ Editar</button>
-                    </form>
-                  </li>
-                  <li>
-                    <button class="dropdown-item btn-excluir" data-id="<?= $e['id'] ?>">❌ Excluir</button>
-                  </li>
-                </ul>
               </div>
             </td>
           </tr>
@@ -131,5 +283,143 @@ $emprestimos = buscarTodosEmprestimosComCliente($conn);
     </table>
   </div>
 </div>
-<!-- Resto do JS permanece inalterado -->
+
+        <!-- Cards para Mobile -->
+        <div class="d-md-none">
+            <div class="list-group list-group-flush">
+                <?php foreach ($emprestimos as $e): 
+                    // Calcula o progresso
+                    $parcelas = json_decode($e['json_parcelas'], true);
+                    $total_parcelas = count($parcelas);
+                    $pagas = 0;
+                    $valor_total_pago = 0;
+                    foreach ($parcelas as $p) {
+                        if ($p['status'] === 'pago') {
+                            $pagas++;
+                            $valor_total_pago += $p['valor'];
+                        } elseif ($p['status'] === 'parcial') {
+                            $valor_total_pago += $p['valor_pago'] ?? 0;
+                        }
+                    }
+                    $progresso = ($total_parcelas > 0) ? ($pagas / $total_parcelas) * 100 : 0;
+                    
+                    // Define as classes de status
+                    $status_class = match($e['status']) {
+                        'ativo' => 'text-bg-primary',
+                        'atrasado' => 'text-bg-danger',
+                        'quitado' => 'text-bg-success',
+                        default => 'text-bg-secondary'
+                    };
+                ?>
+                    <div class="list-group-item p-3 mb-3 border rounded shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0 fw-bold"><?= htmlspecialchars($e['cliente_nome']) ?></h6>
+                            <span class="badge <?= $status_class ?>">
+                                <?= ucfirst($e['status']) ?>
+                            </span>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small class="text-muted d-block">
+                                Início: <?= date('d/m/Y', strtotime($e['data_inicio'])) ?>
+                            </small>
+                            <span class="badge text-bg-info">
+                                <?= ucfirst(str_replace('_', ' ', $e['tipo_de_cobranca'])) ?>
+                            </span>
+                        </div>
+
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Valor</small>
+                                <strong>R$ <?= number_format($e['valor_emprestado'], 2, ',', '.') ?></strong>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Parcelas</small>
+                                <strong><?= $e['parcelas'] ?>x R$ <?= number_format($e['valor_parcela'], 2, ',', '.') ?></strong>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: <?= $progresso ?>%"
+                                     aria-valuenow="<?= $progresso ?>" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <small class="text-muted"><?= $pagas ?> de <?= $total_parcelas ?> parcelas (<?= number_format($progresso, 1) ?>%)</small>
+                        </div>
+
+                        <div class="btn-group w-100">
+                            <a href="visualizar.php?id=<?= $e['id'] ?>" 
+                               class="btn btn-sm btn-outline-primary" 
+                               title="Ver Detalhes">
+                                <i class="bi bi-eye"></i> Detalhes
+                            </a>
+                            <a href="visualizar.php?id=<?= $e['id'] ?>#pagamento" 
+                               class="btn btn-sm btn-outline-success" 
+                               title="Registrar Pagamento">
+                                <i class="bi bi-cash-coin"></i> Pagar
+                            </a>
+                            <button type="button" 
+                                    class="btn btn-sm btn-outline-info" 
+                                    title="Enviar Cobrança"
+                                    onclick="enviarCobranca(<?= $e['id'] ?>)">
+                                <i class="bi bi-whatsapp"></i>
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <!-- Adiciona padding no final para o último card não ficar colado no fim da página -->
+            <div class="pb-3"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Inicialização do DataTable com configurações otimizadas (apenas para desktop)
+$(document).ready(function() {
+    if (window.innerWidth >= 768) {  // Só inicializa em desktop
+        const table = $('#tabela-emprestimos').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+            },
+            pageLength: 10,
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
+            order: [[5, 'desc']], // Ordena por status
+            responsive: true,
+            stateSave: true
+        });
+
+        // Filtro de cliente
+        $('#filtro-cliente').on('keyup', function() {
+            table.column(0).search(this.value).draw();
+        });
+
+        // Filtro de tipo
+        $('#filtro-tipo').on('change', function() {
+            table.column(1).search(this.value).draw();
+        });
+
+        // Filtro de status
+        $('#filtro-status').on('change', function() {
+            table.column(5).search(this.value).draw();
+        });
+
+        // Linhas por página
+        $('#linhasPorPagina').on('change', function() {
+            table.page.len(this.value).draw();
+        });
+    }
+});
+
+// Função para enviar cobrança via WhatsApp
+function enviarCobranca(id) {
+    // Implementar lógica de envio de cobrança
+    alert('Função de envio de cobrança será implementada em breve!');
+}
+</script>
+
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

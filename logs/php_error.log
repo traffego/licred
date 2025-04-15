@@ -29,3 +29,109 @@
 [11-Apr-2025 16:56:18 Europe/Berlin] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1\login.php on line 30
 [11-Apr-2025 17:02:57 Europe/Berlin] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1\login.php on line 30
 [13-Apr-2025 03:52:57 Europe/Berlin] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1\login.php on line 30
+[13-Apr-2025 05:57:52 Europe/Berlin] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1\login.php on line 30
+[13-Apr-2025 06:32:23 Europe/Berlin] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1\login.php on line 30
+[13-Apr-2025 06:39:01 Europe/Berlin] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1\login.php on line 30
+[13-Apr-2025 07:06:05 Europe/Berlin] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1\login.php on line 30
+[14-Apr-2025 14:16:54 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1\login.php on line 30
+[14-Apr-2025 17:53:55 America/Sao_Paulo] Dados recebidos:
+[14-Apr-2025 17:53:55 America/Sao_Paulo] emprestimo_id: 8
+[14-Apr-2025 17:53:55 America/Sao_Paulo] parcela_numero: 2
+[14-Apr-2025 17:53:55 America/Sao_Paulo] valor_pago: 11
+[14-Apr-2025 17:53:55 America/Sao_Paulo] data_pagamento: 2025-04-14
+[14-Apr-2025 17:53:55 America/Sao_Paulo] forma_pagamento: pix
+[14-Apr-2025 17:53:55 America/Sao_Paulo] Parcela atual:
+[14-Apr-2025 17:53:55 America/Sao_Paulo] Array
+(
+    [numero] => 2
+    [valor] => 13.00
+    [vencimento] => 2025-04-16
+    [status] => pendente
+)
+
+[14-Apr-2025 17:53:55 America/Sao_Paulo] Valor restante: 13
+[14-Apr-2025 17:53:55 America/Sao_Paulo] Pagamento parcial detectado
+[14-Apr-2025 18:04:04 America/Sao_Paulo] Dados recebidos:
+[14-Apr-2025 18:04:04 America/Sao_Paulo] emprestimo_id: 8
+[14-Apr-2025 18:04:04 America/Sao_Paulo] parcela_numero: 2
+[14-Apr-2025 18:04:04 America/Sao_Paulo] valor_pago: 2
+[14-Apr-2025 18:04:04 America/Sao_Paulo] data_pagamento: 2025-04-14
+[14-Apr-2025 18:04:04 America/Sao_Paulo] forma_pagamento: 
+[14-Apr-2025 18:04:16 America/Sao_Paulo] Dados recebidos:
+[14-Apr-2025 18:04:16 America/Sao_Paulo] emprestimo_id: 8
+[14-Apr-2025 18:04:16 America/Sao_Paulo] parcela_numero: 3
+[14-Apr-2025 18:04:16 America/Sao_Paulo] valor_pago: 13
+[14-Apr-2025 18:04:16 America/Sao_Paulo] data_pagamento: 2025-04-14
+[14-Apr-2025 18:04:16 America/Sao_Paulo] forma_pagamento: pix
+[14-Apr-2025 18:04:16 America/Sao_Paulo] Parcela atual:
+[14-Apr-2025 18:04:16 America/Sao_Paulo] Array
+(
+    [numero] => 3
+    [valor] => 13.00
+    [vencimento] => 2025-04-17
+    [status] => pendente
+)
+
+[14-Apr-2025 18:04:16 America/Sao_Paulo] Valor restante: 13
+[14-Apr-2025 18:04:16 America/Sao_Paulo] Valor pago: 13
+[14-Apr-2025 18:18:22 America/Sao_Paulo] Dados recebidos:
+[14-Apr-2025 18:18:22 America/Sao_Paulo] emprestimo_id: 8
+[14-Apr-2025 18:18:22 America/Sao_Paulo] parcela_numero: 2
+[14-Apr-2025 18:18:22 America/Sao_Paulo] valor_pago: 2
+[14-Apr-2025 18:18:22 America/Sao_Paulo] data_pagamento: 2025-04-14
+[14-Apr-2025 18:18:22 America/Sao_Paulo] forma_pagamento: pix
+[14-Apr-2025 18:18:22 America/Sao_Paulo] Parcela atual:
+[14-Apr-2025 18:18:22 America/Sao_Paulo] Array
+(
+    [numero] => 2
+    [valor] => 13.00
+    [vencimento] => 2025-04-16
+    [status] => parcial
+    [valor_pago] => 11
+    [data_pagamento] => 2025-04-14
+    [forma_pagamento] => pix
+)
+
+[14-Apr-2025 18:18:22 America/Sao_Paulo] Valor restante: 2
+[14-Apr-2025 18:18:22 America/Sao_Paulo] Valor pago: 2
+[14-Apr-2025 18:31:45 America/Sao_Paulo] Dados recebidos:
+[14-Apr-2025 18:31:45 America/Sao_Paulo] emprestimo_id: 8
+[14-Apr-2025 18:31:45 America/Sao_Paulo] parcela_numero: 4
+[14-Apr-2025 18:31:45 America/Sao_Paulo] valor_pago: 100
+[14-Apr-2025 18:31:45 America/Sao_Paulo] data_pagamento: 2025-04-14
+[14-Apr-2025 18:31:45 America/Sao_Paulo] forma_pagamento: dinheiro
+[14-Apr-2025 18:31:45 America/Sao_Paulo] Parcela atual:
+[14-Apr-2025 18:31:45 America/Sao_Paulo] Array
+(
+    [numero] => 4
+    [vencimento] => 2025-04-18
+    [valor] => 13.00
+    [status] => pendente
+    [valor_pago] => 0
+    [data_pagamento] => 
+    [forma_pagamento] => 
+)
+
+[14-Apr-2025 18:31:45 America/Sao_Paulo] Valor restante: 13
+[14-Apr-2025 18:31:45 America/Sao_Paulo] Valor pago: 100
+[14-Apr-2025 18:38:03 America/Sao_Paulo] Dados recebidos:
+[14-Apr-2025 18:38:03 America/Sao_Paulo] emprestimo_id: 8
+[14-Apr-2025 18:38:03 America/Sao_Paulo] parcela_numero: 11
+[14-Apr-2025 18:38:03 America/Sao_Paulo] valor_pago: 4
+[14-Apr-2025 18:38:03 America/Sao_Paulo] data_pagamento: 2025-04-14
+[14-Apr-2025 18:38:03 America/Sao_Paulo] forma_pagamento: pix
+[14-Apr-2025 18:38:03 America/Sao_Paulo] Parcela atual:
+[14-Apr-2025 18:38:03 America/Sao_Paulo] Array
+(
+    [numero] => 11
+    [vencimento] => 2025-04-29
+    [valor] => 13.00
+    [status] => parcial
+    [valor_pago] => 9
+    [data_pagamento] => 
+    [forma_pagamento] => 
+)
+
+[14-Apr-2025 18:38:03 America/Sao_Paulo] Valor restante: 4
+[14-Apr-2025 18:38:03 America/Sao_Paulo] Valor pago: 4
+[15-Apr-2025 12:26:35 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1\login.php on line 30

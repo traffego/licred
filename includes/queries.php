@@ -137,3 +137,28 @@ function buscarTodosClientes(mysqli $conn): array {
     $stmt = $conn->query("SELECT id, nome FROM clientes WHERE status = 'Ativo' ORDER BY nome ASC");
     return $stmt->fetch_all(MYSQLI_ASSOC);
 }
+
+function buscarEmprestimoPorId($conn, $id) {
+    $sql = "SELECT e.*, c.nome as cliente_nome 
+            FROM emprestimos e 
+            INNER JOIN clientes c ON e.cliente_id = c.id 
+            WHERE e.id = ?";
+    
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        return null;
+    }
+    
+    $stmt->bind_param("i", $id);
+    
+    if (!$stmt->execute()) {
+        return null;
+    }
+    
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        return null;
+    }
+    
+    return $result->fetch_assoc();
+}

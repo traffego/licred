@@ -1,0 +1,81 @@
+Vou expandir o plano para incluir o sistema de mensagens WhatsApp e o tratamento de parcelas adiantadas/atrasadas:
+
+### Sistema de Mensagens WhatsApp
+
+1. **Integração com API WhatsApp**:
+   - Integrar com WhatsApp Business API ou soluções como WhatsApp Cloud API
+   - Configuração de credenciais e autenticação
+   - Sistema para gerenciar números de telefone verificados
+
+2. **Gestor de Mensagens**:
+   - Interface para criação de modelos de mensagens
+   - Editor com variáveis dinâmicas ({nome_cliente}, {valor_parcela}, etc.)
+   - Personalização de mensagens por tipo de cobrança
+   - Suporte a envio de documentos/boletos como anexos
+
+3. **Disparo Automatizado (CRON)**:
+   - Sistema de agendamento de mensagens (lembretes antes do vencimento)
+   - Alertas automáticos de parcelas vencidas
+   - Configuração de frequência de envio para parcelas em atraso
+   - Log detalhado de mensagens enviadas para auditoria
+
+4. **Disparo Manual em Massa**:
+   - Interface para seleção de clientes/cobranças
+   - Filtros avançados (por status, data, valor, etc.)
+   - Visualização prévia das mensagens antes do envio
+   - Progresso em tempo real do envio em massa
+   - Confirmação de entregas e relatório de falhas
+
+5. **Monitoramento e Analytics**:
+   - Dashboard com taxas de abertura/resposta
+   - Eficácia das mensagens na redução de inadimplência
+   - Horários de melhor desempenho para envios
+   - Relatórios de conversão (mensagens enviadas vs. pagamentos realizados)
+
+### Tratamento de Parcelas Atrasadas/Adiantadas
+
+1. **Para Tipo "Parcelada Comum"**:
+   - **Atraso**: 
+     - Cálculo de juros de mora (configurável por dia de atraso)
+     - Multa por atraso (percentual fixo)
+     - Atualização automática do valor devido
+     - Opção para renegociação com novas condições
+     - Alertas quando o valor em atraso atingir certos patamares
+
+   - **Adiantamento**:
+     - Desconto por pagamento antecipado (configurável)
+     - Cálculo proporcional aos dias antecipados
+     - Opção para quitação total com desconto progressivo
+     - Atualizações automáticas das próximas parcelas
+     - Recibo especial para pagamentos adiantados
+
+2. **Para Tipo "Reparcelada com Juros"**:
+   - **Atraso**:
+     - Capitalização de juros no modelo reparcelado
+     - Opção para incorporar o valor atrasado ao principal
+     - Simulação de novo parcelamento incluindo valores em atraso
+     - Alerta de limite de tolerância antes de negativação
+     - Geração automática de proposta de recuperação
+
+   - **Adiantamento**:
+     - Recálculo da taxa efetiva de juros considerando o adiantamento
+     - Opção para reduzir o número de parcelas mantendo o valor
+     - Opção para reduzir o valor das parcelas mantendo o prazo
+     - Simulação comparativa das diferentes opções de adiantamento
+     - Relatório de economia por adiantamento
+
+3. **Funcionalidades Comuns**:
+   - Sistema flexível de configuração de políticas de atraso/adiantamento
+   - Workflow aprovação para exceções às regras padrão
+   - Histórico detalhado de alterações em parcelas
+   - Notificações para o cliente sobre mudanças no plano de pagamento
+   - Documentos formais para alterações contratuais
+
+4. **Dashboard de Gestão de Fluxo de Caixa**:
+   - Visualização de impacto de atrasos/adiantamentos no fluxo de caixa
+   - Projeção financeira considerando tendências de pagamento
+   - Alertas de risco para concentração de atrasos
+   - Oportunidades de incentivo para adiantamentos
+   - Indicadores de saúde da carteira de crédito
+
+Esta abordagem completa transformará o sistema em um MVP bastante robusto, cobrindo não apenas a gestão básica de empréstimos, mas também a comunicação automatizada e o tratamento sofisticado de situações especiais no fluxo de pagamentos, que são elementos críticos para o sucesso de uma operação de crédito.

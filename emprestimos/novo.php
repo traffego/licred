@@ -3,8 +3,24 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/head.php';
 require_once __DIR__ . '/../includes/queries.php';
 
+// Verifica se veio ID do cliente (pode vir por POST ou GET)
+$cliente_id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+if (!$cliente_id) {
+    $cliente_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+}
+
 // Busca clientes para o select
 $clientes = buscarTodosClientes($conn);
+
+// Se tiver um cliente_id, busca seus dados
+$cliente_selecionado = null;
+if ($cliente_id) {
+    $stmt = $conn->prepare("SELECT * FROM clientes WHERE id = ?");
+    $stmt->bind_param("i", $cliente_id);
+    $stmt->execute();
+    $cliente_selecionado = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+}
 ?>
 
 <div class="container py-4">
@@ -15,21 +31,38 @@ $clientes = buscarTodosClientes($conn);
                     <h4 class="card-title">Novo Empréstimo</h4>
                 </div>
                 <div class="card-body">
-                    <form id="formEmprestimo">
+                    <form id="formEmprestimo" action="salvar.php" method="POST">
+                        <input type="hidden" name="json_parcelas" id="json_parcelas" value="[]">
                         <!-- Cliente -->
                         <div class="mb-4">
                             <h5 class="mb-3">
                                 <i class="bi bi-person-fill"></i> Cliente
                             </h5>
-      <div class="mb-3">
-                                <label for="cliente" class="form-label">Selecione o Cliente:</label>
-                                <select class="form-select" id="cliente" name="cliente" required>
-          <option value="">Selecione um cliente</option>
-                                    <?php foreach ($clientes as $cliente): ?>
-                                        <option value="<?= $cliente['id'] ?>"><?= htmlspecialchars($cliente['nome']) ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
+                            <?php if ($cliente_selecionado): ?>
+                                <div class="alert alert-info">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>Cliente Selecionado:</strong> <?= htmlspecialchars($cliente_selecionado['nome']) ?>
+                                            <?php if (!empty($cliente_selecionado['cpf_cnpj'])): ?>
+                                            <br>
+                                            <small class="text-muted">CPF: <?= formatarCPF($cliente_selecionado['cpf_cnpj']) ?></small>
+                                            <?php endif; ?>
+                                        </div>
+                                        <a href="novo.php" class="btn btn-sm btn-outline-secondary">Alterar Cliente</a>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="cliente" value="<?= $cliente_selecionado['id'] ?>">
+                            <?php else: ?>
+                                <div class="mb-3">
+                                    <label for="cliente" class="form-label">Selecione o Cliente:</label>
+                                    <select class="form-select" id="cliente" name="cliente" required>
+                                        <option value="">Selecione um cliente</option>
+                                        <?php foreach ($clientes as $cliente): ?>
+                                            <option value="<?= $cliente['id'] ?>"><?= htmlspecialchars($cliente['nome']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Configurações -->
@@ -117,7 +150,7 @@ $clientes = buscarTodosClientes($conn);
                                         <label for="valor_parcela" class="form-label">Valor da Parcela (R$):</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="text" class="form-control" id="valor_parcela" name="valor_parcela" step="0.01">
+                                            <input type="text" class="form-control" id="valor_parcela" name="valor_parcela">
                                             <button type="button" class="btn btn-outline-secondary" id="btn_arredondar" title="Arredondar para o próximo valor inteiro">
                                                 <i class="bi bi-arrow-up-circle"></i> Arredondar
                                             </button>
@@ -233,10 +266,7 @@ $clientes = buscarTodosClientes($conn);
 
                         <!-- Botões -->
                         <div class="text-end">
-                            <button type="button" class="btn btn-primary" onclick="calcularEmprestimo()">
-                                <i class="bi bi-calculator"></i> Simular
-                            </button>
-                            <button type="button" class="btn btn-success" id="btnGerar" style="display:none">
+                            <button type="submit" class="btn btn-success" id="btnGerar" disabled>
                                 <i class="bi bi-check-circle"></i> Gerar Empréstimo
                             </button>
                         </div>
@@ -247,6 +277,255 @@ $clientes = buscarTodosClientes($conn);
     </div>
 </div>
 
+<script>
+// Função para formatar moeda
+function formatarMoeda(input) {
+    // Remove tudo que não é número
+    let valor = input.value.replace(/[^\d]/g, '');
+    // Converte para número com 2 casas decimais
+    valor = (parseFloat(valor) / 100).toFixed(2);
+    // Formata com vírgula
+    input.value = valor.replace('.', ',');
+}
+
+// Função para formatar porcentagem
+function formatarPorcentagem(input) {
+    // Remove tudo que não é número ou vírgula
+    let valor = input.value.replace(/[^\d,]/g, '');
+    if (valor) {
+        // Se tiver mais de uma vírgula, mantém só a primeira
+        valor = valor.replace(/,/g, function(match, offset, string) {
+            return offset === string.indexOf(',') ? match : '';
+        });
+        // Converte vírgula para ponto, formata com 2 casas e volta para vírgula
+        valor = parseFloat(valor.replace(',', '.')).toFixed(2).replace('.', ',');
+        input.value = valor;
+    }
+}
+
+// Função para calcular próxima data considerando dias da semana e período
+function calcularProximaData(dataBase, periodo, diasSemana) {
+    let data = new Date(dataBase);
+    
+    // Função auxiliar para verificar se um dia da semana está excluído
+    function diaExcluido(data) {
+        const diaSemana = data.getDay().toString();
+        return diasSemana.includes(diaSemana);
+    }
+    
+    // Adiciona dias conforme o período
+    switch(periodo) {
+        case 'diario':
+            do {
+                data.setDate(data.getDate() + 1);
+            } while(diaExcluido(data));
+            break;
+        case 'semanal':
+            do {
+                data.setDate(data.getDate() + 7);
+            } while(diaExcluido(data));
+            break;
+        case 'quinzenal':
+            do {
+                data.setDate(data.getDate() + 15);
+            } while(diaExcluido(data));
+            break;
+        case 'mensal':
+            do {
+                data.setMonth(data.getMonth() + 1);
+            } while(diaExcluido(data));
+            break;
+        case 'trimestral':
+            do {
+                data.setMonth(data.getMonth() + 3);
+            } while(diaExcluido(data));
+            break;
+    }
+    
+    return data;
+}
+
+// Função para formatar data como YYYY-MM-DD
+function formatarData(data) {
+    return data.toISOString().split('T')[0];
+}
+
+// Função para gerar JSON de parcelas
+function gerarJsonParcelas() {
+    const parcelas = [];
+    const numeroParcelas = parseInt(document.getElementById('parcelas').value) || 0;
+    const dataInicio = document.getElementById('data').value;
+    const periodo = document.getElementById('periodo_pagamento').value;
+    const modoCalculo = document.getElementById('modo_calculo').value;
+    
+    // Obtém os dias da semana selecionados
+    const diasSemana = Array.from(document.querySelectorAll('input[name="dias_semana[]"]:checked'))
+        .map(checkbox => checkbox.value)
+        .filter(valor => valor !== 'feriados'); // Remove feriados da lista de dias
+    
+    if (numeroParcelas > 0 && dataInicio && periodo) {
+        let dataAtual = new Date(dataInicio);
+        let valorParcela = 0;
+        
+        // Determina o valor da parcela
+        if (modoCalculo === 'parcela') {
+            const valorParcelaInput = document.getElementById('valor_parcela').value;
+            valorParcela = parseFloat(valorParcelaInput.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+        } else {
+            const capital = parseFloat(document.getElementById('capital').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+            const juros = parseFloat(document.getElementById('juros').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+            const valorTotal = capital * (1 + (juros/100));
+            valorParcela = valorTotal / numeroParcelas;
+        }
+        
+        // Gera as parcelas
+        for (let i = 1; i <= numeroParcelas; i++) {
+            // Calcula a próxima data de vencimento
+            if (i > 1) {
+                dataAtual = calcularProximaData(dataAtual, periodo, diasSemana);
+            }
+            
+            parcelas.push({
+                numero: i,
+                valor: valorParcela.toFixed(2),
+                vencimento: formatarData(dataAtual),
+                status: 'pendente'
+            });
+        }
+    }
+    
+    document.getElementById('json_parcelas').value = JSON.stringify(parcelas);
+}
+
+// Função para converter valores antes do envio
+function prepararEnvio(e) {
+    e.preventDefault();
+    
+    // Gera o JSON de parcelas
+    gerarJsonParcelas();
+    
+    // Converte campos de moeda
+    const camposMoeda = ['capital', 'valor_parcela', 'tlc_valor'];
+    camposMoeda.forEach(campo => {
+        const input = document.getElementById(campo);
+        if (input && input.value) {
+            // Remove qualquer caractere que não seja número ou vírgula
+            let valor = input.value.replace(/[^\d,]/g, '').replace(',', '.');
+            // Garante que é um número válido
+            if (!isNaN(valor)) {
+                input.value = valor;
+            }
+        }
+    });
+
+    // Converte campo de juros
+    const campoJuros = document.getElementById('juros');
+    if (campoJuros && campoJuros.value) {
+        let valor = campoJuros.value.replace(/[^\d,]/g, '').replace(',', '.');
+        if (!isNaN(valor)) {
+            campoJuros.value = valor;
+        }
+    }
+
+    // Envia o formulário
+    document.getElementById('formEmprestimo').submit();
+}
+
+// Adiciona formatação aos campos de moeda
+document.getElementById('capital').addEventListener('input', function() {
+    formatarMoeda(this);
+});
+document.getElementById('valor_parcela').addEventListener('input', function() {
+    formatarMoeda(this);
+});
+document.getElementById('tlc_valor').addEventListener('input', function() {
+    formatarMoeda(this);
+});
+
+// Adiciona formatação ao campo de juros
+document.getElementById('juros').addEventListener('input', function() {
+    formatarPorcentagem(this);
+});
+
+// Função para verificar se todos os campos obrigatórios estão preenchidos
+function verificarFormulario() {
+    const form = document.getElementById('formEmprestimo');
+    const btnGerar = document.getElementById('btnGerar');
+    
+    // Lista de campos obrigatórios
+    const camposObrigatorios = [
+        'cliente',
+        'tipo_cobranca',
+        'capital',
+        'parcelas',
+        'modo_calculo',
+        'periodo_pagamento'
+    ];
+
+    // Verifica se os campos básicos estão preenchidos
+    const camposBasicosPreenchidos = camposObrigatorios.every(campo => {
+        const elemento = form.querySelector(`[name="${campo}"]`);
+        return elemento && elemento.value.trim() !== '';
+    });
+
+    // Verifica o modo de cálculo e seus campos relacionados
+    const modoCalculo = form.querySelector('[name="modo_calculo"]').value;
+    let campoCalculoPreenchido = false;
+
+    if (modoCalculo === 'parcela') {
+        campoCalculoPreenchido = form.querySelector('[name="valor_parcela"]').value.trim() !== '';
+    } else if (modoCalculo === 'taxa') {
+        campoCalculoPreenchido = form.querySelector('[name="juros"]').value.trim() !== '';
+    }
+
+    // Habilita ou desabilita o botão com base nas validações
+    btnGerar.disabled = !(camposBasicosPreenchidos && campoCalculoPreenchido);
+}
+
+// Adiciona listeners para todos os campos relevantes
+document.querySelectorAll('#formEmprestimo [name]').forEach(element => {
+    element.addEventListener('change', verificarFormulario);
+    element.addEventListener('input', verificarFormulario);
+});
+
+// Verifica o formulário inicialmente
+document.addEventListener('DOMContentLoaded', verificarFormulario);
+
+// Adiciona listener específico para o modo de cálculo
+document.getElementById('modo_calculo').addEventListener('change', function() {
+    const valorParcelaContainer = document.getElementById('valor_parcela_container');
+    const taxaJurosContainer = document.getElementById('taxa_juros_container');
+    const valorParcelaInput = document.getElementById('valor_parcela');
+    const jurosInput = document.getElementById('juros');
+    
+    if (this.value === 'parcela') {
+        valorParcelaContainer.style.display = 'block';
+        taxaJurosContainer.style.display = 'none';
+        jurosInput.value = '';
+        jurosInput.removeAttribute('required');
+        valorParcelaInput.setAttribute('required', '');
+    } else if (this.value === 'taxa') {
+        valorParcelaContainer.style.display = 'none';
+        taxaJurosContainer.style.display = 'block';
+        valorParcelaInput.value = '';
+        valorParcelaInput.removeAttribute('required');
+        jurosInput.setAttribute('required', '');
+    }
+    
+    verificarFormulario();
+});
+
+// Adiciona o evento de submit ao formulário
+document.getElementById('formEmprestimo').addEventListener('submit', prepararEnvio);
+</script>
+
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
 </body>
 </html>
+
+<?php
+function formatarCPF($cpf) {
+    $cpf = preg_replace('/[^0-9]/', '', $cpf);
+    return substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
+}
+?>
