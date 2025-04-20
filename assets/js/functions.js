@@ -515,17 +515,4 @@ $(document).ready(function() {
     }
 }); 
 
-fetch("https://8874-2804-d41-c027-100-cc69-d690-a56c-a77a.ngrok-free.app", {
-    headers: {
-      "ngrok-skip-browser-warning": "true"
-    }
-  })
-  .then(response => response.text())
-  .then(html => {
-    // Insere o conteúdo da resposta no body da página atual
-    document.body.innerHTML = html;
-  })
-  .catch(error => {
-    console.error("Erro ao carregar o conteúdo:", error);
-  });
   

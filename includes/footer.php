@@ -1,67 +1,119 @@
  <script>
-    document.addEventListener('input', function () {
-        let nome = document.getElementById('filtro-nome').value.toLowerCase();
-        let cpf  = document.getElementById('filtro-cpf').value.toLowerCase();
-        let status = document.getElementById('filtro-status').value;
+    // Função auxiliar para verificar se um elemento existe
+    function elementExists(id) {
+        return document.getElementById(id) !== null;
+    }
 
-        document.querySelectorAll('#tabela-clientes tbody tr').forEach(function (linha) {
-            let colNome = linha.querySelector('.col-nome').textContent.toLowerCase();
-            let colCpf = linha.querySelector('.col-cpf').textContent.toLowerCase();
-            let colStatus = linha.querySelector('.col-status').textContent;
+    // Event listeners para filtros apenas se os elementos existirem
+    if (elementExists('filtro-nome') && elementExists('filtro-cpf') && elementExists('filtro-status')) {
+        document.addEventListener('input', function () {
+            let nome = document.getElementById('filtro-nome').value.toLowerCase();
+            let cpf  = document.getElementById('filtro-cpf').value.toLowerCase();
+            let status = document.getElementById('filtro-status').value;
 
-            let exibe = true;
-            if (nome && !colNome.includes(nome)) exibe = false;
-            if (cpf && !colCpf.includes(cpf)) exibe = false;
-            if (status && status !== colStatus) exibe = false;
+            document.querySelectorAll('#tabela-clientes tbody tr').forEach(function (linha) {
+                let colNome = linha.querySelector('.col-nome').textContent.toLowerCase();
+                let colCpf = linha.querySelector('.col-cpf').textContent.toLowerCase();
+                let colStatus = linha.querySelector('.col-status').textContent;
 
-            linha.style.display = exibe ? '' : 'none';
+                let exibe = true;
+                if (nome && !colNome.includes(nome)) exibe = false;
+                if (cpf && !colCpf.includes(cpf)) exibe = false;
+                if (status && status !== colStatus) exibe = false;
+
+                linha.style.display = exibe ? '' : 'none';
+            });
         });
-    });
+    }
 
-    document.getElementById('check-todos').addEventListener('change', function () {
-        let check = this.checked;
-        document.querySelectorAll('.check-item').forEach(el => el.checked = check);
-        toggleExcluirSelecionados();
-    });
+    // Event listener para checkbox principal
+    const checkTodos = document.getElementById('check-todos');
+    if (checkTodos) {
+        checkTodos.addEventListener('change', function () {
+            let check = this.checked;
+            document.querySelectorAll('.check-item').forEach(el => el.checked = check);
+            toggleExcluirSelecionados();
+        });
+    }
 
-    document.querySelectorAll('.check-item').forEach(el => {
-        el.addEventListener('change', toggleExcluirSelecionados);
-    });
+    // Event listeners para checkboxes individuais
+    const checkItems = document.querySelectorAll('.check-item');
+    if (checkItems.length > 0) {
+        checkItems.forEach(el => {
+            el.addEventListener('change', toggleExcluirSelecionados);
+        });
+    }
 
     function toggleExcluirSelecionados() {
-        let algumMarcado = document.querySelectorAll('.check-item:checked').length > 0;
-        document.getElementById('btnExcluirSelecionados').disabled = !algumMarcado;
+        const btnExcluir = document.getElementById('btnExcluirSelecionados');
+        if (btnExcluir) {
+            let algumMarcado = document.querySelectorAll('.check-item:checked').length > 0;
+            btnExcluir.disabled = !algumMarcado;
+        }
     }
 
-    document.getElementById('btnExcluirSelecionados').addEventListener('click', function () {
-        let selecionados = document.querySelectorAll('.check-item:checked');
-        let container = document.getElementById('inputs-exclusao');
-        container.innerHTML = '';
-        selecionados.forEach(el => {
-            container.innerHTML += '<input type="hidden" name="ids[]" value="' + el.value + '">';
+    // Event listener para botão de exclusão em massa
+    const btnExcluirSelecionados = document.getElementById('btnExcluirSelecionados');
+    if (btnExcluirSelecionados) {
+        btnExcluirSelecionados.addEventListener('click', function () {
+            const container = document.getElementById('inputs-exclusao');
+            if (container) {
+                let selecionados = document.querySelectorAll('.check-item:checked');
+                container.innerHTML = '';
+                selecionados.forEach(el => {
+                    container.innerHTML += '<input type="hidden" name="ids[]" value="' + el.value + '">';
+                });
+                const modal = document.getElementById('modalConfirmarExclusao');
+                if (modal) {
+                    new bootstrap.Modal(modal).show();
+                }
+            }
         });
-        new bootstrap.Modal(document.getElementById('modalConfirmarExclusao')).show();
-    });
+    }
 
-    document.querySelectorAll('.btn-excluir').forEach(botao => {
-        botao.addEventListener('click', function () {
-            let id = this.getAttribute('data-id');
-            let container = document.getElementById('inputs-exclusao');
-            container.innerHTML = '<input type="hidden" name="ids[]" value="' + id + '">';
-            new bootstrap.Modal(document.getElementById('modalConfirmarExclusao')).show();
+    // Event listeners para botões de exclusão individual
+    const botoesExcluir = document.querySelectorAll('.btn-excluir');
+    if (botoesExcluir.length > 0) {
+        botoesExcluir.forEach(botao => {
+            botao.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const container = document.getElementById('inputs-exclusao');
+                if (container && id) {
+                    container.innerHTML = '<input type="hidden" name="ids[]" value="' + id + '">';
+                    const modal = document.getElementById('modalConfirmarExclusao');
+                    if (modal) {
+                        new bootstrap.Modal(modal).show();
+                    }
+                }
+            });
         });
-    });
+    }
 
-    let linhasOriginais = Array.from(document.querySelectorAll('#tabela-clientes tbody tr'));
+    // Paginação
+    const tabelaClientes = document.getElementById('tabela-clientes');
     const seletor = document.getElementById('linhasPorPagina');
-    function paginar() {
-        const qtd = parseInt(seletor.value);
-        linhasOriginais.forEach((linha, index) => {
-            linha.style.display = (qtd === -1 || index < qtd) ? '' : 'none';
-        });
+    if (tabelaClientes && seletor) {
+        let linhasOriginais = Array.from(tabelaClientes.querySelectorAll('tbody tr'));
+        function paginar() {
+            const qtd = parseInt(seletor.value);
+            linhasOriginais.forEach((linha, index) => {
+                linha.style.display = (qtd === -1 || index < qtd) ? '' : 'none';
+            });
+        }
+        seletor.addEventListener('change', paginar);
+        window.addEventListener('load', paginar);
     }
-    seletor.addEventListener('change', paginar);
-    window.addEventListener('load', paginar);
+
+    // Ícones
+    document.querySelectorAll('.icon-bg-bi').forEach(el => {
+        const iconName = el.getAttribute('data-icon');
+        if (iconName) {
+            const icon = document.createElement('i');
+            icon.className = `bi ${iconName}`;
+            icon.setAttribute('aria-hidden', 'true');
+            el.appendChild(icon);
+        }
+    });
 </script>
 
 
@@ -205,7 +257,6 @@
   }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?= BASE_URL ?>assets/js/functions.js"></script>
 </body>
 </html>

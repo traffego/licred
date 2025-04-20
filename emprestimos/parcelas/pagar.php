@@ -1,12 +1,28 @@
 <?php
+// Desativa a exibição de erros
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// Define o tipo de conteúdo como JSON
+header('Content-Type: application/json; charset=utf-8');
+
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../includes/autenticacao.php';
 require_once __DIR__ . '/../../includes/conexao.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['erro' => 'Método não permitido']);
+// Função para retornar resposta JSON e encerrar
+function jsonResponse($status, $message, $httpCode = 200) {
+    ob_clean(); // Limpa qualquer saída anterior
+    http_response_code($httpCode);
+    echo json_encode([
+        'status' => $status,
+        'message' => $message
+    ], JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    jsonResponse('error', 'Método não permitido', 405);
 }
 
 $emprestimo_id = filter_input(INPUT_POST, 'emprestimo_id', FILTER_VALIDATE_INT);
@@ -14,12 +30,18 @@ $parcela_numero = filter_input(INPUT_POST, 'parcela_numero', FILTER_VALIDATE_INT
 $valor_pago = filter_input(INPUT_POST, 'valor_pago', FILTER_VALIDATE_FLOAT);
 $data_pagamento = filter_input(INPUT_POST, 'data_pagamento', FILTER_SANITIZE_STRING);
 $forma_pagamento = filter_input(INPUT_POST, 'forma_pagamento', FILTER_SANITIZE_STRING);
-$modo_distribuicao = filter_input(INPUT_POST, 'modo_distribuicao', FILTER_SANITIZE_STRING);
+$modo_distribuicao = filter_input(INPUT_POST, 'modo_distribuicao', FILTER_SANITIZE_STRING) ?? 'desconto_proximas';
 
-if (!$emprestimo_id || !$parcela_numero || !$valor_pago || !$data_pagamento || !$forma_pagamento || !$modo_distribuicao) {
-    http_response_code(400);
-    echo json_encode(['erro' => 'Parâmetros inválidos']);
-    exit;
+// Validação mais detalhada
+$erros = [];
+if (!$emprestimo_id) $erros[] = 'ID do empréstimo inválido';
+if (!$parcela_numero) $erros[] = 'Número da parcela inválido';
+if (!$valor_pago || $valor_pago <= 0) $erros[] = 'Valor do pagamento inválido';
+if (!$data_pagamento) $erros[] = 'Data do pagamento inválida';
+if (!$forma_pagamento) $erros[] = 'Forma de pagamento inválida';
+
+if (!empty($erros)) {
+    jsonResponse('error', implode(', ', $erros), 400);
 }
 
 $conn->begin_transaction();
@@ -33,11 +55,14 @@ try {
     $emprestimo = $result->fetch_assoc();
 
     if (!$emprestimo) {
-        echo json_encode(['status' => 'error', 'message' => 'Empréstimo não encontrado.']);
-        exit;
+        jsonResponse('error', 'Empréstimo não encontrado.', 404);
     }
 
     $parcelas = json_decode($emprestimo['json_parcelas'], true);
+    if ($parcelas === null) {
+        jsonResponse('error', 'Erro ao decodificar as parcelas do empréstimo.', 500);
+    }
+
     $valor_pago_total_recebido = floatval($valor_pago);
     $valor_parcela_original = floatval($emprestimo['valor_parcela']);
     
@@ -54,8 +79,7 @@ try {
     }
 
     if ($parcela_atual_index === -1) {
-        echo json_encode(['status' => 'error', 'message' => 'Parcela não encontrada.']);
-        exit;
+        jsonResponse('error', 'Parcela não encontrada.', 404);
     }
 
     // --- Lógica de Pagamento Principal ---
@@ -63,7 +87,7 @@ try {
     
     // Calcula quanto falta pagar na parcela atual
     $valor_ja_pago = $parcela_atual['valor_pago'] ?? 0;
-    $valor_faltante_atual = $parcela_atual['valor'] - $valor_ja_pago;
+    $valor_faltante_atual = floatval($parcela_atual['valor']) - $valor_ja_pago;
     
     // Calcula quanto do valor pago vai para a parcela atual
     $valor_aplicado_parcela_atual = min($valor_pago_total_recebido, $valor_faltante_atual);
@@ -72,7 +96,8 @@ try {
     $parcela_atual['valor_pago'] = $valor_ja_pago + $valor_aplicado_parcela_atual;
     $parcela_atual['data_pagamento'] = $data_pagamento;
     $parcela_atual['forma_pagamento'] = $forma_pagamento;
-    $parcela_atual['status'] = ($valor_ja_pago + $valor_aplicado_parcela_atual >= $parcela_atual['valor']) ? 'pago' : 'parcial';
+    $parcela_atual['status'] = ($valor_ja_pago + $valor_aplicado_parcela_atual >= floatval($parcela_atual['valor'])) ? 'pago' : 'parcial';
+    $parcela_atual['valor_original'] = $parcela_atual['valor'];
 
     // Calcula a diferença (valor que sobrou após pagar a parcela atual)
     $diferenca = $valor_pago_total_recebido - $valor_aplicado_parcela_atual;
@@ -94,7 +119,7 @@ try {
             
             // Calcula quanto falta pagar nesta parcela
             $valor_ja_pago_proxima = $proxima_parcela['valor_pago'] ?? 0;
-            $valor_faltante = $proxima_parcela['valor'] - $valor_ja_pago_proxima;
+            $valor_faltante = floatval($proxima_parcela['valor']) - $valor_ja_pago_proxima;
             
             // Calcula quanto será aplicado nesta parcela
             $valor_a_aplicar = min($valor_restante, $valor_faltante);
@@ -103,9 +128,10 @@ try {
             $proxima_parcela['valor_pago'] = $valor_ja_pago_proxima + $valor_a_aplicar;
             $proxima_parcela['data_pagamento'] = $data_pagamento;
             $proxima_parcela['forma_pagamento'] = $forma_pagamento;
-            $proxima_parcela['status'] = ($valor_ja_pago_proxima + $valor_a_aplicar >= $proxima_parcela['valor']) ? 'pago' : 'parcial';
+            $proxima_parcela['status'] = ($valor_ja_pago_proxima + $valor_a_aplicar >= floatval($proxima_parcela['valor'])) ? 'pago' : 'parcial';
             $proxima_parcela['diferenca_transacao'] = $valor_a_aplicar;
             $proxima_parcela['acao_diferenca'] = $acao_diferenca_aplicada;
+            $proxima_parcela['valor_original'] = $proxima_parcela['valor'];
             
             // Atualiza o valor restante
             $valor_restante -= $valor_a_aplicar;
@@ -127,7 +153,7 @@ try {
             
             // Calcula quanto falta pagar nesta parcela
             $valor_ja_pago_ultima = $ultima_parcela['valor_pago'] ?? 0;
-            $valor_faltante = $ultima_parcela['valor'] - $valor_ja_pago_ultima;
+            $valor_faltante = floatval($ultima_parcela['valor']) - $valor_ja_pago_ultima;
             
             // Calcula quanto será aplicado nesta parcela
             $valor_a_aplicar = min($valor_restante, $valor_faltante);
@@ -136,9 +162,10 @@ try {
             $ultima_parcela['valor_pago'] = $valor_ja_pago_ultima + $valor_a_aplicar;
             $ultima_parcela['data_pagamento'] = $data_pagamento;
             $ultima_parcela['forma_pagamento'] = $forma_pagamento;
-            $ultima_parcela['status'] = ($valor_ja_pago_ultima + $valor_a_aplicar >= $ultima_parcela['valor']) ? 'pago' : 'parcial';
+            $ultima_parcela['status'] = ($valor_ja_pago_ultima + $valor_a_aplicar >= floatval($ultima_parcela['valor'])) ? 'pago' : 'parcial';
             $ultima_parcela['diferenca_transacao'] = $valor_a_aplicar;
             $ultima_parcela['acao_diferenca'] = $acao_diferenca_aplicada;
+            $ultima_parcela['valor_original'] = $ultima_parcela['valor'];
             
             // Atualiza o valor restante
             $valor_restante -= $valor_a_aplicar;
@@ -152,28 +179,29 @@ try {
         
         if ($proxima_parcela_index < count($parcelas)) {
             $proxima_parcela =& $parcelas[$proxima_parcela_index];
-            $proxima_parcela['valor'] = $valor_parcela_original + $valor_faltante;
+            $proxima_parcela['valor'] = number_format(floatval($valor_parcela_original) + $valor_faltante, 2, '.', '');
             $proxima_parcela['diferenca_transacao'] = -$valor_faltante;
             $proxima_parcela['acao_diferenca'] = $acao_diferenca_aplicada;
+            $proxima_parcela['valor_original'] = $proxima_parcela['valor'];
         }
     }
 
     // Atualiza o JSON no banco de dados
-    $json_parcelas = json_encode($parcelas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    $json_parcelas = json_encode($parcelas, JSON_UNESCAPED_UNICODE);
     $stmt = $conn->prepare("UPDATE emprestimos SET json_parcelas = ? WHERE id = ?");
     $stmt->bind_param("si", $json_parcelas, $emprestimo_id);
-
+    
     if ($stmt->execute()) {
         $conn->commit();
-        echo json_encode(['status' => 'success', 'message' => 'Pagamento registrado com sucesso!']);
+        $conn->close();
+        jsonResponse('success', 'Pagamento registrado com sucesso');
     } else {
         $conn->rollback();
-        echo json_encode(['status' => 'error', 'message' => 'Erro ao atualizar o empréstimo: ' . $conn->error]);
+        $conn->close();
+        jsonResponse('error', 'Erro ao atualizar o banco de dados');
     }
-
 } catch (Exception $e) {
     $conn->rollback();
-    echo json_encode(['status' => 'error', 'message' => 'Erro na transação: ' . $e->getMessage()]);
+    $conn->close();
+    jsonResponse('error', 'Erro ao processar o pagamento: ' . $e->getMessage());
 }
-
-$conn->close();

@@ -114,7 +114,7 @@ unset($parcela);
 
 // Se houve alterações, atualiza o JSON no banco
 if ($json_atualizado) {
-    $json_parcelas = json_encode($parcelas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    $json_parcelas = json_encode($parcelas, JSON_UNESCAPED_UNICODE);
     $stmt = $conn->prepare("UPDATE emprestimos SET json_parcelas = ? WHERE id = ?");
     $stmt->bind_param("si", $json_parcelas, $emprestimo_id);
     $stmt->execute();
@@ -138,48 +138,85 @@ foreach ($parcelas as $p) {
         $data_vencimento = new DateTime($p['vencimento']);
         if ($data_vencimento < $hoje) {
             $vencidas++;
-        } else {
-            $pendentes++;
+    } else {
+        $pendentes++;
         }
     }
 }
 
 $total_previsto = $emprestimo['valor_parcela'] * $emprestimo['parcelas'];
 
+// Verifica se o empréstimo está quitado
+$emprestimo_quitado = true;
+foreach ($parcelas as $p) {
+    if ($p['status'] !== 'pago') {
+        $emprestimo_quitado = false;
+        break;
+    }
+}
+
 ?>
 
 <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Detalhes do Empréstimo #<?= $emprestimo['id'] ?></h2>
-        <div>
-            <a href="index.php" class="btn btn-outline-secondary me-2">← Voltar</a>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalPagarMassa">
-                <i class="bi bi-cash-stack"></i> Pagamento em Massa
-            </button>
+    <?php if ($emprestimo_quitado): ?>
+    <div class="alert alert-success text-center py-3 mb-4">
+        <h4 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i>EMPRÉSTIMO QUITADO</h4>
+        <p class="mb-0 mt-2">Todas as parcelas deste empréstimo foram pagas integralmente.</p>
+    </div>
+    <?php endif; ?>
+    
+    <div class="card mb-4 header-card">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="d-flex align-items-center">
+                    <div class="header-icon me-3">
+                        <i class="bi bi-clipboard-data"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 text-uppercase small">Empréstimo</h6>
+                        <h2 class="mb-0">Detalhes do Empréstimo #<?= $emprestimo['id'] ?></h2>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="index.php" class="btn btn-outline-secondary px-3">
+                        <i class="bi bi-arrow-left me-2"></i>Voltar
+                    </a>
+                    <button type="button" class="btn btn-danger px-3" onclick="abrirModalQuitacao()" <?= $emprestimo_quitado ? 'disabled' : '' ?>>
+                        <i class="bi bi-check2-circle me-2"></i>Quitar Empréstimo
+                    </button>
+                    <a href="parcelas/recibo_quitacao.php?emprestimo_id=<?= $emprestimo['id'] ?>" 
+                       class="btn btn-primary px-3" target="_blank">
+                        <i class="bi bi-file-earmark-text me-2"></i>Recibo de Quitação
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-5">
         <!-- Card Cliente -->
         <div class="col-md-3">
             <div class="card h-100">
-                <div class="card-header cliente-header">
-                    <h5 class="card-title mb-0">Cliente</h5>
+                <div class="card-header cliente-header py-2 text-center cursor-pointer" onclick="toggleCard(this)">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Cliente</h5>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-person-circle me-3" style="font-size: 2.5rem; color: #2c7744;"></i>
+                <div class="card-body py-2 d-flex flex-column justify-content-center card-content">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-person-circle me-2" style="font-size: 2rem; color: #2c7744;"></i>
                         <div>
-                            <h6 class="mb-1"><?= htmlspecialchars($emprestimo['cliente_nome']) ?></h6>
+                            <h6 class="mb-0 fs-6"><?= htmlspecialchars($emprestimo['cliente_nome']) ?></h6>
                             <span class="text-muted small"><?= formatarCPF($emprestimo['cpf'] ?? '') ?></span>
                         </div>
                     </div>
-                    <div class="border-top pt-3">
+                    <div class="border-top pt-2">
                         <div class="d-flex align-items-center">
                             <i class="bi bi-telephone me-2" style="color: #2c7744;"></i>
                             <div>
                                 <div class="text-muted small">Telefone:</div>
-                                <strong><?= formatarTelefone($emprestimo['telefone']) ?></strong>
+                                <strong class="fs-6"><?= formatarTelefone($emprestimo['telefone']) ?></strong>
                             </div>
                         </div>
                     </div>
@@ -190,30 +227,33 @@ $total_previsto = $emprestimo['valor_parcela'] * $emprestimo['parcelas'];
         <!-- Card Valores -->
         <div class="col-md-3">
             <div class="card h-100">
-                <div class="card-header valores-header">
-                    <h5 class="card-title mb-0">Valores</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="text-muted small">Capital:</label>
-                        <h6 class="mb-0">R$ <?= number_format($emprestimo['valor_emprestado'], 2, ',', '.') ?></h6>
+                <div class="card-header valores-header py-2 text-center cursor-pointer" onclick="toggleCard(this)">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Valores</h5>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
                     </div>
-                    <div class="border-top pt-3">
+                </div>
+                <div class="card-body py-2 d-flex flex-column justify-content-center card-content">
+                    <div class="mb-2">
+                        <label class="text-muted small">Capital:</label>
+                        <h6 class="mb-0 fs-6">R$ <?= number_format($emprestimo['valor_emprestado'], 2, ',', '.') ?></h6>
+                    </div>
+                    <div class="border-top pt-2">
                         <?php if ($emprestimo['juros_percentual'] > 0): ?>
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label class="text-muted small">Juros:</label>
-                            <h6 class="mb-0"><?= number_format($emprestimo['juros_percentual'], 2, ',', '') ?>%</h6>
+                            <h6 class="mb-0 fs-6"><?= number_format($emprestimo['juros_percentual'], 2, ',', '') ?>%</h6>
                         </div>
                         <?php endif; ?>
                         <?php if ($configuracao['usar_tlc']): ?>
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label class="text-muted small">TLC:</label>
-                            <h6 class="mb-0">R$ <?= number_format($configuracao['tlc_valor'], 2, ',', '.') ?></h6>
+                            <h6 class="mb-0 fs-6">R$ <?= number_format($configuracao['tlc_valor'], 2, ',', '.') ?></h6>
                         </div>
                         <?php endif; ?>
                         <div>
                             <label class="text-muted small">Total:</label>
-                            <h6 class="mb-0">R$ <?= number_format($total_previsto, 2, ',', '.') ?></h6>
+                            <h6 class="mb-0 fs-6">R$ <?= number_format($total_previsto, 2, ',', '.') ?></h6>
                         </div>
                     </div>
                 </div>
@@ -223,53 +263,60 @@ $total_previsto = $emprestimo['valor_parcela'] * $emprestimo['parcelas'];
         <!-- Card Status das Parcelas -->
         <div class="col-md-3">
             <div class="card h-100">
-                <div class="card-header status-header">
-                    <h5 class="card-title mb-0">Status das Parcelas</h5>
+                <div class="card-header status-header py-2 text-center cursor-pointer" onclick="toggleCard(this)">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Status das Parcelas</h5>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row g-2">
+                <div class="card-body py-2 d-flex flex-column justify-content-center card-content">
+                    <div class="row g-1">
                         <div class="col-6">
-                            <div class="mb-3">
+                            <div class="mb-2">
                                 <label class="text-muted small d-block">Pagas:</label>
-                                <h6 class="mb-0"><?= $pagas ?></h6>
+                                <h6 class="mb-0 fs-6"><?= $pagas ?></h6>
                             </div>
                             <div>
                                 <label class="text-muted small d-block">Pendentes:</label>
-                                <h6 class="mb-0"><?= $pendentes ?></h6>
+                                <h6 class="mb-0 fs-6"><?= $pendentes ?></h6>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="mb-3">
+                            <div class="mb-2">
                                 <label class="text-muted small d-block">Vencidas:</label>
-                                <h6 class="mb-0"><?= $vencidas ?></h6>
+                                <h6 class="mb-0 fs-6"><?= $vencidas ?></h6>
                             </div>
                             <div>
                                 <label class="text-muted small d-block">Total:</label>
-                                <h6 class="mb-0"><?= $emprestimo['parcelas'] ?></h6>
+                                <h6 class="mb-0 fs-6"><?= $emprestimo['parcelas'] ?></h6>
                             </div>
                         </div>
                     </div>
-                    <div class="border-top pt-3 mt-3">
+                    <div class="border-top pt-2 mt-2">
                         <?php
-                            $percentual_pago = ($pagas / $emprestimo['parcelas']) * 100;
-                            
-                            // Define a cor baseada no percentual
-                            if ($percentual_pago < 25) {
-                                $cor = '#dc3545'; // Vermelho
-                            } elseif ($percentual_pago < 50) {
-                                $cor = '#ffc107'; // Amarelo
-                            } elseif ($percentual_pago < 75) {
-                                $cor = '#28a745'; // Verde
-                            } else {
-                                $cor = '#198754'; // Verde escuro
-                            }
+                        $percentual_pago = ($pagas / $emprestimo['parcelas']) * 100;
+                        
+                        // Define a cor baseada no percentual
+                        if ($percentual_pago < 25) {
+                            $cor = '#dc3545'; // Vermelho
+                        } elseif ($percentual_pago < 50) {
+                            $cor = '#ffc107'; // Amarelo
+                        } elseif ($percentual_pago < 75) {
+                            $cor = '#28a745'; // Verde
+                        } else {
+                            $cor = '#198754'; // Verde escuro
+                        }
                         ?>
-                        <div class="progress">
+                        <div class="mb-1">
+                            <label class="text-muted small">Progresso de Pagamento:</label>
+                        </div>
+                        <div class="progress" style="height: 15px;">
                             <div class="progress-bar" role="progressbar" 
-                                 style="width: <?= $percentual_pago ?>%; background-color: <?= $cor ?>;" 
-                                 aria-valuenow="<?= $percentual_pago ?>" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="100">
+                                style="width: <?= $percentual_pago ?>%; background-color: <?= $cor ?>;" 
+                                aria-valuenow="<?= $percentual_pago ?>" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100">
+                                <span class="small"><?= number_format($percentual_pago, 0) ?>%</span>
                             </div>
                         </div>
                     </div>
@@ -280,31 +327,34 @@ $total_previsto = $emprestimo['valor_parcela'] * $emprestimo['parcelas'];
         <!-- Card Configurações -->
         <div class="col-md-3">
             <div class="card h-100">
-                <div class="card-header resumo-header">
-                    <h5 class="card-title mb-0">Configurações</h5>
+                <div class="card-header resumo-header py-2 text-center cursor-pointer" onclick="toggleCard(this)">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Configurações</h5>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
+                <div class="card-body py-2 d-flex flex-column justify-content-center card-content">
+                    <div class="mb-2">
                         <label class="text-muted small">Tipo de Cobrança:</label>
-                        <h6 class="mb-0">
-                            <span class="badge text-bg-info">
+                        <h6 class="mb-0 fs-6">
+                            <span class="badge text-bg-info" style="padding: 0.3em 0.5em;">
                                 <?= ucfirst(str_replace('_', ' ', $emprestimo['tipo_de_cobranca'])) ?>
                             </span>
                         </h6>
                     </div>
-                    <div class="border-top pt-3">
-                        <div class="mb-3">
+                    <div class="border-top pt-2">
+                        <div class="mb-2">
                             <label class="text-muted small">Período:</label>
-                            <h6 class="mb-0">
-                                <span class="badge text-bg-secondary">
+                            <h6 class="mb-0 fs-6">
+                                <span class="badge text-bg-secondary" style="padding: 0.3em 0.5em;">
                                     <?= ucfirst($configuracao['periodo_pagamento']) ?>
                                 </span>
                             </h6>
                         </div>
                         <div>
                             <label class="text-muted small">Modo de Cálculo:</label>
-                            <h6 class="mb-0">
-                                <span class="badge text-bg-secondary">
+                            <h6 class="mb-0 fs-6">
+                                <span class="badge text-bg-secondary" style="padding: 0.3em 0.5em;">
                                     <?= $configuracao['modo_calculo'] === 'parcela' ? 'Por Parcela' : 'Por Taxa' ?>
                                 </span>
                             </h6>
@@ -321,7 +371,39 @@ $total_previsto = $emprestimo['valor_parcela'] * $emprestimo['parcelas'];
             <h5 class="card-title mb-0">Parcelas</h5>
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive">
+            <!-- Filtro de Parcelas -->
+            <div class="p-3 border-bottom">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <select id="filtroStatus" class="form-select form-select-sm">
+                            <option value="">Todos os status</option>
+                            <option value="pago">Pago</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="atrasado">Atrasado</option>
+                            <option value="parcial">Parcial</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="filtroValor" class="form-select form-select-sm">
+                            <option value="">Todos os valores</option>
+                            <option value="menor">Menor valor</option>
+                            <option value="maior">Maior valor</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="filtroVencimento" class="form-select form-select-sm">
+                            <option value="">Todos os vencimentos</option>
+                            <option value="proximo">Próximo vencimento</option>
+                            <option value="atrasado">Vencimentos atrasados</option>
+                            <option value="futuro">Vencimentos futuros</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button id="limparFiltros" class="btn btn-sm btn-outline-secondary w-100">Limpar Filtros</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive d-none d-md-block">
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
@@ -420,6 +502,116 @@ $total_previsto = $emprestimo['valor_parcela'] * $emprestimo['parcelas'];
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Versão Mobile (Cards) -->
+            <div class="d-md-none">
+                <?php foreach ($parcelas as $p): 
+                    $status_class = match($p['status']) {
+                        'pago' => 'success',
+                        'pendente' => 'warning',
+                        'atrasado' => 'danger',
+                        'parcial' => 'info',
+                        default => 'secondary'
+                    };
+                ?>
+                    <div class="parcela-card" data-status="<?= $p['status'] ?>">
+                        <div class="parcela-card-header">
+                            <div class="parcela-number">
+                                <span class="number"><?= $p['numero'] ?></span>
+                                <span class="text-muted">/<?= $emprestimo['parcelas'] ?></span>
+                            </div>
+                            <span class="badge text-bg-<?= $status_class ?>">
+                                <?= ucfirst($p['status']) ?>
+                            </span>
+                        </div>
+                        
+                        <div class="parcela-card-body">
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span>Vencimento</span>
+                                </div>
+                                <div class="info-value">
+                                    <?= date('d/m/Y', strtotime($p['vencimento'])) ?>
+                                </div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="bi bi-cash"></i>
+                                    <span>Valor</span>
+                                </div>
+                                <div class="info-value">
+                                    R$ <?= number_format($p['valor'], 2, ',', '.') ?>
+                                </div>
+                            </div>
+
+                            <?php if ($p['status'] === 'pago' || $p['status'] === 'parcial'): ?>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>Pagamento</span>
+                                </div>
+                                <div class="info-value">
+                                    <div>R$ <?= number_format($p['valor_pago'] ?? $p['valor'], 2, ',', '.') ?></div>
+                                    <small class="text-muted">
+                                        <?php 
+                                        if (isset($p['data_pagamento']) && strtotime($p['data_pagamento']) > 0): 
+                                            echo date('d/m/Y', strtotime($p['data_pagamento']));
+                                            if (isset($p['forma_pagamento']) && !empty($p['forma_pagamento'])) {
+                                                echo ' via ' . ($p['forma_pagamento'] === 'SOBRA DA PARCELA ANTERIOR' ? $p['forma_pagamento'] : ucfirst($p['forma_pagamento']));
+                                            }
+                                        endif; 
+                                        ?>
+                                    </small>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+
+                            <?php if (isset($p['observacao']) && !empty($p['observacao'])): ?>
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="bi bi-info-circle"></i>
+                                    <span>Observação</span>
+                                </div>
+                                <div class="info-value">
+                                    <small><?= htmlspecialchars($p['observacao']) ?></small>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="parcela-card-footer">
+                            <?php 
+                            if (($p['status'] === 'pendente' || $p['status'] === 'parcial') && $p['valor'] > 0): 
+                                $botoes_habilitados = ($p['numero'] === $proxima_parcela || $p['numero'] === $parcela_seguinte);
+                            ?>
+                                <button type="button" 
+                                        class="btn <?= $botoes_habilitados ? 'btn-success' : 'btn-secondary' ?> btn-pagar" 
+                                        data-parcela='<?= json_encode($p) ?>'
+                                        <?= !$botoes_habilitados ? 'disabled' : '' ?>
+                                        title="<?= $botoes_habilitados ? 'Registrar Pagamento' : 'Pagamento disponível apenas para próximas parcelas' ?>">
+                                    <i class="bi bi-cash-coin me-2"></i>Pagar
+                                </button>
+                                <button type="button" 
+                                        class="btn <?= $botoes_habilitados ? 'btn-info' : 'btn-secondary' ?>" 
+                                        onclick="enviarCobranca(<?= $emprestimo['id'] ?>, <?= $p['numero'] ?>)"
+                                        <?= !$botoes_habilitados ? 'disabled' : '' ?>
+                                        title="<?= $botoes_habilitados ? 'Enviar Cobrança' : 'Cobrança disponível apenas para próximas parcelas' ?>">
+                                    <i class="bi bi-whatsapp me-2"></i>Cobrar
+                                </button>
+                            <?php else: ?>
+                                <a href="parcelas/recibo.php?emprestimo_id=<?= $emprestimo['id'] ?>&parcela_numero=<?= $p['numero'] ?>" 
+                                   class="btn btn-secondary" 
+                                   target="_blank"
+                                   title="Imprimir Recibo">
+                                    <i class="bi bi-printer me-2"></i>Recibo
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
@@ -520,155 +712,556 @@ $total_previsto = $emprestimo['valor_parcela'] * $emprestimo['parcelas'];
     </div>
 </div>
 
+<!-- Modal de Sucesso -->
+<div class="modal fade" id="modalSucesso" tabindex="-1" aria-labelledby="modalSucessoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="mb-3">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                </div>
+                <h4 class="mb-3" id="mensagem-sucesso">Pagamento Registrado!</h4>
+                <p class="mb-0 text-muted" id="submensagem-sucesso">O pagamento foi registrado com sucesso.</p>
+            </div>
+            <div class="modal-footer justify-content-center border-0 pb-4">
+                <button type="button" class="btn btn-success px-4" onclick="window.location.reload()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Atualizar Página
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Quitação -->
+<div class="modal fade" id="modalQuitacao" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quitar Empréstimo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info mb-4">
+                    <h6 class="alert-heading mb-2">Resumo da Quitação</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total do Empréstimo:</span>
+                        <strong id="total_emprestimo">R$ <?= number_format($total_previsto, 2, ',', '.') ?></strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Já Pago:</span>
+                        <strong id="total_pago">R$ <?= number_format($total_pago, 2, ',', '.') ?></strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Valor para Quitação:</span>
+                        <strong id="valor_quitacao" class="text-success">R$ <?= number_format($total_previsto - $total_pago, 2, ',', '.') ?></strong>
+                    </div>
+                </div>
+
+                <form id="formQuitacao">
+                    <div class="mb-3">
+                        <label for="valor_quitacao_input" class="form-label">Valor a Pagar</label>
+                        <input type="number" step="0.01" class="form-control" id="valor_quitacao_input" name="valor_quitacao_input" value="<?= number_format($total_previsto - $total_pago, 2, '.', '') ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="data_quitacao" class="form-label">Data do Pagamento</label>
+                        <input type="date" class="form-control" id="data_quitacao" name="data_quitacao" value="<?= date('Y-m-d') ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="forma_pagamento_quitacao" class="form-label">Forma de Pagamento</label>
+                        <select class="form-select" id="forma_pagamento_quitacao" name="forma_pagamento_quitacao" required>
+                            <option value="dinheiro">Dinheiro</option>
+                            <option value="pix">PIX</option>
+                            <option value="cartao">Cartão</option>
+                            <option value="transferencia">Transferência</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="quitarEmprestimo()">
+                    <i class="bi bi-check2-circle me-2"></i>Confirmar Quitação
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inclui o script do Canvas Confetti antes de qualquer uso -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 <script>
-// Inicializa o modal
-const modalPagamento = new bootstrap.Modal(document.getElementById('modalPagamento'));
-
-// Função para abrir o modal de pagamento
-function abrirModalPagamento(emprestimo_id, parcela_numero, valor, valor_pago, status) {
-    document.getElementById('emprestimo_id').value = emprestimo_id;
-    document.getElementById('parcela_numero').value = parcela_numero;
-    document.getElementById('valor_parcela').value = <?= $emprestimo['valor_parcela'] ?>;
+// Aguarda o DOM estar completamente carregado
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializa os modais
+    const modalPagamento = document.getElementById('modalPagamento');
+    const modalQuitacao = document.getElementById('modalQuitacao');
     
-    // Exibe o número da parcela e status
-    document.getElementById('numero_parcela_display').textContent = parcela_numero;
-    
-    // Define a classe do badge baseado no status
-    const statusBadge = document.getElementById('status_parcela_display');
-    statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-    statusBadge.className = 'badge ' + 
-        (status === 'pago' ? 'bg-success' : 
-         status === 'pendente' ? 'bg-warning' : 
-         status === 'atrasado' ? 'bg-danger' : 
-         status === 'parcial' ? 'bg-info' : 'bg-secondary');
-    
-    // Calcula e exibe os valores formatados
-    const valorTotal = valor;
-    const valorPago = valor_pago || 0;
-    const valorAReceber = valorTotal - valorPago;
-    
-    document.getElementById('valor_total_display').textContent = 'R$ ' + valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    document.getElementById('valor_pago_display').textContent = 'R$ ' + valorPago.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    document.getElementById('valor_a_receber_display').textContent = 'R$ ' + valorAReceber.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    
-    document.getElementById('valor_pago').value = valorAReceber.toFixed(2);
-    document.getElementById('data_pagamento').value = new Date().toISOString().split('T')[0];
-    
-    // Esconde as opções de distribuição inicialmente
-    document.getElementById('opcoes_distribuicao').classList.add('d-none');
-    document.getElementById('opcoes_menor').classList.add('d-none');
-    document.getElementById('opcoes_maior').classList.add('d-none');
-    
-    const modal = new bootstrap.Modal(document.getElementById('modalPagamento'));
-    modal.show();
-}
-
-// Monitora mudanças no valor pago
-document.getElementById('valor_pago').addEventListener('input', function() {
-    const valorOriginal = parseFloat(document.getElementById('valor_parcela').value);
-    const valorPago = parseFloat(this.value);
-    
-    if (isNaN(valorPago)) return;
-    
-    const diferenca = valorPago - valorOriginal;
-    const opcoesDistribuicao = document.getElementById('opcoes_distribuicao');
-    const opcoesMenor = document.getElementById('opcoes_menor');
-    const opcoesMaior = document.getElementById('opcoes_maior');
-    const infoDiv = document.getElementById('info_diferenca');
-    
-    if (diferenca !== 0) {
-        opcoesDistribuicao.classList.remove('d-none');
-        
-        if (diferenca < 0) {
-            infoDiv.textContent = `Valor menor que o original. Diferença: R$ ${Math.abs(diferenca).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-            opcoesMenor.classList.remove('d-none');
-            opcoesMaior.classList.add('d-none');
-            // Garante que a opção padrão 'proxima_parcela' esteja selecionada
-             if (!document.querySelector('input[name="modo_distribuicao"][value="proxima_parcela"]')) {
-                 // Se o elemento não existir, pode ser um erro, mas por segurança checa se a div existe
-                 if(opcoesMenor.querySelector('input[type="radio"]')) {
-                    opcoesMenor.querySelector('input[type="radio"]').checked = true;
-                 }
-             } else {
-                document.querySelector('input[name="modo_distribuicao"][value="proxima_parcela"]').checked = true;
-             }
-        } else {
-            infoDiv.textContent = `Valor maior que o original. Excedente: R$ ${diferenca.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-            opcoesMaior.classList.remove('d-none');
-            opcoesMenor.classList.add('d-none');
-             // Garante que a opção padrão 'desconto_proximas' esteja selecionada
-             if (!document.querySelector('input[name="modo_distribuicao"][value="desconto_proximas"]')) {
-                 if(opcoesMaior.querySelector('input[type="radio"]')) {
-                    opcoesMaior.querySelector('input[type="radio"]').checked = true;
-                 }
-             } else {
-                 document.querySelector('input[name="modo_distribuicao"][value="desconto_proximas"]').checked = true;
-             }
-        }
-    } else {
-        opcoesDistribuicao.classList.add('d-none');
+    if (modalPagamento) {
+        new bootstrap.Modal(modalPagamento);
     }
+    
+    if (modalQuitacao) {
+        new bootstrap.Modal(modalQuitacao);
+    }
+
+    // Adiciona event listeners para os botões de pagamento
+    const botoesPagamento = document.querySelectorAll('.btn-pagar');
+    botoesPagamento.forEach(botao => {
+        botao.addEventListener('click', function() {
+            const parcelaData = JSON.parse(this.getAttribute('data-parcela'));
+            abrirModalPagamento(
+                <?php echo $emprestimo_id; ?>, 
+                parcelaData.numero, 
+                parcelaData.valor, 
+                parcelaData.valor_pago || 0, 
+                parcelaData.status
+            );
+        });
+    });
+
+    // Função para abrir o modal de pagamento
+    window.abrirModalPagamento = function(emprestimo_id, parcela_numero, valor, valor_pago, status) {
+        const emprestimo_id_input = document.getElementById('emprestimo_id');
+        const parcela_numero_input = document.getElementById('parcela_numero');
+        const valor_parcela_input = document.getElementById('valor_parcela');
+        
+        if (emprestimo_id_input) emprestimo_id_input.value = emprestimo_id;
+        if (parcela_numero_input) parcela_numero_input.value = parcela_numero;
+        if (valor_parcela_input) valor_parcela_input.value = valor;
+        
+        // Exibe o número da parcela e status
+        const numero_display = document.getElementById('numero_parcela_display');
+        if (numero_display) numero_display.textContent = parcela_numero;
+        
+        // Define a classe do badge baseado no status
+        const statusBadge = document.getElementById('status_parcela_display');
+        if (statusBadge) {
+            statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            statusBadge.className = 'badge ' + 
+                (status === 'pago' ? 'bg-success' : 
+                 status === 'pendente' ? 'bg-warning' : 
+                 status === 'atrasado' ? 'bg-danger' : 
+                 status === 'parcial' ? 'bg-info' : 'bg-secondary');
+        }
+        
+        // Calcula e exibe os valores formatados
+        const valorTotal = valor;
+        const valorPagoAtual = valor_pago || 0;
+        const valorAReceber = valorTotal - valorPagoAtual;
+        
+        const valor_total_display = document.getElementById('valor_total_display');
+        const valor_pago_display = document.getElementById('valor_pago_display');
+        const valor_a_receber_display = document.getElementById('valor_a_receber_display');
+        const valor_pago_input = document.getElementById('valor_pago');
+        const data_pagamento_input = document.getElementById('data_pagamento');
+        
+        if (valor_total_display) valor_total_display.textContent = 'R$ ' + valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        if (valor_pago_display) valor_pago_display.textContent = 'R$ ' + valorPagoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        if (valor_a_receber_display) valor_a_receber_display.textContent = 'R$ ' + valorAReceber.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        if (valor_pago_input) valor_pago_input.value = valorAReceber.toFixed(2);
+        if (data_pagamento_input) data_pagamento_input.value = new Date().toISOString().split('T')[0];
+        
+        // Esconde as opções de distribuição inicialmente
+        const opcoes_distribuicao = document.getElementById('opcoes_distribuicao');
+        const opcoes_menor = document.getElementById('opcoes_menor');
+        const opcoes_maior = document.getElementById('opcoes_maior');
+        
+        if (opcoes_distribuicao) opcoes_distribuicao.classList.add('d-none');
+        if (opcoes_menor) opcoes_menor.classList.add('d-none');
+        if (opcoes_maior) opcoes_maior.classList.add('d-none');
+        
+        const modal = new bootstrap.Modal(modalPagamento);
+        modal.show();
+    };
+
+    // Função para abrir o modal de quitação
+    window.abrirModalQuitacao = function() {
+        const modal = new bootstrap.Modal(modalQuitacao);
+        modal.show();
+    };
+
+    // Monitora mudanças no valor pago
+    const valorPagoInput = document.getElementById('valor_pago');
+    if (valorPagoInput) {
+        valorPagoInput.addEventListener('input', function() {
+            const valorOriginal = parseFloat(document.getElementById('valor_parcela')?.value || 0);
+            const valorPago = parseFloat(this.value) || 0;
+            
+            const diferenca = valorPago - valorOriginal;
+            const opcoesDistribuicao = document.getElementById('opcoes_distribuicao');
+            const opcoesMenor = document.getElementById('opcoes_menor');
+            const opcoesMaior = document.getElementById('opcoes_maior');
+            const infoDiv = document.getElementById('info_diferenca');
+            
+            if (!opcoesDistribuicao || !opcoesMenor || !opcoesMaior || !infoDiv) return;
+            
+            if (diferenca !== 0) {
+                opcoesDistribuicao.classList.remove('d-none');
+                
+                if (diferenca < 0) {
+                    infoDiv.textContent = `Valor menor que o original. Diferença: R$ ${Math.abs(diferenca).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+                    opcoesMenor.classList.remove('d-none');
+                    opcoesMaior.classList.add('d-none');
+                    
+                    const radioProximaParcela = document.querySelector('input[name="modo_distribuicao"][value="proxima_parcela"]');
+                    if (radioProximaParcela) {
+                        radioProximaParcela.checked = true;
+                    }
+                } else {
+                    infoDiv.textContent = `Valor maior que o original. Excedente: R$ ${diferenca.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+                    opcoesMaior.classList.remove('d-none');
+                    opcoesMenor.classList.add('d-none');
+                    
+                    const radioDescontoProximas = document.querySelector('input[name="modo_distribuicao"][value="desconto_proximas"]');
+                    if (radioDescontoProximas) {
+                        radioDescontoProximas.checked = true;
+                    }
+                }
+            } else {
+                opcoesDistribuicao.classList.add('d-none');
+            }
+        });
+    }
+
+    // Implementação do filtro de parcelas
+    const filtroStatus = document.getElementById('filtroStatus');
+    const filtroValor = document.getElementById('filtroValor');
+    const filtroVencimento = document.getElementById('filtroVencimento');
+    const limparFiltros = document.getElementById('limparFiltros');
+    const tabela = document.querySelector('.table tbody');
+    const linhas = tabela.querySelectorAll('tr');
+    const cards = document.querySelectorAll('.parcela-card');
+
+    function aplicarFiltros() {
+        const valorStatus = filtroStatus.value;
+        const valorFiltroValor = filtroValor.value;
+        const valorFiltroVencimento = filtroVencimento.value;
+        
+        // Filtra as linhas da tabela
+        linhas.forEach(linha => {
+            const status = linha.getAttribute('data-status');
+            const valor = parseFloat(linha.querySelector('td:nth-child(3)').textContent.replace('R$', '').replace('.', '').replace(',', '.'));
+            const vencimento = new Date(linha.querySelector('td:nth-child(2)').textContent.split('/').reverse().join('-'));
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            
+            let matchStatus = valorStatus === '' || status === valorStatus;
+            let matchValor = true;
+            let matchVencimento = true;
+            
+            // Aplica filtro de valor
+            if (valorFiltroValor === 'menor') {
+                matchValor = valor < parseFloat(<?= $emprestimo['valor_parcela'] ?>);
+            } else if (valorFiltroValor === 'maior') {
+                matchValor = valor > parseFloat(<?= $emprestimo['valor_parcela'] ?>);
+            }
+            
+            // Aplica filtro de vencimento
+            if (valorFiltroVencimento === 'proximo') {
+                // Encontra a próxima parcela pendente
+                const proximaParcela = <?= $proxima_parcela ?? 'null' ?>;
+                matchVencimento = parseInt(linha.querySelector('td:nth-child(1)').textContent) === proximaParcela;
+            } else if (valorFiltroVencimento === 'atrasado') {
+                matchVencimento = vencimento < hoje && status !== 'pago';
+            } else if (valorFiltroVencimento === 'futuro') {
+                matchVencimento = vencimento > hoje;
+            }
+            
+            if (matchStatus && matchValor && matchVencimento) {
+                linha.style.display = '';
+            } else {
+                linha.style.display = 'none';
+            }
+        });
+        
+        // Filtra os cards na versão mobile
+        cards.forEach(card => {
+            const status = card.getAttribute('data-status');
+            const valor = parseFloat(card.querySelector('.info-value').textContent.replace('R$', '').replace('.', '').replace(',', '.'));
+            const vencimentoText = card.querySelector('.info-row:nth-child(2) .info-value').textContent.trim();
+            const vencimento = new Date(vencimentoText.split('/').reverse().join('-'));
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            
+            let matchStatus = valorStatus === '' || status === valorStatus;
+            let matchValor = true;
+            let matchVencimento = true;
+            
+            // Aplica filtro de valor
+            if (valorFiltroValor === 'menor') {
+                matchValor = valor < parseFloat(<?= $emprestimo['valor_parcela'] ?>);
+            } else if (valorFiltroValor === 'maior') {
+                matchValor = valor > parseFloat(<?= $emprestimo['valor_parcela'] ?>);
+            }
+            
+            // Aplica filtro de vencimento
+            if (valorFiltroVencimento === 'proximo') {
+                // Encontra a próxima parcela pendente
+                const proximaParcela = <?= $proxima_parcela ?? 'null' ?>;
+                const numeroParcela = parseInt(card.querySelector('.parcela-number .number').textContent);
+                matchVencimento = numeroParcela === proximaParcela;
+            } else if (valorFiltroVencimento === 'atrasado') {
+                matchVencimento = vencimento < hoje && status !== 'pago';
+            } else if (valorFiltroVencimento === 'futuro') {
+                matchVencimento = vencimento > hoje;
+            }
+            
+            if (matchStatus && matchValor && matchVencimento) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    filtroStatus.addEventListener('change', aplicarFiltros);
+    filtroValor.addEventListener('change', aplicarFiltros);
+    filtroVencimento.addEventListener('change', aplicarFiltros);
+    
+    limparFiltros.addEventListener('click', function() {
+        filtroStatus.value = '';
+        filtroValor.value = '';
+        filtroVencimento.value = '';
+        aplicarFiltros();
+    });
 });
 
-// Função para registrar o pagamento
-function registrarPagamento() {
-    const parcela_numero = document.getElementById('parcela_numero').value;
-    const valor_pago = parseFloat(document.getElementById('valor_pago').value);
-    const data_pagamento = document.getElementById('data_pagamento').value;
-    const forma_pagamento = document.getElementById('forma_pagamento').value;
-    const modo_distribuicao = document.querySelector('input[name="modo_distribuicao"]:checked')?.value;
+// Função para criar a animação de fogos
+function celebrarQuitacao() {
+    console.log('Iniciando celebração!'); // Debug
+
+    // Explosão inicial
+    confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+    });
+
+    // Canhões dos lados
+    const end = Date.now() + (3 * 1000); // 3 segundos
+
+    // Lança confetti dos dois lados
+    (function frame() {
+        confetti({
+            particleCount: 2,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 }
+        });
+        confetti({
+            particleCount: 2,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 }
+        });
+
+        if (Date.now() < end) {
+            requestAnimationFrame(frame);
+        }
+    }());
+
+    // Explosão final após 2 segundos
+    setTimeout(() => {
+        confetti({
+            particleCount: 150,
+            spread: 100,
+            origin: { y: 0.6 }
+        });
+    }, 2000);
+}
+
+// Função para verificar se todas as parcelas estão pagas
+function verificarEmprestimoQuitado(parcelas) {
+    return parcelas.every(p => p.status === 'pago');
+}
+
+// Função para mostrar o modal de sucesso com animação
+function mostrarSucessoComAnimacao(mensagem, submensagem, mostrarFogos = false) {
+    // Atualiza as mensagens
+    document.getElementById('mensagem-sucesso').textContent = mensagem;
+    document.getElementById('submensagem-sucesso').textContent = submensagem;
     
-    // Envia os dados para o servidor
+    // Mostra o modal
+    const modalSucesso = new bootstrap.Modal(document.getElementById('modalSucesso'));
+    modalSucesso.show();
+
+    // Se for quitação, mostra os fogos
+    if (mostrarFogos) {
+        console.log('Chamando celebração...'); // Debug
+        setTimeout(celebrarQuitacao, 500); // Pequeno delay para garantir que o modal está visível
+    }
+}
+
+// Função para registrar o pagamento
+window.registrarPagamento = function() {
+    const parcela_numero = document.getElementById('parcela_numero')?.value;
+    const valor_input = document.getElementById('valor_pago')?.value;
+    const data_pagamento = document.getElementById('data_pagamento')?.value;
+    const forma_pagamento = document.getElementById('forma_pagamento')?.value;
+    const modo_distribuicao = document.querySelector('input[name="modo_distribuicao"]:checked')?.value || 'desconto_proximas';
+
+    if (!parcela_numero || !valor_input || !data_pagamento || !forma_pagamento) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    const valor_pago = parseFloat(valor_input.replace(',', '.')) || 0;
+    
+    if (isNaN(valor_pago) || valor_pago <= 0) {
+        alert('Por favor, insira um valor válido.');
+        return;
+    }
+    
+    const dados = {
+        emprestimo_id: <?php echo $emprestimo_id; ?>,
+        parcela_numero: parcela_numero,
+        valor_pago: valor_pago.toFixed(2),
+        data_pagamento: data_pagamento,
+        forma_pagamento: forma_pagamento,
+        modo_distribuicao: modo_distribuicao
+    };
+    
     fetch('parcelas/pagar.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: `emprestimo_id=<?php echo $emprestimo_id; ?>&parcela_numero=${parcela_numero}&valor_pago=${valor_pago}&data_pagamento=${data_pagamento}&forma_pagamento=${forma_pagamento}&modo_distribuicao=${modo_distribuicao}`
+        body: new URLSearchParams(dados)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success' || data.sucesso) {
-            alert('Pagamento registrado com sucesso!');
-            location.reload();
-        } else {
-            alert('Erro ao registrar pagamento: ' + data.message);
+    .then(async response => {
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+            if (data.status === 'success') {
+                // Fecha o modal de pagamento
+                const modalPagamento = bootstrap.Modal.getInstance(document.getElementById('modalPagamento'));
+                if (modalPagamento) modalPagamento.hide();
+
+                // Verifica se o empréstimo foi quitado
+                const todasParcelas = document.querySelectorAll('[data-parcela]');
+                const parcelas = Array.from(todasParcelas).map(el => JSON.parse(el.dataset.parcela));
+                const quitado = verificarEmprestimoQuitado(parcelas);
+
+                if (quitado) {
+                    mostrarSucessoComAnimacao(
+                        'Empréstimo Quitado!',
+                        'Parabéns! Todas as parcelas foram pagas.',
+                        true // mostra fogos
+                    );
+                } else {
+                    mostrarSucessoComAnimacao(
+                        'Pagamento Registrado!',
+                        'O pagamento foi registrado com sucesso.',
+                        false // não mostra fogos
+                    );
+                }
+            } else {
+                throw new Error(data.message || 'Erro desconhecido');
+            }
+        } catch (e) {
+            console.error('Erro ao processar resposta:', e);
+            console.log('Resposta do servidor:', text);
+            alert('Erro ao registrar pagamento: ' + (e.message || 'Resposta inválida do servidor'));
         }
     })
     .catch(error => {
-        console.error('Erro:', error);
-        alert('Erro ao registrar pagamento. Por favor, tente novamente.');
+        console.error('Erro na requisição:', error);
+        alert('Erro ao registrar pagamento: ' + error.message);
     });
-}
+};
 
-// Função para enviar cobrança via WhatsApp
-function enviarCobranca(emprestimo_id, parcela_numero) {
-    fetch(`parcelas/cobranca.php?emprestimo_id=${emprestimo_id}&parcela_numero=${parcela_numero}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'sucesso') {
-                window.open(data.link, '_blank');
+// Função para quitar o empréstimo
+window.quitarEmprestimo = function() {
+    const valor_quitacao = document.getElementById('valor_quitacao_input')?.value;
+    const data_quitacao = document.getElementById('data_quitacao')?.value;
+    const forma_pagamento = document.getElementById('forma_pagamento_quitacao')?.value;
+
+    if (!valor_quitacao || !data_quitacao || !forma_pagamento) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    const valor = parseFloat(valor_quitacao.replace(',', '.')) || 0;
+    
+    if (isNaN(valor) || valor <= 0) {
+        alert('Por favor, insira um valor válido.');
+        return;
+    }
+
+    if (!confirm('Tem certeza que deseja quitar o empréstimo? Esta ação não pode ser desfeita.')) {
+        return;
+    }
+    
+    const dados = {
+        emprestimo_id: <?php echo $emprestimo_id; ?>,
+        valor_quitacao: valor.toFixed(2),
+        data_quitacao: data_quitacao,
+        forma_pagamento: forma_pagamento
+    };
+    
+    fetch('parcelas/quitar.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(dados)
+    })
+    .then(async response => {
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+            if (data.status === 'success') {
+                // Fecha o modal de quitação
+                const modalQuitacao = bootstrap.Modal.getInstance(document.getElementById('modalQuitacao'));
+                if (modalQuitacao) modalQuitacao.hide();
+                
+                // Mostra o sucesso com animação
+                mostrarSucessoComAnimacao(
+                    'Empréstimo Quitado!',
+                    'Parabéns! O empréstimo foi quitado com sucesso.',
+                    true // mostra fogos
+                );
             } else {
-                alert('Erro ao gerar link de cobrança: ' + data.mensagem);
+                throw new Error(data.message || 'Erro desconhecido');
             }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao processar cobrança');
-        });
+        } catch (e) {
+            console.error('Erro ao processar resposta:', e);
+            console.log('Resposta do servidor:', text);
+            alert('Erro ao quitar empréstimo: ' + (e.message || 'Resposta inválida do servidor'));
+        }
+    })
+    .catch(error => {
+        console.error('Erro na requisição:', error);
+        alert('Erro ao quitar empréstimo: ' + error.message);
+    });
+};
+
+// Função atualizada para controlar o toggle dos cards
+function toggleCard(header) {
+    const cardBody = header.nextElementSibling;
+    const toggleIcon = header.querySelector('.toggle-icon');
+    
+    // Toggle das classes
+    cardBody.classList.toggle('collapsed');
+    toggleIcon.classList.toggle('collapsed');
+    
+    // Ajusta a altura máxima
+    if (!cardBody.classList.contains('collapsed')) {
+        cardBody.style.maxHeight = cardBody.scrollHeight + "px";
+    } else {
+        cardBody.style.maxHeight = "0";
+    }
 }
 
-// Adiciona evento de clique ao botão de pagamento
-document.querySelectorAll('.btn-pagar').forEach(button => {
-    button.addEventListener('click', function() {
-        const parcela = JSON.parse(this.dataset.parcela);
-        abrirModalPagamento(
-            <?php echo $emprestimo_id; ?>,
-            parcela.numero,
-            parcela.valor,
-            parcela.valor_pago || 0,
-            parcela.status
-        );
+// Inicializa os cards expandidos
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.card-content').forEach(content => {
+        content.style.maxHeight = content.scrollHeight + "px";
     });
 });
 </script>
@@ -848,6 +1441,219 @@ function formatarTelefone($telefone) {
 .bi {
     font-size: 1.1rem;
 }
+
+.header-card {
+    background: linear-gradient(45deg, #ffffff, #f8f9fa);
+    border: none;
+    box-shadow: 0 2px 15px rgba(0,0,0,.05);
+}
+
+.header-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(45deg, #1b5962, #13404a);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-icon i {
+    font-size: 24px;
+    color: white;
+}
+
+.header-card h2 {
+    color: #344767;
+    font-weight: 600;
+}
+
+.header-card .btn {
+    font-weight: 500;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    transition: all 0.3s ease;
+}
+
+.header-card .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,.1);
+}
+
+.header-card .btn-outline-secondary {
+    border-width: 2px;
+}
+
+.header-card .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+.header-card .btn-danger {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+    border: none;
+}
+
+.header-card .btn-primary {
+    background: linear-gradient(45deg, #0d6efd, #0a58ca);
+    border: none;
+}
+
+@media (max-width: 768px) {
+    .header-card .btn {
+        width: 100%;
+    }
+}
+
+/* Estilos para os Cards de Parcelas no Mobile */
+.parcela-card {
+    background: #fff;
+    border-radius: 12px;
+    margin: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.parcela-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.parcela-card[data-status="pago"] {
+    border-left: 4px solid #28a745;
+}
+
+.parcela-card[data-status="pendente"] {
+    border-left: 4px solid #ffc107;
+}
+
+.parcela-card[data-status="atrasado"] {
+    border-left: 4px solid #dc3545;
+}
+
+.parcela-card[data-status="parcial"] {
+    border-left: 4px solid #17a2b8;
+}
+
+.parcela-card-header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.parcela-number {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #344767;
+}
+
+.parcela-number .number {
+    font-size: 1.5rem;
+}
+
+.parcela-card-body {
+    padding: 16px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-label i {
+    font-size: 1rem;
+    color: #344767;
+}
+
+.info-value {
+    text-align: right;
+    color: #344767;
+    font-weight: 500;
+}
+
+.parcela-card-footer {
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.parcela-card-footer .btn {
+    padding: 8px 16px;
+}
+
+@media (max-width: 767.98px) {
+    .parcela-card {
+        margin: 8px;
+    }
+    
+    .parcela-card-footer {
+        flex-direction: row;
+        justify-content: stretch;
+    }
+    
+    .parcela-card-footer .btn {
+        flex: 1;
+    }
+}
+
+/* Estilos para o toggle */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.toggle-icon.collapsed {
+    transform: rotate(-180deg);
+}
+
+.card-content {
+    transition: all 0.3s ease-out;
+    max-height: 1000px; /* Altura máxima inicial */
+    opacity: 1;
+    padding: 1rem;
+}
+
+.card-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Ajuste do espaçamento dos cards */
+.row.g-5 > * {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
 </style>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?> 
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

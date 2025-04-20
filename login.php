@@ -7,11 +7,13 @@ ini_set('session.cookie_samesite', 'Strict');
 session_start();
 
 require_once __DIR__ . '/config.php';             // define BASE_URL
-require_once __DIR__ . '/includes/head.php';      // usa BASE_URL
+require_once __DIR__ . '/includes/conexao.php';   // Adicionando conexão
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Limpa a sessão anterior se existir
+if (isset($_SESSION['usuario_id'])) {
+    session_destroy();
+    session_start();
+}
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -20,52 +22,85 @@ if (empty($_SESSION['csrf_token'])) {
 $erro = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Sanitização mais rigorosa dos dados
-    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-    $email = filter_var($email, FILTER_VALIDATE_EMAIL);
-    
-    $senha = filter_input(INPUT_POST, 'senha', FILTER_UNSAFE_RAW);
-    $senha = trim($senha);
-    
-    $csrf_token = filter_input(INPUT_POST, 'csrf_token', FILTER_SANITIZE_STRING);
-    $csrf_token = trim($csrf_token);
+    try {
+        // Sanitização dos dados
+        $email = filter_var(
+            trim($_POST['email'] ?? ''),
+            FILTER_VALIDATE_EMAIL
+        );
+        
+        $senha = trim($_POST['senha'] ?? '');
+        $csrf_token = trim($_POST['csrf_token'] ?? '');
 
-    if (!$email) {
-        $erro = "Email inválido.";
-    } elseif (strlen($senha) < 6) {
-        $erro = "A senha deve ter pelo menos 6 caracteres.";
-    } elseif ($csrf_token !== $_SESSION['csrf_token']) {
-        $erro = "Erro de segurança. Por favor, tente novamente.";
-    } else {
-        if (!isset($conn) || !$conn) {
-            $erro = "Erro de conexão. Tente novamente mais tarde.";
-        } else {
-            $stmt = mysqli_prepare($conn, "SELECT id, senha FROM usuarios WHERE email = ?");
-            if (!$stmt) {
-                $erro = "Erro ao processar login. Tente novamente mais tarde.";
-            } else {
-                mysqli_stmt_bind_param($stmt, "s", $email);
-                mysqli_stmt_execute($stmt);
-                $resultado = mysqli_stmt_get_result($stmt);
-
-                if ($usuario = mysqli_fetch_assoc($resultado)) {
-                    if (password_verify($senha, $usuario['senha'])) {
-                        $_SESSION['usuario_id'] = $usuario['id'];
-                        header("Location: dashboard.php");
-                        exit();
-                    } else {
-                        $erro = "Credenciais inválidas.";
-                    }
-                } else {
-                    $erro = "Credenciais inválidas.";
-                }
-
-                mysqli_stmt_close($stmt);
-            }
+        // Validações
+        if (!$email) {
+            throw new Exception("Por favor, insira um email válido.");
         }
+        
+        if (empty($senha)) {
+            throw new Exception("Por favor, insira sua senha.");
+        }
+        
+        if ($csrf_token !== $_SESSION['csrf_token']) {
+            throw new Exception("Erro de segurança. Por favor, tente novamente.");
+        }
+
+        // Verifica se a conexão está disponível
+        if (!isset($conn) || !$conn instanceof mysqli) {
+            throw new Exception("Erro de conexão com o banco de dados.");
+        }
+
+        // Prepara e executa a consulta
+        $stmt = $conn->prepare("SELECT id, senha FROM usuarios WHERE email = ? LIMIT 1");
+        if (!$stmt) {
+            throw new Exception("Erro ao preparar a consulta: " . $conn->error);
+        }
+
+        $stmt->bind_param("s", $email);
+        
+        if (!$stmt->execute()) {
+            throw new Exception("Erro ao executar a consulta: " . $stmt->error);
+        }
+
+        $resultado = $stmt->get_result();
+        $usuario = $resultado->fetch_assoc();
+
+        if (!$usuario) {
+            throw new Exception("Email ou senha incorretos.");
+        }
+
+        if (!password_verify($senha, $usuario['senha'])) {
+            throw new Exception("Email ou senha incorretos.");
+        }
+
+        // Login bem-sucedido
+        session_regenerate_id(true);
+        $_SESSION['usuario_id'] = $usuario['id'];
+        $_SESSION['usuario_email'] = $email; // Guardando o email já que não temos o nome
+
+        $stmt->close();
+        header("Location: dashboard.php");
+        exit();
+
+    } catch (Exception $e) {
+        error_log("Erro no login: " . $e->getMessage());
+        $erro = $e->getMessage();
     }
 }
 ?>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Sistema de Empréstimos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/estilo2.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/estilo.css">
+</head>
 <body class="bg-light d-flex justify-content-center align-items-center vh-100">
     <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
         <div class="text-center mb-4">
@@ -86,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                     <input type="email" id="email" name="email" class="form-control" 
                            placeholder="Digite seu email" 
+                           value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>"
                            aria-describedby="emailHelp"
                            required>
                 </div>

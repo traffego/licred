@@ -1,6 +1,9 @@
 <?php
-$pagina_atual = basename($_SERVER['PHP_SELF']);
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/conexao.php';
+require_once __DIR__ . '/autenticacao.php';
+
+$pagina_atual = basename($_SERVER['PHP_SELF']);
 ?>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-blue-dark">
@@ -30,7 +33,7 @@ require_once __DIR__ . '/../config.php';
                 <!-- Empréstimos -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['emprestimos/index.php', 'emprestimos/novo.php', 'emprestimos/visualizar.php']) ? 'active' : '' ?>" 
-                       href="#" data-bs-toggle="dropdown">
+                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-cash-stack me-1"></i>
                             Empréstimos
                     </a>
@@ -43,7 +46,7 @@ require_once __DIR__ . '/../config.php';
                 <!-- Clientes -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['clientes/index.php', 'clientes/novo.php', 'clientes/visualizar.php']) ? 'active' : '' ?>" 
-                       href="#" data-bs-toggle="dropdown">
+                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-people me-1"></i>
                             Clientes
                     </a>
@@ -56,7 +59,7 @@ require_once __DIR__ . '/../config.php';
                 <!-- Relatórios -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['relatorios/diario.php', 'relatorios/mensal.php']) ? 'active' : '' ?>" 
-                       href="#" data-bs-toggle="dropdown">
+                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-graph-up me-1"></i>
                             Relatórios
                     </a>
@@ -78,9 +81,9 @@ require_once __DIR__ . '/../config.php';
 
             <!-- Menu do Usuário -->
             <div class="dropdown">
-                <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
+                <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person-circle me-1"></i>
-                    <span class="d-none d-lg-inline"><?= $_SESSION['usuario_nome'] ?></span>
+                    <span class="d-none d-lg-inline"><?= $_SESSION['usuario_email'] ?? 'Usuário' ?></span>
                     <span class="d-lg-none">Ver Perfil</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -95,7 +98,7 @@ require_once __DIR__ . '/../config.php';
 
 <!-- Botão de Fechar Mobile -->
 <button class="btn-close btn-close-white d-lg-none position-fixed top-0 end-0 m-3" 
-        style="z-index: 1050; display: none;" 
+        style="z-index: 1050;" 
         data-bs-toggle="collapse" 
         data-bs-target="#navbarMain"></button>
 
@@ -179,3 +182,48 @@ require_once __DIR__ . '/../config.php';
     }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializa todos os dropdowns usando o objeto bootstrap
+    var dropdowns = document.querySelectorAll('.dropdown-toggle');
+    dropdowns.forEach(function(dropdown) {
+        new bootstrap.Dropdown(dropdown);
+    });
+
+    // Gerencia o botão de fechar mobile
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const closeButton = document.querySelector('.btn-close');
+    const navbarCollapse = document.querySelector('.navbar-collapse');
+
+    function updateCloseButton() {
+        if (window.innerWidth < 992) {
+            closeButton.style.display = navbarCollapse.classList.contains('show') ? 'block' : 'none';
+        } else {
+            closeButton.style.display = 'none';
+        }
+    }
+
+    // Fecha o menu mobile quando um item é clicado
+    document.querySelectorAll('.navbar-nav .nav-link').forEach(function(navLink) {
+        navLink.addEventListener('click', function() {
+            if (window.innerWidth < 992) {
+                navbarCollapse.classList.remove('show');
+                updateCloseButton();
+            }
+        });
+    });
+
+    navbarToggler.addEventListener('click', function() {
+        setTimeout(updateCloseButton, 10);
+    });
+
+    closeButton.addEventListener('click', function() {
+        setTimeout(updateCloseButton, 10);
+    });
+
+    // Atualiza o botão de fechar quando a janela é redimensionada
+    window.addEventListener('resize', updateCloseButton);
+    updateCloseButton();
+});
+</script>

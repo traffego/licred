@@ -1,4 +1,14 @@
 <!DOCTYPE html>
+<?php
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/conexao.php';
+
+// Verificar se estamos na página de login antes de incluir autenticacao.php
+$pagina_atual = basename($_SERVER['PHP_SELF']);
+if ($pagina_atual !== 'login.php') {
+    require_once __DIR__ . '/autenticacao.php';
+}
+?>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -17,6 +27,7 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/estilo.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/volt.css">
     <script src="<?= BASE_URL ?>assets/js/logo-detector.js"></script>
+    <?php if (isset($scripts_header)) echo $scripts_header; ?>
     <style>
     /* Breadcrumb personalizado */
     .breadcrumb {
@@ -40,10 +51,10 @@
 // require_once 'conexao.php';
 // require 'autenticacao.php';
 
-require 'conexao.php';
+// require 'conexao.php';
 
 $pagina_atual = basename($_SERVER['PHP_SELF']);
-if ($pagina_atual !== 'login.php' && $pagina_atual !== 'login2.php') {
+if ($pagina_atual !== 'login.php') {
     require_once 'navbar.php';
 
     // Gerar breadcrumb dinamicamente

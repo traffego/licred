@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config.php';
-
+require_once __DIR__ . '/../includes/autenticacao.php';
+require_once __DIR__ . '/../includes/conexao.php';
 require_once __DIR__ . '/../includes/head.php';
 require_once __DIR__ . '/../includes/queries.php';
 
@@ -16,8 +17,36 @@ $emprestimos_atrasados = 0;
 foreach ($emprestimos as $e) {
     $total_emprestado += $e['valor_emprestado'];
     $total_recebido += $e['total_pago'];
-    $emprestimos_ativos += ($e['status'] === 'ativo') ? 1 : 0;
-    $emprestimos_atrasados += ($e['status'] === 'atrasado') ? 1 : 0;
+
+    // Verifica o status baseado nas parcelas
+    if (!empty($e['json_parcelas'])) {
+        $parcelas = json_decode($e['json_parcelas'], true);
+        $todas_pagas = true;
+        $tem_atrasada = false;
+
+        if (is_array($parcelas)) {
+            foreach ($parcelas as $p) {
+                if (empty($p['paga'])) {
+                    $todas_pagas = false;
+                    // Verifica se está atrasada
+                    if (!empty($p['data'])) {
+                        $data_vencimento = DateTime::createFromFormat('d/m/Y', $p['data']);
+                        if ($data_vencimento && $data_vencimento < new DateTime()) {
+                            $tem_atrasada = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!$todas_pagas) {
+            $emprestimos_ativos++;
+            if ($tem_atrasada) {
+                $emprestimos_atrasados++;
+            }
+        }
+    }
 }
 $total_pendente = $total_emprestado - $total_recebido;
 
@@ -202,8 +231,29 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                             }
                             $progresso = ($total_parcelas > 0) ? ($pagas / $total_parcelas) * 100 : 0;
                             
+                            // Calcula o status do empréstimo
+                            $status = 'quitado';
+                            $tem_atrasada = false;
+                            $tem_pendente = false;
+
+                            foreach ($parcelas as $p) {
+                                if (empty($p['paga'])) {
+                                    $tem_pendente = true;
+                                    $status = 'ativo';
+                                    
+                                    if (!empty($p['data'])) {
+                                        $data_vencimento = DateTime::createFromFormat('d/m/Y', $p['data']);
+                                        if ($data_vencimento && $data_vencimento < new DateTime()) {
+                                            $tem_atrasada = true;
+                                            $status = 'atrasado';
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            
                             // Define as classes de status
-                            $status_class = match($e['status']) {
+                            $status_class = match($status) {
                                 'ativo' => 'text-bg-primary',
                                 'atrasado' => 'text-bg-danger',
                                 'quitado' => 'text-bg-success',
@@ -220,12 +270,12 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                             </small>
                                         </div>
                                     </div>
-                                </td>
+            </td>
                                 <td>
                                     <span class="badge text-bg-info">
                                         <?= ucfirst(str_replace('_', ' ', $e['tipo_de_cobranca'])) ?>
-                                    </span>
-                                </td>
+              </span>
+            </td>
                                 <td>
                                     <div class="fw-bold">R$ <?= number_format($e['valor_emprestado'], 2, ',', '.') ?></div>
                                     <?php if ($e['juros_percentual'] > 0): ?>
@@ -253,7 +303,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                 </td>
                                 <td>
                                     <span class="badge <?= $status_class ?>">
-                                        <?= ucfirst($e['status']) ?>
+                                        <?= ucfirst($status) ?>
                                     </span>
                                 </td>
                                 <td class="text-end">
@@ -303,8 +353,29 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                     }
                     $progresso = ($total_parcelas > 0) ? ($pagas / $total_parcelas) * 100 : 0;
                     
+                    // Calcula o status do empréstimo
+                    $status = 'quitado';
+                    $tem_atrasada = false;
+                    $tem_pendente = false;
+
+                    foreach ($parcelas as $p) {
+                        if (empty($p['paga'])) {
+                            $tem_pendente = true;
+                            $status = 'ativo';
+                            
+                            if (!empty($p['data'])) {
+                                $data_vencimento = DateTime::createFromFormat('d/m/Y', $p['data']);
+                                if ($data_vencimento && $data_vencimento < new DateTime()) {
+                                    $tem_atrasada = true;
+                                    $status = 'atrasado';
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
                     // Define as classes de status
-                    $status_class = match($e['status']) {
+                    $status_class = match($status) {
                         'ativo' => 'text-bg-primary',
                         'atrasado' => 'text-bg-danger',
                         'quitado' => 'text-bg-success',
@@ -315,7 +386,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h6 class="mb-0 fw-bold"><?= htmlspecialchars($e['cliente_nome']) ?></h6>
                             <span class="badge <?= $status_class ?>">
-                                <?= ucfirst($e['status']) ?>
+                                <?= ucfirst($status) ?>
                             </span>
                         </div>
                         
