@@ -20,8 +20,10 @@ function buscarResumoEmprestimoId(mysqli $conn, int $id): array|null {
 
         if (is_array($parcelas)) {
             foreach ($parcelas as $p) {
-                $valor = (float) str_replace(',', '.', $p['valor']);
-                $total_previsto += $valor;
+                if (isset($p['valor'])) {
+                    $valor = (float) str_replace(',', '.', $p['valor']);
+                    $total_previsto += $valor;
+                }
 
                 if (!empty($p['paga']) && !empty($p['valor_pago'])) {
                     $total_pago += (float) str_replace(',', '.', $p['valor_pago']);
@@ -81,8 +83,10 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
             
             if (is_array($parcelas)) {
                 foreach ($parcelas as $p) {
-                    $valor = (float) str_replace(',', '.', $p['valor']);
-                    $total_previsto += $valor;
+                    if (isset($p['valor'])) {
+                        $valor = (float) str_replace(',', '.', $p['valor']);
+                        $total_previsto += $valor;
+                    }
 
                     if (!empty($p['paga']) && !empty($p['valor_pago'])) {
                         $total_pago += (float) str_replace(',', '.', $p['valor_pago']);
@@ -117,7 +121,7 @@ function calcularTotalParcelasAtrasadas(mysqli $conn) {
                     // Verifica se a parcela está atrasada (não paga e data vencida)
                     if (empty($p['paga']) && !empty($p['data'])) {
                         $data_vencimento = DateTime::createFromFormat('d/m/Y', $p['data']);
-                        if ($data_vencimento && $data_vencimento < new DateTime()) {
+                        if ($data_vencimento && $data_vencimento < new DateTime() && isset($p['valor'])) {
                             $valor = (float) str_replace(',', '.', $p['valor']);
                             $total_atrasado += $valor;
                         }

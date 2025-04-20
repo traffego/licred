@@ -59,7 +59,7 @@ foreach ($parcelas as $index => &$parcela) {
             
             // Verifica se o valor da parcela está correto (deve ser o original menos o desconto)
             $valor_original = floatval($emprestimo['valor_parcela']);
-            $valor_atual = floatval($parcela['valor']);
+            $valor_atual = isset($parcela['valor']) ? floatval($parcela['valor']) : 0;
             
             if (abs($valor_atual - ($valor_original - $valor_desconto)) > 0.01) {
                 $parcela['valor'] = $valor_original - $valor_desconto;
@@ -88,12 +88,12 @@ foreach ($parcelas as $index => &$parcela) {
     
     // Verifica parcelas pagas parcialmente
     if (isset($parcela['valor_pago']) && $parcela['valor_pago'] > 0) {
-        if ($parcela['valor_pago'] < $parcela['valor']) {
+        if (isset($parcela['valor']) && $parcela['valor_pago'] < $parcela['valor']) {
             if ($parcela['status'] !== 'parcial') {
                 $parcela['status'] = 'parcial';
                 $json_atualizado = true;
             }
-        } elseif ($parcela['valor_pago'] >= $parcela['valor'] && $parcela['status'] !== 'pago') {
+        } elseif (isset($parcela['valor']) && $parcela['valor_pago'] >= $parcela['valor'] && $parcela['status'] !== 'pago') {
             $parcela['status'] = 'pago';
             $json_atualizado = true;
         }
@@ -102,7 +102,7 @@ foreach ($parcelas as $index => &$parcela) {
     // Verifica se o valor da parcela está correto
     if (!isset($parcela['observacao']) || strpos($parcela['observacao'], 'Desconto de R$') === false) {
         $valor_original = floatval($emprestimo['valor_parcela']);
-        $valor_atual = floatval($parcela['valor']);
+        $valor_atual = isset($parcela['valor']) ? floatval($parcela['valor']) : 0;
         
         if (abs($valor_atual - $valor_original) > 0.01) {
             $parcela['valor'] = $valor_original;
@@ -130,16 +130,16 @@ $total_pago = 0;
 foreach ($parcelas as $p) {
     if ($p['status'] === 'pago') {
         $pagas++;
-        $total_pago += floatval($p['valor']);
+        $total_pago += isset($p['valor']) ? floatval($p['valor']) : 0;
     } elseif ($p['status'] === 'parcial') {
         $parciais++;
-        $total_pago += floatval($p['valor_pago'] ?? 0);
+        $total_pago += $p['valor_pago'] ?? 0;
     } else {
         $data_vencimento = new DateTime($p['vencimento']);
         if ($data_vencimento < $hoje) {
             $vencidas++;
-    } else {
-        $pendentes++;
+        } else {
+            $pendentes++;
         }
     }
 }
@@ -420,7 +420,7 @@ foreach ($parcelas as $p) {
                             <tr data-status="<?= $p['status'] ?>">
                                 <td><?= $p['numero'] ?></td>
                                 <td><?= date('d/m/Y', strtotime($p['vencimento'])) ?></td>
-                                <td>R$ <?= number_format($p['valor'], 2, ',', '.') ?></td>
+                                <td>R$ <?= isset($p['valor']) ? number_format($p['valor'], 2, ',', '.') : '0,00' ?></td>
                                 <td>
                                     <?php
                                         $status_class = match($p['status']) {
@@ -438,7 +438,7 @@ foreach ($parcelas as $p) {
                                 <td>
                                     <?php if ($p['status'] === 'pago' || $p['status'] === 'parcial'): ?>
                                         <div class="text-muted">
-                                            R$ <?= number_format($p['valor_pago'] ?? $p['valor'], 2, ',', '.') ?>
+                                            R$ <?= number_format($p['valor_pago'] ?? (isset($p['valor']) ? $p['valor'] : 0), 2, ',', '.') ?>
                                             <br>
                                             <small>
                                                 <?php 
@@ -472,7 +472,7 @@ foreach ($parcelas as $p) {
                                         }
                                     }
 
-                                    if (($p['status'] === 'pendente' || $p['status'] === 'parcial') && $p['valor'] > 0): 
+                                    if (($p['status'] === 'pendente' || $p['status'] === 'parcial') && isset($p['valor']) && $p['valor'] > 0): 
                                         $botoes_habilitados = ($p['numero'] === $proxima_parcela || $p['numero'] === $parcela_seguinte);
                                     ?>
                                         <button type="button" 
@@ -543,7 +543,7 @@ foreach ($parcelas as $p) {
                                     <span>Valor</span>
                                 </div>
                                 <div class="info-value">
-                                    R$ <?= number_format($p['valor'], 2, ',', '.') ?>
+                                    R$ <?= isset($p['valor']) ? number_format($p['valor'], 2, ',', '.') : '0,00' ?>
                                 </div>
                             </div>
 
@@ -554,7 +554,7 @@ foreach ($parcelas as $p) {
                                     <span>Pagamento</span>
                                 </div>
                                 <div class="info-value">
-                                    <div>R$ <?= number_format($p['valor_pago'] ?? $p['valor'], 2, ',', '.') ?></div>
+                                    <div>R$ <?= number_format($p['valor_pago'] ?? (isset($p['valor']) ? $p['valor'] : 0), 2, ',', '.') ?></div>
                                     <small class="text-muted">
                                         <?php 
                                         if (isset($p['data_pagamento']) && strtotime($p['data_pagamento']) > 0): 
@@ -584,7 +584,7 @@ foreach ($parcelas as $p) {
 
                         <div class="parcela-card-footer">
                             <?php 
-                            if (($p['status'] === 'pendente' || $p['status'] === 'parcial') && $p['valor'] > 0): 
+                            if (($p['status'] === 'pendente' || $p['status'] === 'parcial') && isset($p['valor']) && $p['valor'] > 0): 
                                 $botoes_habilitados = ($p['numero'] === $proxima_parcela || $p['numero'] === $parcela_seguinte);
                             ?>
                                 <button type="button" 

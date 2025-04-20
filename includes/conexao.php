@@ -8,7 +8,7 @@ ini_set('error_log', __DIR__ . '/../logs/php_error.log');
 $host = "localhost";
 $usuario = "root";
 $senha = "";
-$banco = "sistema_emprestimos";
+$banco = "sistema_emprestimosv1_8";
 
 try {
     // Criando a conexão

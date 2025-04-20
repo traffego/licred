@@ -224,7 +224,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                             foreach ($parcelas as $p) {
                                 if ($p['status'] === 'pago') {
                                     $pagas++;
-                                    $valor_total_pago += $p['valor'];
+                                    $valor_total_pago += isset($p['valor']) ? $p['valor'] : 0;
                                 } elseif ($p['status'] === 'parcial') {
                                     $valor_total_pago += $p['valor_pago'] ?? 0;
                                 }
@@ -346,7 +346,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                     foreach ($parcelas as $p) {
                         if ($p['status'] === 'pago') {
                             $pagas++;
-                            $valor_total_pago += $p['valor'];
+                            $valor_total_pago += isset($p['valor']) ? $p['valor'] : 0;
                         } elseif ($p['status'] === 'parcial') {
                             $valor_total_pago += $p['valor_pago'] ?? 0;
                         }
