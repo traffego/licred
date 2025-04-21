@@ -5,29 +5,33 @@ require_once __DIR__ . '/conexao.php';
 // TRATAR EMPRESTIMOS
 
 function buscarResumoEmprestimoId(mysqli $conn, int $id): array|null {
-    $stmt = $conn->prepare("SELECT id, tipo, valor_emprestado, json_parcelas FROM emprestimos WHERE id = ? AND json_parcelas IS NOT NULL");
+    $stmt = $conn->prepare("SELECT id, tipo, valor_emprestado FROM emprestimos WHERE id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $resultado = $stmt->get_result();
 
     if ($linha = $resultado->fetch_assoc()) {
         $valor_emprestado = (float) $linha['valor_emprestado'];
-        $json = $linha['json_parcelas'];
-        $parcelas = json_decode($json, true);
-
+        
+        // Busca as parcelas na tabela parcelas em vez do JSON
+        $stmt_parcelas = $conn->prepare("SELECT 
+            numero, valor, status, valor_pago, data_pagamento, forma_pagamento 
+            FROM parcelas WHERE emprestimo_id = ? ORDER BY numero");
+        $stmt_parcelas->bind_param("i", $id);
+        $stmt_parcelas->execute();
+        $result_parcelas = $stmt_parcelas->get_result();
+        
+        $parcelas = [];
         $total_previsto = 0;
         $total_pago = 0;
-
-        if (is_array($parcelas)) {
-            foreach ($parcelas as $p) {
-                if (isset($p['valor'])) {
-                    $valor = (float) str_replace(',', '.', $p['valor']);
-                    $total_previsto += $valor;
-                }
-
-                if (!empty($p['paga']) && !empty($p['valor_pago'])) {
-                    $total_pago += (float) str_replace(',', '.', $p['valor_pago']);
-                }
+        
+        while ($p = $result_parcelas->fetch_assoc()) {
+            $parcelas[] = $p;
+            $valor = (float) $p['valor'];
+            $total_previsto += $valor;
+            
+            if ($p['status'] === 'pago' || $p['status'] === 'parcial') {
+                $total_pago += (float) ($p['valor_pago'] ?? $p['valor']);
             }
         }
 
@@ -58,7 +62,6 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
                 e.valor_parcela,
                 e.juros_percentual,
                 e.data_inicio,
-                e.json_parcelas,
                 e.configuracao,
                 e.data_criacao,
                 e.data_atualizacao,
@@ -74,32 +77,35 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
         // Adiciona os dados básicos
         $emprestimo = $e;
         
-        // Processa as parcelas se existirem
-        if (!empty($e['json_parcelas'])) {
-            $parcelas = json_decode($e['json_parcelas'], true);
-            $total_previsto = 0;
-            $total_pago = 0;
-            $parcelas_pagas = 0;
+        // Busca as parcelas na tabela parcelas
+        $stmt_parcelas = $conn->prepare("SELECT 
+            status, valor, valor_pago
+            FROM parcelas 
+            WHERE emprestimo_id = ?");
+        $stmt_parcelas->bind_param("i", $e['id']);
+        $stmt_parcelas->execute();
+        $result_parcelas = $stmt_parcelas->get_result();
+        
+        $total_previsto = 0;
+        $total_pago = 0;
+        $parcelas_pagas = 0;
+        
+        while ($p = $result_parcelas->fetch_assoc()) {
+            $valor = (float) $p['valor'];
+            $total_previsto += $valor;
             
-            if (is_array($parcelas)) {
-                foreach ($parcelas as $p) {
-                    if (isset($p['valor'])) {
-                        $valor = (float) str_replace(',', '.', $p['valor']);
-                        $total_previsto += $valor;
-                    }
-
-                    if (!empty($p['paga']) && !empty($p['valor_pago'])) {
-                        $total_pago += (float) str_replace(',', '.', $p['valor_pago']);
-                        $parcelas_pagas++;
-                    }
-                }
+            if ($p['status'] === 'pago') {
+                $total_pago += $valor;
+                $parcelas_pagas++;
+            } elseif ($p['status'] === 'parcial' && isset($p['valor_pago'])) {
+                $total_pago += (float) $p['valor_pago'];
             }
-            
-            // Adiciona os totais calculados
-            $emprestimo['total_previsto'] = $total_previsto;
-            $emprestimo['total_pago'] = $total_pago;
-            $emprestimo['parcelas_pagas'] = $parcelas_pagas;
         }
+        
+        // Adiciona os totais calculados
+        $emprestimo['total_previsto'] = $total_previsto;
+        $emprestimo['total_pago'] = $total_pago;
+        $emprestimo['parcelas_pagas'] = $parcelas_pagas;
 
         $lista[] = $emprestimo;
     }
@@ -109,57 +115,40 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
 
 function calcularTotalParcelasAtrasadas(mysqli $conn) {
     $total_atrasado = 0;
-    $sql = "SELECT json_parcelas FROM emprestimos";
-    $stmt = $conn->query($sql);
-
-    while ($row = $stmt->fetch_assoc()) {
-        if (!empty($row['json_parcelas'])) {
-            $parcelas = json_decode($row['json_parcelas'], true);
-            
-            if (is_array($parcelas)) {
-                foreach ($parcelas as $p) {
-                    // Verifica se a parcela está atrasada (não paga e data vencida)
-                    if (empty($p['paga']) && !empty($p['data'])) {
-                        $data_vencimento = DateTime::createFromFormat('d/m/Y', $p['data']);
-                        if ($data_vencimento && $data_vencimento < new DateTime() && isset($p['valor'])) {
-                            $valor = (float) str_replace(',', '.', $p['valor']);
-                            $total_atrasado += $valor;
-                        }
-                    }
-                }
-            }
-        }
+    $hoje = date('Y-m-d');
+    
+    $sql = "SELECT 
+                SUM(valor) as total 
+            FROM 
+                parcelas 
+            WHERE 
+                status = 'pendente' 
+                AND vencimento < ?";
+                
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $hoje);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+    
+    if ($linha = $resultado->fetch_assoc()) {
+        $total_atrasado = (float) $linha['total'];
     }
 
     return $total_atrasado;
 }
 
 function contarEmprestimosAtivos(mysqli $conn) {
-    $total = 0;
-    $sql = "SELECT json_parcelas FROM emprestimos";
-    $stmt = $conn->query($sql);
-
-    while ($row = $stmt->fetch_assoc()) {
-        if (!empty($row['json_parcelas'])) {
-            $parcelas = json_decode($row['json_parcelas'], true);
-            $todas_pagas = true;
-            
-            if (is_array($parcelas)) {
-                foreach ($parcelas as $p) {
-                    if (empty($p['paga'])) {
-                        $todas_pagas = false;
-                        break;
-                    }
-                }
-            }
-            
-            if (!$todas_pagas) {
-                $total++;
-            }
-        }
-    }
-
-    return $total;
+    $sql = "SELECT 
+                COUNT(DISTINCT emprestimo_id) as total
+            FROM 
+                parcelas
+            WHERE 
+                status IN ('pendente', 'parcial', 'atrasado')";
+                
+    $resultado = $conn->query($sql);
+    $linha = $resultado->fetch_assoc();
+    
+    return (int) $linha['total'];
 }
 
 function buscarTodosClientes(mysqli $conn): array {

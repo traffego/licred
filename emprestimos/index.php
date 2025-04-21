@@ -19,32 +19,37 @@ foreach ($emprestimos as $e) {
     $total_recebido += $e['total_pago'];
 
     // Verifica o status baseado nas parcelas
-    if (!empty($e['json_parcelas'])) {
-        $parcelas = json_decode($e['json_parcelas'], true);
-        $todas_pagas = true;
-        $tem_atrasada = false;
-
-        if (is_array($parcelas)) {
-            foreach ($parcelas as $p) {
-                if (empty($p['paga'])) {
-                    $todas_pagas = false;
-                    // Verifica se está atrasada
-                    if (!empty($p['data'])) {
-                        $data_vencimento = DateTime::createFromFormat('d/m/Y', $p['data']);
-                        if ($data_vencimento && $data_vencimento < new DateTime()) {
-                            $tem_atrasada = true;
-                            break;
-                        }
-                    }
+    $stmt = $conn->prepare("
+        SELECT status, vencimento 
+        FROM parcelas 
+        WHERE emprestimo_id = ?
+    ");
+    $stmt->bind_param("i", $e['id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $parcelas = $result->fetch_all(MYSQLI_ASSOC);
+    
+    $todas_pagas = true;
+    $tem_atrasada = false;
+    
+    if (count($parcelas) > 0) {
+        foreach ($parcelas as $p) {
+            if ($p['status'] !== 'pago') {
+                $todas_pagas = false;
+                // Verifica se está atrasada
+                $data_vencimento = new DateTime($p['vencimento']);
+                if ($data_vencimento < new DateTime()) {
+                    $tem_atrasada = true;
+                    break;
                 }
             }
         }
+    }
 
-        if (!$todas_pagas) {
-            $emprestimos_ativos++;
-            if ($tem_atrasada) {
-                $emprestimos_atrasados++;
-            }
+    if (!$todas_pagas) {
+        $emprestimos_ativos++;
+        if ($tem_atrasada) {
+            $emprestimos_atrasados++;
         }
     }
 }
@@ -216,17 +221,27 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
       </thead>
       <tbody>
                         <?php foreach ($emprestimos as $e): 
+                            // Busca as parcelas do empréstimo
+                            $stmt = $conn->prepare("
+                                SELECT numero, valor, valor_pago, status, vencimento 
+                                FROM parcelas 
+                                WHERE emprestimo_id = ?
+                            ");
+                            $stmt->bind_param("i", $e['id']);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $parcelas = $result->fetch_all(MYSQLI_ASSOC);
+                            
                             // Calcula o progresso
-                            $parcelas = json_decode($e['json_parcelas'], true);
                             $total_parcelas = count($parcelas);
                             $pagas = 0;
                             $valor_total_pago = 0;
                             foreach ($parcelas as $p) {
                                 if ($p['status'] === 'pago') {
                                     $pagas++;
-                                    $valor_total_pago += isset($p['valor']) ? $p['valor'] : 0;
+                                    $valor_total_pago += isset($p['valor']) ? floatval($p['valor']) : 0;
                                 } elseif ($p['status'] === 'parcial') {
-                                    $valor_total_pago += $p['valor_pago'] ?? 0;
+                                    $valor_total_pago += isset($p['valor_pago']) ? floatval($p['valor_pago']) : 0;
                                 }
                             }
                             $progresso = ($total_parcelas > 0) ? ($pagas / $total_parcelas) * 100 : 0;
@@ -237,17 +252,15 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                             $tem_pendente = false;
 
                             foreach ($parcelas as $p) {
-                                if (empty($p['paga'])) {
+                                if ($p['status'] !== 'pago') {
                                     $tem_pendente = true;
                                     $status = 'ativo';
                                     
-                                    if (!empty($p['data'])) {
-                                        $data_vencimento = DateTime::createFromFormat('d/m/Y', $p['data']);
-                                        if ($data_vencimento && $data_vencimento < new DateTime()) {
-                                            $tem_atrasada = true;
-                                            $status = 'atrasado';
-                                            break;
-                                        }
+                                    $data_vencimento = new DateTime($p['vencimento']);
+                                    if ($data_vencimento < new DateTime()) {
+                                        $tem_atrasada = true;
+                                        $status = 'atrasado';
+                                        break;
                                     }
                                 }
                             }
@@ -338,17 +351,27 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
         <div class="d-md-none">
             <div class="list-group list-group-flush">
                 <?php foreach ($emprestimos as $e): 
+                    // Busca as parcelas do empréstimo
+                    $stmt = $conn->prepare("
+                        SELECT numero, valor, valor_pago, status, vencimento 
+                        FROM parcelas 
+                        WHERE emprestimo_id = ?
+                    ");
+                    $stmt->bind_param("i", $e['id']);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $parcelas = $result->fetch_all(MYSQLI_ASSOC);
+                    
                     // Calcula o progresso
-                    $parcelas = json_decode($e['json_parcelas'], true);
                     $total_parcelas = count($parcelas);
                     $pagas = 0;
                     $valor_total_pago = 0;
                     foreach ($parcelas as $p) {
                         if ($p['status'] === 'pago') {
                             $pagas++;
-                            $valor_total_pago += isset($p['valor']) ? $p['valor'] : 0;
+                            $valor_total_pago += isset($p['valor']) ? floatval($p['valor']) : 0;
                         } elseif ($p['status'] === 'parcial') {
-                            $valor_total_pago += $p['valor_pago'] ?? 0;
+                            $valor_total_pago += isset($p['valor_pago']) ? floatval($p['valor_pago']) : 0;
                         }
                     }
                     $progresso = ($total_parcelas > 0) ? ($pagas / $total_parcelas) * 100 : 0;
@@ -359,17 +382,15 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                     $tem_pendente = false;
 
                     foreach ($parcelas as $p) {
-                        if (empty($p['paga'])) {
+                        if ($p['status'] !== 'pago') {
                             $tem_pendente = true;
                             $status = 'ativo';
                             
-                            if (!empty($p['data'])) {
-                                $data_vencimento = DateTime::createFromFormat('d/m/Y', $p['data']);
-                                if ($data_vencimento && $data_vencimento < new DateTime()) {
-                                    $tem_atrasada = true;
-                                    $status = 'atrasado';
-                                    break;
-                                }
+                            $data_vencimento = new DateTime($p['vencimento']);
+                            if ($data_vencimento < new DateTime()) {
+                                $tem_atrasada = true;
+                                $status = 'atrasado';
+                                break;
                             }
                         }
                     }
@@ -419,25 +440,21 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                      aria-valuemax="100">
                                 </div>
                             </div>
-                            <small class="text-muted"><?= $pagas ?> de <?= $total_parcelas ?> parcelas (<?= number_format($progresso, 1) ?>%)</small>
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted"><?= number_format($progresso, 1) ?>% concluído</small>
+                                <small class="text-muted"><?= $pagas ?>/<?= $total_parcelas ?> parcelas</small>
+                            </div>
                         </div>
 
-                        <div class="btn-group w-100">
-                            <a href="visualizar.php?id=<?= $e['id'] ?>" 
-                               class="btn btn-sm btn-outline-primary" 
-                               title="Ver Detalhes">
+                        <div class="d-flex gap-2">
+                            <a href="visualizar.php?id=<?= $e['id'] ?>" class="btn btn-sm btn-outline-primary flex-fill">
                                 <i class="bi bi-eye"></i> Detalhes
                             </a>
-                            <a href="visualizar.php?id=<?= $e['id'] ?>#pagamento" 
-                               class="btn btn-sm btn-outline-success" 
-                               title="Registrar Pagamento">
+                            <a href="visualizar.php?id=<?= $e['id'] ?>#pagamento" class="btn btn-sm btn-outline-success flex-fill">
                                 <i class="bi bi-cash-coin"></i> Pagar
                             </a>
-                            <button type="button" 
-                                    class="btn btn-sm btn-outline-info" 
-                                    title="Enviar Cobrança"
-                                    onclick="enviarCobranca(<?= $e['id'] ?>)">
-                                <i class="bi bi-whatsapp"></i>
+                            <button type="button" class="btn btn-sm btn-outline-info flex-fill" onclick="enviarCobranca(<?= $e['id'] ?>)">
+                                <i class="bi bi-whatsapp"></i> Cobrar
                             </button>
                         </div>
                     </div>

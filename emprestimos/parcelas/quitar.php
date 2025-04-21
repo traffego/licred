@@ -44,60 +44,75 @@ if (!empty($erros)) {
 $conn->begin_transaction();
 
 try {
-    // Busca o empréstimo e o JSON de parcelas
-    $stmt = $conn->prepare("SELECT json_parcelas, valor_parcela FROM emprestimos WHERE id = ? FOR UPDATE");
+    // Busca as parcelas do empréstimo
+    $stmt = $conn->prepare("
+        SELECT 
+            id, 
+            numero, 
+            valor, 
+            vencimento, 
+            status, 
+            valor_pago, 
+            data_pagamento, 
+            forma_pagamento 
+        FROM 
+            parcelas 
+        WHERE 
+            emprestimo_id = ? 
+        ORDER BY 
+            numero
+    ");
     $stmt->bind_param("i", $emprestimo_id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $emprestimo = $result->fetch_assoc();
-
-    if (!$emprestimo) {
-        jsonResponse('error', 'Empréstimo não encontrado.', 404);
-    }
-
-    $parcelas = json_decode($emprestimo['json_parcelas'], true);
-    if ($parcelas === null) {
-        jsonResponse('error', 'Erro ao decodificar as parcelas do empréstimo.', 500);
-    }
-
-    // Calcula o total já pago
-    $total_pago = 0;
-    foreach ($parcelas as $p) {
-        if ($p['status'] === 'pago') {
-            $total_pago += floatval($p['valor']);
-        } elseif ($p['status'] === 'parcial') {
-            $total_pago += floatval($p['valor_pago'] ?? 0);
-        }
-    }
-
-    // Atualiza todas as parcelas pendentes ou parciais
-    foreach ($parcelas as &$parcela) {
-        if ($parcela['status'] !== 'pago') {
-            $parcela['status'] = 'pago';
-            $parcela['valor_pago'] = $parcela['valor'];
-            $parcela['data_pagamento'] = $data_quitacao;
-            $parcela['forma_pagamento'] = $forma_pagamento;
-            $parcela['observacao'] = 'Quitação do empréstimo';
-        }
-    }
-    unset($parcela);
-
-    // Atualiza o JSON no banco de dados
-    $json_parcelas = json_encode($parcelas, JSON_UNESCAPED_UNICODE);
-    $stmt = $conn->prepare("UPDATE emprestimos SET json_parcelas = ? WHERE id = ?");
-    $stmt->bind_param("si", $json_parcelas, $emprestimo_id);
+    $result_parcelas = $stmt->get_result();
     
-    if ($stmt->execute()) {
-        $conn->commit();
-        $conn->close();
-        jsonResponse('success', 'Empréstimo quitado com sucesso!');
-    } else {
-        $conn->rollback();
-        $conn->close();
-        jsonResponse('error', 'Erro ao atualizar o banco de dados');
+    if ($result_parcelas->num_rows === 0) {
+        jsonResponse('error', 'Nenhuma parcela encontrada para este empréstimo.', 404);
     }
+    
+    $parcelas = [];
+    while ($p = $result_parcelas->fetch_assoc()) {
+        $parcelas[] = $p;
+    }
+    
+    // Atualiza todas as parcelas pendentes ou parciais
+    foreach ($parcelas as $parcela) {
+        if ($parcela['status'] !== 'pago') {
+            $stmt_atualiza = $conn->prepare("
+                UPDATE parcelas 
+                SET 
+                    status = 'pago',
+                    valor_pago = valor,
+                    data_pagamento = ?,
+                    forma_pagamento = ?,
+                    observacao = 'Quitação do empréstimo'
+                WHERE 
+                    id = ?
+            ");
+            $stmt_atualiza->bind_param("ssi", $data_quitacao, $forma_pagamento, $parcela['id']);
+            $stmt_atualiza->execute();
+        }
+    }
+    
+    // Registra a quitação no histórico
+    $stmt_historico = $conn->prepare("
+        INSERT INTO historico (
+            emprestimo_id, 
+            tipo, 
+            descricao, 
+            valor, 
+            data, 
+            usuario_id
+        ) VALUES (?, 'quitacao', 'Quitação do empréstimo', ?, ?, ?)
+    ");
+    $usuario_id = $_SESSION['usuario_id'] ?? 1;
+    $stmt_historico->bind_param("idsi", $emprestimo_id, $valor_quitacao, $data_quitacao, $usuario_id);
+    $stmt_historico->execute();
+    
+    $conn->commit();
+    jsonResponse('success', 'Empréstimo quitado com sucesso!');
+    
 } catch (Exception $e) {
     $conn->rollback();
-    $conn->close();
     jsonResponse('error', 'Erro ao processar a quitação: ' . $e->getMessage());
 } 

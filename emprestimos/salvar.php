@@ -95,20 +95,6 @@ if (!$parcelas_array || !is_array($parcelas_array)) {
     die("JSON de parcelas inválido.");
 }
 
-// Adiciona campos necessários em cada parcela
-foreach ($parcelas_array as &$parcela) {
-    $parcela['valor_pago'] = 0;
-    $parcela['data_pagamento'] = null;
-    $parcela['forma_pagamento'] = null;
-    $parcela['status'] = 'pendente';
-    $parcela['diferenca_transacao'] = 0;
-    $parcela['acao_diferenca'] = null;
-    $parcela['valor_original'] = $parcela['valor']; // Mantém o valor original da parcela
-}
-unset($parcela);
-
-$json_parcelas = json_encode($parcelas_array, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
 // Prepara o JSON de configuração
 $configuracao = [
     'usar_tlc' => (bool)$usar_tlc,
@@ -120,7 +106,7 @@ $configuracao = [
     'valor_parcela_padrao' => $valor_parcela // Adiciona o valor padrão da parcela na configuração
 ];
 
-// Prepara a query de inserção
+// Prepara a query de inserção do empréstimo (sem o campo json_parcelas)
 $sql = "INSERT INTO emprestimos (
     cliente_id,
     tipo_de_cobranca,
@@ -129,9 +115,8 @@ $sql = "INSERT INTO emprestimos (
     valor_parcela,
     juros_percentual,
     data_inicio,
-    json_parcelas,
     configuracao
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
 if (!$stmt) {
@@ -141,7 +126,7 @@ if (!$stmt) {
 $configuracao_json = json_encode($configuracao);
 
 $stmt->bind_param(
-    "issiidsss",
+    "issiidss",
     $cliente_id,
     $tipo_cobranca,
     $valor_emprestado,
@@ -149,15 +134,74 @@ $stmt->bind_param(
     $valor_parcela,
     $juros_percentual,
     $data_inicio,
-    $json_parcelas,
     $configuracao_json
 );
 
-if ($stmt->execute()) {
+// Inicia a transação para garantir que o empréstimo e as parcelas sejam inseridos
+$conn->begin_transaction();
+
+try {
+    // Insere o empréstimo
+    if (!$stmt->execute()) {
+        throw new Exception("Erro ao inserir empréstimo: " . $stmt->error);
+    }
+    
     $emprestimo_id = $conn->insert_id;
+    
+    // Prepara a inserção de parcelas
+    $stmt_parcela = $conn->prepare("INSERT INTO parcelas (
+        emprestimo_id, 
+        numero, 
+        valor, 
+        vencimento, 
+        status, 
+        valor_pago, 
+        data_pagamento, 
+        forma_pagamento, 
+        observacao
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    
+    if (!$stmt_parcela) {
+        throw new Exception("Erro ao preparar a query de parcelas: " . $conn->error);
+    }
+    
+    // Insere cada parcela na nova tabela
+    foreach ($parcelas_array as $parcela) {
+        $numero = $parcela['numero'];
+        $valor = $parcela['valor'];
+        $vencimento = $parcela['vencimento'];
+        $status = 'pendente';
+        $valor_pago = null;
+        $data_pagamento = null;
+        $forma_pagamento = null;
+        $observacao = "valor_original: {$valor}, diferenca_transacao: 0";
+        
+        $stmt_parcela->bind_param(
+            "iidssdsss",
+            $emprestimo_id,
+            $numero,
+            $valor,
+            $vencimento,
+            $status,
+            $valor_pago,
+            $data_pagamento,
+            $forma_pagamento,
+            $observacao
+        );
+        
+        if (!$stmt_parcela->execute()) {
+            throw new Exception("Erro ao inserir parcela: " . $stmt_parcela->error);
+        }
+    }
+    
+    // Confirma a transação
+    $conn->commit();
+    
     header("Location: index.php?sucesso=1&id=" . $emprestimo_id . "&msg=" . urlencode("Empréstimo cadastrado com sucesso!"));
     exit;
-} else {
-    header("Location: index.php?erro=1&msg=" . urlencode("Erro ao salvar: " . $stmt->error));
+} catch (Exception $e) {
+    // Reverte a transação em caso de erro
+    $conn->rollback();
+    header("Location: index.php?erro=1&msg=" . urlencode("Erro ao salvar: " . $e->getMessage()));
     exit;
 }

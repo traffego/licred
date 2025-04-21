@@ -47,8 +47,8 @@ if (!empty($erros)) {
 $conn->begin_transaction();
 
 try {
-    // Busca o empréstimo e o JSON de parcelas
-    $stmt = $conn->prepare("SELECT json_parcelas, valor_parcela FROM emprestimos WHERE id = ? FOR UPDATE");
+    // Busca o empréstimo e o valor padrão das parcelas
+    $stmt = $conn->prepare("SELECT valor_parcela FROM emprestimos WHERE id = ?");
     $stmt->bind_param("i", $emprestimo_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -58,9 +58,15 @@ try {
         jsonResponse('error', 'Empréstimo não encontrado.', 404);
     }
 
-    $parcelas = json_decode($emprestimo['json_parcelas'], true);
-    if ($parcelas === null) {
-        jsonResponse('error', 'Erro ao decodificar as parcelas do empréstimo.', 500);
+    // Busca a parcela específica
+    $stmt = $conn->prepare("SELECT id, valor, valor_pago, status FROM parcelas WHERE emprestimo_id = ? AND numero = ?");
+    $stmt->bind_param("ii", $emprestimo_id, $parcela_numero);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $parcela_atual = $result->fetch_assoc();
+
+    if (!$parcela_atual) {
+        jsonResponse('error', 'Parcela não encontrada.', 404);
     }
 
     $valor_pago_total_recebido = floatval($valor_pago);
@@ -69,69 +75,99 @@ try {
     // Lê a ação de distribuição do POST
     $acao_diferenca_aplicada = $modo_distribuicao;
 
-    // Encontra o índice da parcela selecionada
-    $parcela_atual_index = -1;
-    foreach ($parcelas as $index => $p) {
-        if ($p['numero'] == $parcela_numero) {
-            $parcela_atual_index = $index;
-            break;
-        }
-    }
-
-    if ($parcela_atual_index === -1) {
-        jsonResponse('error', 'Parcela não encontrada.', 404);
-    }
-
     // --- Lógica de Pagamento Principal ---
-    $parcela_atual =& $parcelas[$parcela_atual_index];
-    
     // Calcula quanto falta pagar na parcela atual
-    $valor_ja_pago = $parcela_atual['valor_pago'] ?? 0;
+    $valor_ja_pago = floatval($parcela_atual['valor_pago'] ?? 0);
     $valor_faltante_atual = floatval($parcela_atual['valor']) - $valor_ja_pago;
     
     // Calcula quanto do valor pago vai para a parcela atual
     $valor_aplicado_parcela_atual = min($valor_pago_total_recebido, $valor_faltante_atual);
     
     // Atualiza a parcela atual
-    $parcela_atual['valor_pago'] = $valor_ja_pago + $valor_aplicado_parcela_atual;
-    $parcela_atual['data_pagamento'] = $data_pagamento;
-    $parcela_atual['forma_pagamento'] = $forma_pagamento;
-    $parcela_atual['status'] = ($valor_ja_pago + $valor_aplicado_parcela_atual >= floatval($parcela_atual['valor'])) ? 'pago' : 'parcial';
-    $parcela_atual['valor_original'] = $parcela_atual['valor'];
-
-    // Calcula a diferença (valor que sobrou após pagar a parcela atual)
+    $novo_valor_pago = $valor_ja_pago + $valor_aplicado_parcela_atual;
+    $novo_status = ($novo_valor_pago >= floatval($parcela_atual['valor'])) ? 'pago' : 'parcial';
     $diferenca = $valor_pago_total_recebido - $valor_aplicado_parcela_atual;
-    $parcela_atual['diferenca_transacao'] = $diferenca;
-    $parcela_atual['acao_diferenca'] = $acao_diferenca_aplicada;
+    
+    // Atualiza a parcela atual no banco
+    $stmt = $conn->prepare("
+        UPDATE parcelas 
+        SET 
+            valor_pago = ?,
+            data_pagamento = ?,
+            forma_pagamento = ?,
+            status = ?,
+            observacao = CONCAT(IFNULL(observacao, ''), ' | diferenca_transacao: ', ?, ', acao_diferenca: ', ?)
+        WHERE 
+            id = ?
+    ");
+    $stmt->bind_param(
+        "dsssisi", 
+        $novo_valor_pago, 
+        $data_pagamento, 
+        $forma_pagamento, 
+        $novo_status,
+        $diferenca,
+        $acao_diferenca_aplicada,
+        $parcela_atual['id']
+    );
+    
+    if (!$stmt->execute()) {
+        throw new Exception("Erro ao atualizar parcela atual: " . $stmt->error);
+    }
 
     // Se houver diferença positiva e a ação for desconto_proximas
     if ($diferenca > 0 && $acao_diferenca_aplicada === 'desconto_proximas') {
         $valor_restante = $diferenca;
         
-        // Percorre as próximas parcelas
-        for ($i = $parcela_atual_index + 1; $i < count($parcelas) && $valor_restante > 0; $i++) {
-            $proxima_parcela =& $parcelas[$i];
-            
-            // Se a parcela já estiver paga, pula
-            if ($proxima_parcela['status'] === 'pago') {
-                continue;
-            }
+        // Busca as próximas parcelas não pagas
+        $stmt = $conn->prepare("
+            SELECT id, numero, valor, valor_pago, status 
+            FROM parcelas 
+            WHERE emprestimo_id = ? AND numero > ? AND status != 'pago'
+            ORDER BY numero
+        ");
+        $stmt->bind_param("ii", $emprestimo_id, $parcela_numero);
+        $stmt->execute();
+        $proximas_parcelas = $stmt->get_result();
+        
+        while ($proxima_parcela = $proximas_parcelas->fetch_assoc()) {
+            if ($valor_restante <= 0) break;
             
             // Calcula quanto falta pagar nesta parcela
-            $valor_ja_pago_proxima = $proxima_parcela['valor_pago'] ?? 0;
+            $valor_ja_pago_proxima = floatval($proxima_parcela['valor_pago'] ?? 0);
             $valor_faltante = floatval($proxima_parcela['valor']) - $valor_ja_pago_proxima;
             
             // Calcula quanto será aplicado nesta parcela
             $valor_a_aplicar = min($valor_restante, $valor_faltante);
+            $novo_valor_pago_proxima = $valor_ja_pago_proxima + $valor_a_aplicar;
+            $novo_status_proxima = ($novo_valor_pago_proxima >= floatval($proxima_parcela['valor'])) ? 'pago' : 'parcial';
             
             // Atualiza a próxima parcela
-            $proxima_parcela['valor_pago'] = $valor_ja_pago_proxima + $valor_a_aplicar;
-            $proxima_parcela['data_pagamento'] = $data_pagamento;
-            $proxima_parcela['forma_pagamento'] = $forma_pagamento;
-            $proxima_parcela['status'] = ($valor_ja_pago_proxima + $valor_a_aplicar >= floatval($proxima_parcela['valor'])) ? 'pago' : 'parcial';
-            $proxima_parcela['diferenca_transacao'] = $valor_a_aplicar;
-            $proxima_parcela['acao_diferenca'] = $acao_diferenca_aplicada;
-            $proxima_parcela['valor_original'] = $proxima_parcela['valor'];
+            $stmt = $conn->prepare("
+                UPDATE parcelas 
+                SET 
+                    valor_pago = ?,
+                    data_pagamento = ?,
+                    forma_pagamento = ?,
+                    status = ?,
+                    observacao = CONCAT(IFNULL(observacao, ''), ' | diferenca_transacao: ', ?, ', acao_diferenca: ', ?)
+                WHERE 
+                    id = ?
+            ");
+            $stmt->bind_param(
+                "dsssisi", 
+                $novo_valor_pago_proxima, 
+                $data_pagamento, 
+                $forma_pagamento, 
+                $novo_status_proxima,
+                $valor_a_aplicar,
+                $acao_diferenca_aplicada,
+                $proxima_parcela['id']
+            );
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Erro ao atualizar próxima parcela: " . $stmt->error);
+            }
             
             // Atualiza o valor restante
             $valor_restante -= $valor_a_aplicar;
@@ -142,30 +178,55 @@ try {
     if ($diferenca > 0 && $acao_diferenca_aplicada === 'desconto_ultimas') {
         $valor_restante = $diferenca;
         
-        // Percorre as parcelas de trás para frente
-        for ($i = count($parcelas) - 1; $i > $parcela_atual_index && $valor_restante > 0; $i--) {
-            $ultima_parcela =& $parcelas[$i];
-            
-            // Se a parcela já estiver paga, pula
-            if ($ultima_parcela['status'] === 'pago') {
-                continue;
-            }
+        // Busca as últimas parcelas não pagas em ordem decrescente
+        $stmt = $conn->prepare("
+            SELECT id, numero, valor, valor_pago, status 
+            FROM parcelas 
+            WHERE emprestimo_id = ? AND numero > ? AND status != 'pago'
+            ORDER BY numero DESC
+        ");
+        $stmt->bind_param("ii", $emprestimo_id, $parcela_numero);
+        $stmt->execute();
+        $ultimas_parcelas = $stmt->get_result();
+        
+        while ($ultima_parcela = $ultimas_parcelas->fetch_assoc()) {
+            if ($valor_restante <= 0) break;
             
             // Calcula quanto falta pagar nesta parcela
-            $valor_ja_pago_ultima = $ultima_parcela['valor_pago'] ?? 0;
+            $valor_ja_pago_ultima = floatval($ultima_parcela['valor_pago'] ?? 0);
             $valor_faltante = floatval($ultima_parcela['valor']) - $valor_ja_pago_ultima;
             
             // Calcula quanto será aplicado nesta parcela
             $valor_a_aplicar = min($valor_restante, $valor_faltante);
+            $novo_valor_pago_ultima = $valor_ja_pago_ultima + $valor_a_aplicar;
+            $novo_status_ultima = ($novo_valor_pago_ultima >= floatval($ultima_parcela['valor'])) ? 'pago' : 'parcial';
             
             // Atualiza a última parcela
-            $ultima_parcela['valor_pago'] = $valor_ja_pago_ultima + $valor_a_aplicar;
-            $ultima_parcela['data_pagamento'] = $data_pagamento;
-            $ultima_parcela['forma_pagamento'] = $forma_pagamento;
-            $ultima_parcela['status'] = ($valor_ja_pago_ultima + $valor_a_aplicar >= floatval($ultima_parcela['valor'])) ? 'pago' : 'parcial';
-            $ultima_parcela['diferenca_transacao'] = $valor_a_aplicar;
-            $ultima_parcela['acao_diferenca'] = $acao_diferenca_aplicada;
-            $ultima_parcela['valor_original'] = $ultima_parcela['valor'];
+            $stmt = $conn->prepare("
+                UPDATE parcelas 
+                SET 
+                    valor_pago = ?,
+                    data_pagamento = ?,
+                    forma_pagamento = ?,
+                    status = ?,
+                    observacao = CONCAT(IFNULL(observacao, ''), ' | diferenca_transacao: ', ?, ', acao_diferenca: ', ?)
+                WHERE 
+                    id = ?
+            ");
+            $stmt->bind_param(
+                "dsssisi", 
+                $novo_valor_pago_ultima, 
+                $data_pagamento, 
+                $forma_pagamento, 
+                $novo_status_ultima,
+                $valor_a_aplicar,
+                $acao_diferenca_aplicada,
+                $ultima_parcela['id']
+            );
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Erro ao atualizar última parcela: " . $stmt->error);
+            }
             
             // Atualiza o valor restante
             $valor_restante -= $valor_a_aplicar;
@@ -175,31 +236,48 @@ try {
     // Se houver diferença negativa e a ação for proxima_parcela
     if ($diferenca < 0 && $acao_diferenca_aplicada === 'proxima_parcela') {
         $valor_faltante = abs($diferenca);
-        $proxima_parcela_index = $parcela_atual_index + 1;
         
-        if ($proxima_parcela_index < count($parcelas)) {
-            $proxima_parcela =& $parcelas[$proxima_parcela_index];
-            $proxima_parcela['valor'] = number_format(floatval($valor_parcela_original) + $valor_faltante, 2, '.', '');
-            $proxima_parcela['diferenca_transacao'] = -$valor_faltante;
-            $proxima_parcela['acao_diferenca'] = $acao_diferenca_aplicada;
-            $proxima_parcela['valor_original'] = $proxima_parcela['valor'];
+        // Busca a próxima parcela
+        $stmt = $conn->prepare("
+            SELECT id, numero, valor 
+            FROM parcelas 
+            WHERE emprestimo_id = ? AND numero = ?
+        ");
+        $proximo_numero = $parcela_numero + 1;
+        $stmt->bind_param("ii", $emprestimo_id, $proximo_numero);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($proxima_parcela = $result->fetch_assoc()) {
+            $novo_valor_parcela = floatval($valor_parcela_original) + $valor_faltante;
+            
+            // Atualiza o valor da próxima parcela
+            $stmt = $conn->prepare("
+                UPDATE parcelas 
+                SET 
+                    valor = ?,
+                    observacao = CONCAT(IFNULL(observacao, ''), ' | diferenca_transacao: -', ?, ', acao_diferenca: ', ?)
+                WHERE 
+                    id = ?
+            ");
+            $stmt->bind_param(
+                "ddsi", 
+                $novo_valor_parcela, 
+                $valor_faltante,
+                $acao_diferenca_aplicada,
+                $proxima_parcela['id']
+            );
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Erro ao atualizar valor da próxima parcela: " . $stmt->error);
+            }
         }
     }
-
-    // Atualiza o JSON no banco de dados
-    $json_parcelas = json_encode($parcelas, JSON_UNESCAPED_UNICODE);
-    $stmt = $conn->prepare("UPDATE emprestimos SET json_parcelas = ? WHERE id = ?");
-    $stmt->bind_param("si", $json_parcelas, $emprestimo_id);
     
-    if ($stmt->execute()) {
-        $conn->commit();
-        $conn->close();
-        jsonResponse('success', 'Pagamento registrado com sucesso');
-    } else {
-        $conn->rollback();
-        $conn->close();
-        jsonResponse('error', 'Erro ao atualizar o banco de dados');
-    }
+    // Confirma a transação
+    $conn->commit();
+    $conn->close();
+    jsonResponse('success', 'Pagamento registrado com sucesso');
 } catch (Exception $e) {
     $conn->rollback();
     $conn->close();

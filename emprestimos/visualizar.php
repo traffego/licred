@@ -28,62 +28,48 @@ if (!$emprestimo) {
     exit;
 }
 
-// Decodifica as configurações e parcelas
+// Substitui a leitura do JSON por consulta à tabela de parcelas
+$parcelas = [];
+$stmt_parcelas = $conn->prepare("
+    SELECT 
+        id, 
+        numero, 
+        valor, 
+        vencimento, 
+        status, 
+        valor_pago, 
+        data_pagamento, 
+        forma_pagamento, 
+        observacao 
+    FROM 
+        parcelas 
+    WHERE 
+        emprestimo_id = ? 
+    ORDER BY 
+        numero
+");
+$stmt_parcelas->bind_param("i", $emprestimo_id);
+$stmt_parcelas->execute();
+$result_parcelas = $stmt_parcelas->get_result();
+
+while ($p = $result_parcelas->fetch_assoc()) {
+    $parcelas[] = $p;
+}
+
+// Configurações básicas
 $configuracao = json_decode($emprestimo['configuracao'], true);
-$parcelas = json_decode($emprestimo['json_parcelas'], true);
-
-// Verifica e atualiza o status das parcelas
 $hoje = new DateTime();
-$json_atualizado = false;
 
-// Primeiro, vamos verificar todas as parcelas e seus status
-foreach ($parcelas as $index => &$parcela) {
+// Verifica e atualiza o status de cada parcela, se necessário
+$parcelas_atualizadas = false;
+
+foreach ($parcelas as &$parcela) {
     $data_vencimento = new DateTime($parcela['vencimento']);
-    
-    // Verifica se a parcela foi paga com excedente
-    if (isset($parcela['observacao']) && strpos($parcela['observacao'], 'Desconto de R$') !== false) {
-        // Encontra a parcela anterior para pegar os detalhes do pagamento
-        $numero_parcela_anterior = $parcela['numero'] - 1;
-        $parcela_anterior = null;
-        foreach ($parcelas as $p) {
-            if ($p['numero'] == $numero_parcela_anterior) {
-                $parcela_anterior = $p;
-                break;
-            }
-        }
-        
-        if ($parcela_anterior) {
-            // Extrai o valor do desconto da observação
-            preg_match('/Desconto de R\$\s*([0-9,.]+)/', $parcela['observacao'], $matches);
-            $valor_desconto = floatval(str_replace(['.', ','], ['', '.'], $matches[1]));
-            
-            // Verifica se o valor da parcela está correto (deve ser o original menos o desconto)
-            $valor_original = floatval($emprestimo['valor_parcela']);
-            $valor_atual = isset($parcela['valor']) ? floatval($parcela['valor']) : 0;
-            
-            if (abs($valor_atual - ($valor_original - $valor_desconto)) > 0.01) {
-                $parcela['valor'] = $valor_original - $valor_desconto;
-                $json_atualizado = true;
-            }
-            
-            // Atualiza os dados de pagamento
-            $parcela['data_pagamento'] = $parcela_anterior['data_pagamento'];
-            $parcela['forma_pagamento'] = 'SOBRA DA PARCELA ANTERIOR';
-            
-            // Verifica o status baseado no valor pago
-            if (isset($parcela['valor_pago']) && $parcela['valor_pago'] >= $parcela['valor']) {
-                $parcela['status'] = 'pago';
-            } else {
-                $parcela['status'] = 'parcial';
-            }
-            $json_atualizado = true;
-        }
-    }
     
     // Verifica parcelas vencidas
     if ($parcela['status'] === 'pendente' && $data_vencimento < $hoje) {
         $parcela['status'] = 'atrasado';
-        $json_atualizado = true;
+        $parcelas_atualizadas = true;
     }
     
     // Verifica parcelas pagas parcialmente
@@ -91,36 +77,30 @@ foreach ($parcelas as $index => &$parcela) {
         if (isset($parcela['valor']) && $parcela['valor_pago'] < $parcela['valor']) {
             if ($parcela['status'] !== 'parcial') {
                 $parcela['status'] = 'parcial';
-                $json_atualizado = true;
+                $parcelas_atualizadas = true;
             }
         } elseif (isset($parcela['valor']) && $parcela['valor_pago'] >= $parcela['valor'] && $parcela['status'] !== 'pago') {
             $parcela['status'] = 'pago';
-            $json_atualizado = true;
-        }
-    }
-    
-    // Verifica se o valor da parcela está correto
-    if (!isset($parcela['observacao']) || strpos($parcela['observacao'], 'Desconto de R$') === false) {
-        $valor_original = floatval($emprestimo['valor_parcela']);
-        $valor_atual = isset($parcela['valor']) ? floatval($parcela['valor']) : 0;
-        
-        if (abs($valor_atual - $valor_original) > 0.01) {
-            $parcela['valor'] = $valor_original;
-            $json_atualizado = true;
+            $parcelas_atualizadas = true;
         }
     }
 }
 unset($parcela);
 
-// Se houve alterações, atualiza o JSON no banco
-if ($json_atualizado) {
-    $json_parcelas = json_encode($parcelas, JSON_UNESCAPED_UNICODE);
-    $stmt = $conn->prepare("UPDATE emprestimos SET json_parcelas = ? WHERE id = ?");
-    $stmt->bind_param("si", $json_parcelas, $emprestimo_id);
-    $stmt->execute();
+// Se houve alterações, atualiza o status das parcelas no banco
+if ($parcelas_atualizadas) {
+    foreach ($parcelas as $parcela) {
+        $stmt_atualiza = $conn->prepare("
+            UPDATE parcelas 
+            SET status = ? 
+            WHERE id = ?
+        ");
+        $stmt_atualiza->bind_param("si", $parcela['status'], $parcela['id']);
+        $stmt_atualiza->execute();
+    }
 }
 
-// Calcula os totais a partir do JSON atualizado
+// Calcula os totais a partir das parcelas
 $pagas = 0;
 $parciais = 0;
 $pendentes = 0;
@@ -437,23 +417,44 @@ foreach ($parcelas as $p) {
                                 </td>
                                 <td>
                                     <?php if ($p['status'] === 'pago' || $p['status'] === 'parcial'): ?>
-                                        <div class="text-muted">
-                                            R$ <?= number_format($p['valor_pago'] ?? (isset($p['valor']) ? $p['valor'] : 0), 2, ',', '.') ?>
-                                            <br>
-                                            <small>
-                                                <?php 
+                                        <?php if ($p['status'] === 'parcial' && isset($p['valor']) && isset($p['valor_pago'])): ?>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <div class="text-decoration-line-through text-muted small">
+                                                    <strong>Valor original:</strong> R$ <?= number_format($p['valor'], 2, ',', '.') ?>
+                                                </div>
+                                                <div class="d-flex flex-column align-items-end">
+                                                    <div class="text-success fw-semibold">
+                                                        <small>Já pago:</small> R$ <?= number_format($p['valor_pago'], 2, ',', '.') ?>
+                                                    </div>
+                                                    <div class="text-danger fw-semibold">
+                                                        <small>Falta:</small> R$ <?= number_format($p['valor'] - $p['valor_pago'], 2, ',', '.') ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php else: ?>
+                                            <p class="card-text"><strong>Pagamento:</strong> R$ <?= number_format($p['valor_pago'] ?? $p['valor'], 2, ',', '.') ?></p>
+                                        <?php endif; ?>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                <?php
                                                 if (isset($p['data_pagamento']) && strtotime($p['data_pagamento']) > 0): 
                                                     echo date('d/m/Y', strtotime($p['data_pagamento']));
                                                     if (isset($p['forma_pagamento']) && !empty($p['forma_pagamento'])) {
                                                         echo ' via ' . ($p['forma_pagamento'] === 'SOBRA DA PARCELA ANTERIOR' ? $p['forma_pagamento'] : ucfirst($p['forma_pagamento']));
                                                     }
-                                                endif; 
+                                                endif;
                                                 ?>
                                                 <?php if (isset($p['observacao']) && !empty($p['observacao'])): ?>
-                                                    <br><i class="bi bi-info-circle"></i> <?= htmlspecialchars($p['observacao']) ?>
+                                                    <a href="javascript:void(0);" 
+                                                       class="text-info ms-1" 
+                                                       data-bs-toggle="tooltip" 
+                                                       data-bs-placement="top" 
+                                                       data-bs-title="<?= htmlspecialchars($p['observacao']) ?>">
+                                                        <i class="bi bi-info-circle"></i> Ver observação
+                                                    </a>
                                                 <?php endif; ?>
                                             </small>
-                                        </div>
+                                        </p>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-end">
@@ -472,29 +473,29 @@ foreach ($parcelas as $p) {
                                         }
                                     }
 
-                                    if (($p['status'] === 'pendente' || $p['status'] === 'parcial') && isset($p['valor']) && $p['valor'] > 0): 
-                                        $botoes_habilitados = ($p['numero'] === $proxima_parcela || $p['numero'] === $parcela_seguinte);
+                                    if (($p['status'] === 'pendente' || $p['status'] === 'parcial' || $p['status'] === 'atrasado') && isset($p['valor']) && $p['valor'] > 0): 
+                                        $botoes_habilitados = ($p['numero'] === $proxima_parcela || $p['numero'] === $parcela_seguinte || $p['status'] === 'atrasado');
                                     ?>
                                         <button type="button" 
                                                 class="btn btn-sm <?= $botoes_habilitados ? 'btn-success' : 'btn-secondary' ?> btn-pagar" 
                                                 data-parcela='<?= json_encode($p) ?>'
                                                 <?= !$botoes_habilitados ? 'disabled' : '' ?>
-                                                title="<?= $botoes_habilitados ? 'Registrar Pagamento' : 'Pagamento disponível apenas para próximas parcelas' ?>">
-                                            <i class="bi bi-cash-coin"></i>
+                                                title="<?= $botoes_habilitados ? 'Registrar Pagamento' : 'Pagamento disponível apenas para próximas parcelas ou atrasadas' ?>">
+                                            <i class="bi bi-cash-coin"></i> Pagar
                                         </button>
                                         <button type="button" 
                                                 class="btn btn-sm <?= $botoes_habilitados ? 'btn-info' : 'btn-secondary' ?>" 
                                                 onclick="enviarCobranca(<?= $emprestimo['id'] ?>, <?= $p['numero'] ?>)"
                                                 <?= !$botoes_habilitados ? 'disabled' : '' ?>
-                                                title="<?= $botoes_habilitados ? 'Enviar Cobrança' : 'Cobrança disponível apenas para próximas parcelas' ?>">
-                                            <i class="bi bi-whatsapp"></i>
+                                                title="<?= $botoes_habilitados ? 'Enviar Cobrança' : 'Cobrança disponível apenas para próximas parcelas ou atrasadas' ?>">
+                                            <i class="bi bi-whatsapp"></i> Cobrar
                                         </button>
                                     <?php else: ?>
                                         <a href="parcelas/recibo.php?emprestimo_id=<?= $emprestimo['id'] ?>&parcela_numero=<?= $p['numero'] ?>" 
                                            class="btn btn-sm btn-secondary" 
                                            target="_blank"
                                            title="Imprimir Recibo">
-                                            <i class="bi bi-printer"></i>
+                                            <i class="bi bi-printer"></i> Recibo
                                         </a>
                                     <?php endif; ?>
                                 </td>
@@ -515,100 +516,113 @@ foreach ($parcelas as $p) {
                         default => 'secondary'
                     };
                 ?>
-                    <div class="parcela-card" data-status="<?= $p['status'] ?>">
-                        <div class="parcela-card-header">
-                            <div class="parcela-number">
-                                <span class="number"><?= $p['numero'] ?></span>
-                                <span class="text-muted">/<?= $emprestimo['parcelas'] ?></span>
-                            </div>
-                            <span class="badge text-bg-<?= $status_class ?>">
-                                <?= ucfirst($p['status']) ?>
-                            </span>
-                        </div>
-                        
-                        <div class="parcela-card-body">
-                            <div class="info-row">
-                                <div class="info-label">
-                                    <i class="bi bi-calendar3"></i>
-                                    <span>Vencimento</span>
+                    <div class="card-installment d-block d-md-none mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <p class="card-text"><strong>Parcela:</strong> <?= $p['numero'] ?></p>
+                                    <p class="card-text">
+                                        <strong>Status:</strong>
+                                        <?php if ($p['status'] === 'pendente'): ?>
+                                            <span class="badge bg-warning text-dark">Pendente</span>
+                                        <?php elseif ($p['status'] === 'pago'): ?>
+                                            <span class="badge bg-success">Pago</span>
+                                        <?php elseif ($p['status'] === 'parcial'): ?>
+                                            <span class="badge bg-info">Parcial</span>
+                                        <?php elseif ($p['status'] === 'atrasado'): ?>
+                                            <span class="badge bg-danger">Atrasado</span>
+                                        <?php endif; ?>
+                                    </p>
                                 </div>
-                                <div class="info-value">
-                                    <?= date('d/m/Y', strtotime($p['vencimento'])) ?>
-                                </div>
-                            </div>
-
-                            <div class="info-row">
-                                <div class="info-label">
-                                    <i class="bi bi-cash"></i>
-                                    <span>Valor</span>
-                                </div>
-                                <div class="info-value">
-                                    R$ <?= isset($p['valor']) ? number_format($p['valor'], 2, ',', '.') : '0,00' ?>
-                                </div>
-                            </div>
-
-                            <?php if ($p['status'] === 'pago' || $p['status'] === 'parcial'): ?>
-                            <div class="info-row">
-                                <div class="info-label">
-                                    <i class="bi bi-check2-circle"></i>
-                                    <span>Pagamento</span>
-                                </div>
-                                <div class="info-value">
-                                    <div>R$ <?= number_format($p['valor_pago'] ?? (isset($p['valor']) ? $p['valor'] : 0), 2, ',', '.') ?></div>
-                                    <small class="text-muted">
-                                        <?php 
-                                        if (isset($p['data_pagamento']) && strtotime($p['data_pagamento']) > 0): 
-                                            echo date('d/m/Y', strtotime($p['data_pagamento']));
-                                            if (isset($p['forma_pagamento']) && !empty($p['forma_pagamento'])) {
-                                                echo ' via ' . ($p['forma_pagamento'] === 'SOBRA DA PARCELA ANTERIOR' ? $p['forma_pagamento'] : ucfirst($p['forma_pagamento']));
+                                <p class="card-text"><strong>Vencimento:</strong> <?= date('d/m/Y', strtotime($p['vencimento'])) ?></p>
+                                <p class="card-text"><strong>Valor:</strong> R$ <?= number_format($p['valor'], 2, ',', '.') ?></p>
+                                
+                                <?php if ($p['status'] === 'pago' || $p['status'] === 'parcial'): ?>
+                                    <?php if ($p['status'] === 'parcial' && isset($p['valor']) && isset($p['valor_pago'])): ?>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <div class="text-decoration-line-through text-muted small">
+                                                <strong>Valor original:</strong> R$ <?= number_format($p['valor'], 2, ',', '.') ?>
+                                            </div>
+                                            <div class="d-flex flex-column align-items-end">
+                                                <div class="text-success fw-semibold">
+                                                    <small>Já pago:</small> R$ <?= number_format($p['valor_pago'], 2, ',', '.') ?>
+                                                </div>
+                                                <div class="text-danger fw-semibold">
+                                                    <small>Falta:</small> R$ <?= number_format($p['valor'] - $p['valor_pago'], 2, ',', '.') ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php else: ?>
+                                        <p class="card-text"><strong>Pagamento:</strong> R$ <?= number_format($p['valor_pago'] ?? $p['valor'], 2, ',', '.') ?></p>
+                                    <?php endif; ?>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <?php
+                                            if (isset($p['data_pagamento']) && strtotime($p['data_pagamento']) > 0): 
+                                                echo date('d/m/Y', strtotime($p['data_pagamento']));
+                                                if (isset($p['forma_pagamento']) && !empty($p['forma_pagamento'])) {
+                                                    echo ' via ' . ($p['forma_pagamento'] === 'SOBRA DA PARCELA ANTERIOR' ? $p['forma_pagamento'] : ucfirst($p['forma_pagamento']));
+                                                }
+                                            endif;
+                                            ?>
+                                            <?php if (isset($p['observacao']) && !empty($p['observacao'])): ?>
+                                                <a href="javascript:void(0);" 
+                                                   class="text-info ms-1" 
+                                                   data-bs-toggle="tooltip" 
+                                                   data-bs-placement="top" 
+                                                   data-bs-title="<?= htmlspecialchars($p['observacao']) ?>">
+                                                    <i class="bi bi-info-circle"></i> Ver observação
+                                                </a>
+                                            <?php endif; ?>
+                                        </small>
+                                    </p>
+                                <?php endif; ?>
+                                
+                                <div class="mt-3 d-flex justify-content-end gap-2">
+                                <?php 
+                                // Encontra o número da próxima parcela pendente se ainda não foi definido
+                                if (!isset($proxima_parcela) || !isset($parcela_seguinte)) {
+                                    $proxima_parcela = null;
+                                    $parcela_seguinte = null;
+                                    foreach ($parcelas as $parcela) {
+                                        if ($parcela['status'] === 'pendente' || $parcela['status'] === 'parcial') {
+                                            if ($proxima_parcela === null) {
+                                                $proxima_parcela = $parcela['numero'];
+                                            } else if ($parcela_seguinte === null) {
+                                                $parcela_seguinte = $parcela['numero'];
+                                                break;
                                             }
-                                        endif; 
-                                        ?>
-                                    </small>
+                                        }
+                                    }
+                                }
+                                
+                                if (($p['status'] === 'pendente' || $p['status'] === 'parcial' || $p['status'] === 'atrasado') && isset($p['valor']) && $p['valor'] > 0): 
+                                    $botoes_habilitados = ($p['numero'] === $proxima_parcela || $p['numero'] === $parcela_seguinte || $p['status'] === 'atrasado');
+                                ?>
+                                    <button type="button" 
+                                            class="btn btn-sm <?= $botoes_habilitados ? 'btn-success' : 'btn-secondary' ?> btn-pagar" 
+                                            data-parcela='<?= json_encode($p) ?>'
+                                            <?= !$botoes_habilitados ? 'disabled' : '' ?>
+                                            title="<?= $botoes_habilitados ? 'Registrar Pagamento' : 'Pagamento disponível apenas para próximas parcelas ou atrasadas' ?>">
+                                        <i class="bi bi-cash-coin"></i> Pagar
+                                    </button>
+                                    <button type="button" 
+                                            class="btn btn-sm <?= $botoes_habilitados ? 'btn-info' : 'btn-secondary' ?>" 
+                                            onclick="enviarCobranca(<?= $emprestimo['id'] ?>, <?= $p['numero'] ?>)"
+                                            <?= !$botoes_habilitados ? 'disabled' : '' ?>
+                                            title="<?= $botoes_habilitados ? 'Enviar Cobrança' : 'Cobrança disponível apenas para próximas parcelas ou atrasadas' ?>">
+                                        <i class="bi bi-whatsapp"></i> Cobrar
+                                    </button>
+                                <?php else: ?>
+                                    <a href="parcelas/recibo.php?emprestimo_id=<?= $emprestimo['id'] ?>&parcela_numero=<?= $p['numero'] ?>" 
+                                       class="btn btn-sm btn-secondary" 
+                                       target="_blank"
+                                       title="Imprimir Recibo">
+                                        <i class="bi bi-printer"></i> Recibo
+                                    </a>
+                                <?php endif; ?>
                                 </div>
                             </div>
-                            <?php endif; ?>
-
-                            <?php if (isset($p['observacao']) && !empty($p['observacao'])): ?>
-                            <div class="info-row">
-                                <div class="info-label">
-                                    <i class="bi bi-info-circle"></i>
-                                    <span>Observação</span>
-                                </div>
-                                <div class="info-value">
-                                    <small><?= htmlspecialchars($p['observacao']) ?></small>
-                                </div>
-                            </div>
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="parcela-card-footer">
-                            <?php 
-                            if (($p['status'] === 'pendente' || $p['status'] === 'parcial') && isset($p['valor']) && $p['valor'] > 0): 
-                                $botoes_habilitados = ($p['numero'] === $proxima_parcela || $p['numero'] === $parcela_seguinte);
-                            ?>
-                                <button type="button" 
-                                        class="btn <?= $botoes_habilitados ? 'btn-success' : 'btn-secondary' ?> btn-pagar" 
-                                        data-parcela='<?= json_encode($p) ?>'
-                                        <?= !$botoes_habilitados ? 'disabled' : '' ?>
-                                        title="<?= $botoes_habilitados ? 'Registrar Pagamento' : 'Pagamento disponível apenas para próximas parcelas' ?>">
-                                    <i class="bi bi-cash-coin me-2"></i>Pagar
-                                </button>
-                                <button type="button" 
-                                        class="btn <?= $botoes_habilitados ? 'btn-info' : 'btn-secondary' ?>" 
-                                        onclick="enviarCobranca(<?= $emprestimo['id'] ?>, <?= $p['numero'] ?>)"
-                                        <?= !$botoes_habilitados ? 'disabled' : '' ?>
-                                        title="<?= $botoes_habilitados ? 'Enviar Cobrança' : 'Cobrança disponível apenas para próximas parcelas' ?>">
-                                    <i class="bi bi-whatsapp me-2"></i>Cobrar
-                                </button>
-                            <?php else: ?>
-                                <a href="parcelas/recibo.php?emprestimo_id=<?= $emprestimo['id'] ?>&parcela_numero=<?= $p['numero'] ?>" 
-                                   class="btn btn-secondary" 
-                                   target="_blank"
-                                   title="Imprimir Recibo">
-                                    <i class="bi bi-printer me-2"></i>Recibo
-                                </a>
-                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -1027,6 +1041,15 @@ document.addEventListener('DOMContentLoaded', function() {
         filtroVencimento.value = '';
         aplicarFiltros();
     });
+
+    // Inicializa os cards expandidos
+    document.querySelectorAll('.card-content').forEach(content => {
+        content.style.maxHeight = content.scrollHeight + "px";
+    });
+    
+    // Inicializa os tooltips
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 
 // Função para criar a animação de fogos
@@ -1257,13 +1280,6 @@ function toggleCard(header) {
         cardBody.style.maxHeight = "0";
     }
 }
-
-// Inicializa os cards expandidos
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.card-content').forEach(content => {
-        content.style.maxHeight = content.scrollHeight + "px";
-    });
-});
 </script>
 
 <?php
@@ -1619,6 +1635,19 @@ function formatarTelefone($telefone) {
     
     .parcela-card-footer .btn {
         flex: 1;
+    }
+    
+    .card-installment .btn {
+        font-size: 0.8rem;
+        padding: 0.375rem 0.5rem;
+    }
+    
+    .card-installment .btn i {
+        margin-right: 0.25rem;
+    }
+    
+    .card-installment .card-body {
+        padding-bottom: 0.75rem;
     }
 }
 

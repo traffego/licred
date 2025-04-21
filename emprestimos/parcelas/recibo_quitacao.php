@@ -4,12 +4,11 @@ require_once __DIR__ . '/../../includes/autenticacao.php';
 require_once __DIR__ . '/../../includes/conexao.php';
 require_once __DIR__ . '/../../includes/funcoes_data.php';
 
-// Recebe parâmetros
+// Recebe o ID do empréstimo
 $emprestimo_id = filter_input(INPUT_GET, 'emprestimo_id', FILTER_VALIDATE_INT);
-$parcela_numero = filter_input(INPUT_GET, 'parcela_numero', FILTER_VALIDATE_INT);
 
-if (!$emprestimo_id || !$parcela_numero) {
-    die('Parâmetros inválidos.');
+if (!$emprestimo_id) {
+    die('ID do empréstimo não informado ou inválido.');
 }
 
 // Busca informações do empréstimo e cliente
@@ -42,25 +41,44 @@ $stmt_empresa = $conn->prepare("SELECT * FROM configuracoes WHERE id = 1");
 $stmt_empresa->execute();
 $empresa = $stmt_empresa->get_result()->fetch_assoc();
 
-// Busca a parcela específica
-$stmt_parcela = $conn->prepare("
+// Busca as parcelas do empréstimo para calcular o total
+$stmt_parcelas = $conn->prepare("
     SELECT 
-        * 
+        valor, 
+        status,
+        valor_pago,
+        data_pagamento,
+        forma_pagamento
     FROM 
         parcelas 
     WHERE 
-        emprestimo_id = ? AND numero = ?
+        emprestimo_id = ?
+    ORDER BY 
+        numero
 ");
-$stmt_parcela->bind_param("ii", $emprestimo_id, $parcela_numero);
-$stmt_parcela->execute();
-$parcela = $stmt_parcela->get_result()->fetch_assoc();
+$stmt_parcelas->bind_param("i", $emprestimo_id);
+$stmt_parcelas->execute();
+$result_parcelas = $stmt_parcelas->get_result();
 
-if (!$parcela) {
-    die('Parcela não encontrada.');
-}
+$total_pago = 0;
+$total_previsto = 0;
+$ultima_data_pagamento = null;
+$ultima_forma_pagamento = null;
 
-if ($parcela['status'] !== 'pago') {
-    die('Esta parcela ainda não foi paga.');
+while ($parcela = $result_parcelas->fetch_assoc()) {
+    $total_previsto += $parcela['valor'];
+    
+    if ($parcela['status'] === 'pago') {
+        $total_pago += $parcela['valor_pago'] ?? $parcela['valor'];
+        
+        // Atualiza a última data e forma de pagamento
+        if ($parcela['data_pagamento'] !== null) {
+            $ultima_data_pagamento = $parcela['data_pagamento'];
+            $ultima_forma_pagamento = $parcela['forma_pagamento'];
+        }
+    } elseif ($parcela['status'] === 'parcial' && isset($parcela['valor_pago'])) {
+        $total_pago += $parcela['valor_pago'];
+    }
 }
 
 // Formata valores para exibição
@@ -160,10 +178,7 @@ function valorPorExtenso($valor) {
 }
 
 // Define o número do recibo
-$numero_recibo = $emprestimo_id . '-' . $parcela_numero . '/' . date('Y');
-
-// Valor pago (adaptado para parcial ou pago completo)
-$valor_pago = isset($parcela['valor_pago']) ? $parcela['valor_pago'] : $parcela['valor'];
+$numero_recibo = $emprestimo_id . '/' . date('Y');
 
 // Gera o HTML do recibo
 $html = '
@@ -172,7 +187,7 @@ $html = '
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recibo de Pagamento - Parcela #' . $parcela_numero . '</title>
+    <title>Recibo de Quitação - Empréstimo #' . $emprestimo_id . '</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -282,7 +297,7 @@ $html = '
 
     <div class="recibo">
         <div class="recibo-numero">RECIBO Nº ' . $numero_recibo . '</div>
-        <div class="recibo-titulo">RECIBO DE PAGAMENTO DE PARCELA</div>
+        <div class="recibo-titulo">RECIBO DE QUITAÇÃO DE EMPRÉSTIMO</div>
         
         <div class="cabecalho">
             <h1>' . htmlspecialchars($empresa['nome_empresa'] ?? 'EMPRESA DE EMPRÉSTIMOS') . '</h1>
@@ -301,23 +316,22 @@ $html = '
         </div>
         
         <div class="info-bloco">
-            <div class="info-titulo">DADOS DO PAGAMENTO:</div>
+            <div class="info-titulo">DADOS DO EMPRÉSTIMO:</div>
             <div class="info-dados">
-                <p>Nº do Empréstimo: ' . $emprestimo_id . '</p>
-                <p>Parcela: ' . $parcela_numero . '/' . $emprestimo['parcelas'] . '</p>
-                <p>Data de Vencimento: ' . formatarData($parcela['vencimento']) . '</p>
-                <p>Data de Pagamento: ' . formatarData($parcela['data_pagamento']) . '</p>
-                <p>Valor: ' . formatarMoeda($parcela['valor']) . '</p>
-                <p>Valor Pago: ' . formatarMoeda($valor_pago) . '</p>
-                <p>Forma de Pagamento: ' . ucfirst($parcela['forma_pagamento'] ?? 'Não informado') . '</p>
+                <p>Nº do Contrato: ' . $emprestimo_id . '</p>
+                <p>Data do Empréstimo: ' . formatarData($emprestimo['data_emprestimo']) . '</p>
+                <p>Valor Emprestado: ' . formatarMoeda($emprestimo['valor_emprestado']) . '</p>
+                <p>Valor Total: ' . formatarMoeda($total_previsto) . '</p>
+                <p>Valor Total Pago: ' . formatarMoeda($total_pago) . '</p>
             </div>
         </div>
         
         <div class="texto-recibo">
-            <p>Recebi do cliente <span class="valor-destacado">' . htmlspecialchars($emprestimo['cliente_nome']) . '</span>, o valor de <span class="valor-destacado">' . formatarMoeda($valor_pago) . '</span> (<span class="valor-destacado">' . valorPorExtenso($valor_pago) . '</span>), referente ao pagamento ' . ($valor_pago < $parcela['valor'] ? 'parcial' : 'integral') . ' da parcela nº <span class="valor-destacado">' . $parcela_numero . '</span> do empréstimo nº <span class="valor-destacado">' . $emprestimo_id . '</span>.</p>
+            <p>Declaro para os devidos fins que o empréstimo de número <span class="valor-destacado">' . $emprestimo_id . '</span>, no valor total de <span class="valor-destacado">' . formatarMoeda($total_previsto) . '</span> (<span class="valor-destacado">' . valorPorExtenso($total_previsto) . '</span>), foi totalmente QUITADO nesta data, não havendo mais nenhum valor a ser pago referente a este contrato.</p>
             
-            <p>Este pagamento foi recebido em <span class="valor-destacado">' . formatarData($parcela['data_pagamento']) . '</span>, através de <span class="valor-destacado">' . ucfirst($parcela['forma_pagamento'] ?? 'pagamento') . '</span>.</p>
-            ' . ($parcela['observacao'] ? '<p>Observação: ' . htmlspecialchars($parcela['observacao']) . '</p>' : '') . '
+            <p>O pagamento total foi realizado em parcelas, sendo a última liquidação efetuada em <span class="valor-destacado">' . formatarData($ultima_data_pagamento ?? date('Y-m-d')) . '</span>, através de <span class="valor-destacado">' . ucfirst($ultima_forma_pagamento ?? 'pagamento') . '</span>.</p>
+            
+            <p>Dou plena, geral e irrevogável quitação, para nada mais reclamar em tempo algum, seja a que título for.</p>
         </div>
         
         <div class="data-assinatura">
@@ -331,7 +345,7 @@ $html = '
         </div>
         
         <div class="observacao">
-            <p>Este recibo é válido como comprovante de pagamento da parcela. Guarde-o em local seguro para futuras consultas.</p>
+            <p>Este recibo é válido como comprovante de quitação total do empréstimo. Guarde-o em local seguro para futuras consultas.</p>
         </div>
     </div>
     
