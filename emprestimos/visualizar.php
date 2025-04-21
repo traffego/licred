@@ -145,6 +145,13 @@ foreach ($parcelas as $p) {
     </div>
     <?php endif; ?>
     
+    <?php if (isset($emprestimo['status']) && $emprestimo['status'] === 'inativo'): ?>
+    <div class="alert alert-warning text-center py-3 mb-4">
+        <h4 class="mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>EMPRÉSTIMO INATIVO</h4>
+        <p class="mb-0 mt-2">Este empréstimo foi marcado como inativo e não aparece mais na listagem principal.</p>
+    </div>
+    <?php endif; ?>
+    
     <div class="card mb-4 header-card">
         <div class="card-body p-4">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">

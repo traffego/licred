@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/autenticacao.php';
 require_once __DIR__ . '/../includes/conexao.php';
+require_once __DIR__ . '/../feriados/queries_feriados.php';
 
 // Valida cliente_id
 $cliente_id = filter_input(INPUT_POST, 'cliente', FILTER_VALIDATE_INT);
@@ -88,13 +89,6 @@ if ($usar_tlc) {
     }
 }
 
-// Valida JSON das parcelas
-$json_parcelas = $_POST['json_parcelas'] ?? '';
-$parcelas_array = json_decode($json_parcelas, true);
-if (!$parcelas_array || !is_array($parcelas_array)) {
-    die("JSON de parcelas inválido.");
-}
-
 // Prepara o JSON de configuração
 $configuracao = [
     'usar_tlc' => (bool)$usar_tlc,
@@ -106,7 +100,7 @@ $configuracao = [
     'valor_parcela_padrao' => $valor_parcela // Adiciona o valor padrão da parcela na configuração
 ];
 
-// Prepara a query de inserção do empréstimo (sem o campo json_parcelas)
+// Prepara a query de inserção do empréstimo
 $sql = "INSERT INTO emprestimos (
     cliente_id,
     tipo_de_cobranca,
@@ -147,6 +141,16 @@ try {
     }
     
     $emprestimo_id = $conn->insert_id;
+    
+    // Gerar as parcelas no backend
+    $parcelas_array = gerarParcelas(
+        $parcelas, 
+        $data_inicio, 
+        $periodo_pagamento, 
+        $valor_parcela, 
+        $dias_semana, 
+        $configuracao['considerar_feriados']
+    );
     
     // Prepara a inserção de parcelas
     $stmt_parcela = $conn->prepare("INSERT INTO parcelas (
@@ -204,4 +208,90 @@ try {
     $conn->rollback();
     header("Location: index.php?erro=1&msg=" . urlencode("Erro ao salvar: " . $e->getMessage()));
     exit;
+}
+
+/**
+ * Função para gerar as parcelas
+ */
+function gerarParcelas(int $numero_parcelas, string $data_inicial, string $periodo, float $valor_parcela, array $dias_semana, bool $considerar_feriados): array {
+    global $conn;
+    
+    $parcelas = [];
+    $data_atual = new DateTime($data_inicial);
+    
+    // Gera as parcelas
+    for ($i = 1; $i <= $numero_parcelas; $i++) {
+        // Na primeira parcela, não altera a data
+        if ($i > 1) {
+            $data_atual = calcularProximaData($data_atual, $periodo, $dias_semana, $considerar_feriados);
+        }
+        
+        $parcelas[] = [
+            'numero' => $i,
+            'valor' => number_format($valor_parcela, 2, '.', ''),
+            'vencimento' => $data_atual->format('Y-m-d'),
+            'status' => 'pendente'
+        ];
+    }
+    
+    return $parcelas;
+}
+
+/**
+ * Função para calcular a próxima data
+ */
+function calcularProximaData(DateTime $data_base, string $periodo, array $dias_semana, bool $considerar_feriados): DateTime {
+    global $conn;
+    
+    $data = clone $data_base;
+    
+    // Adiciona dias conforme o período
+    switch($periodo) {
+        case 'diario':
+            $data->modify('+1 day');
+            break;
+        case 'semanal':
+            $data->modify('+7 days');
+            break;
+        case 'quinzenal':
+            $data->modify('+15 days');
+            break;
+        case 'mensal':
+            $data->modify('+1 month');
+            break;
+        case 'trimestral':
+            $data->modify('+3 months');
+            break;
+    }
+    
+    // Verifica se a data cai em um dia a ser evitado
+    while (diaASerEvitado($data, $dias_semana, $considerar_feriados)) {
+        $data->modify('+1 day');
+    }
+    
+    return $data;
+}
+
+/**
+ * Verifica se um dia deve ser evitado
+ */
+function diaASerEvitado(DateTime $data, array $dias_semana, bool $considerar_feriados): bool {
+    global $conn;
+    
+    // Verifica se o dia da semana está na lista de dias a evitar
+    $dia_semana = $data->format('w');
+    if (in_array($dia_semana, $dias_semana)) {
+        return true;
+    }
+    
+    // Verifica se é feriado e deve ser evitado
+    if ($considerar_feriados) {
+        $data_str = $data->format('Y-m-d');
+        $feriado = verificarSeDataEFeriado($conn, $data_str);
+        if ($feriado && $feriado['evitar'] === 'sim_evitar') {
+            return true;
+        }
+    }
+    
+    return false;
 }

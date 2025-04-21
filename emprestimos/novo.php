@@ -32,7 +32,6 @@ if ($cliente_id) {
                 </div>
                 <div class="card-body">
                     <form id="formEmprestimo" action="salvar.php" method="POST">
-                        <input type="hidden" name="json_parcelas" id="json_parcelas" value="[]">
                         <!-- Cliente -->
                         <div class="mb-4">
                             <h5 class="mb-3">
@@ -303,132 +302,18 @@ function formatarPorcentagem(input) {
     }
 }
 
-// Função para calcular próxima data considerando dias da semana e período
-function calcularProximaData(dataBase, periodo, diasSemana) {
-    let data = new Date(dataBase);
-    
-    // Função auxiliar para verificar se um dia da semana está excluído
-    function diaExcluido(data) {
-        const diaSemana = data.getDay().toString();
-        return diasSemana.includes(diaSemana);
-    }
-    
-    // Adiciona dias conforme o período
-    switch(periodo) {
-        case 'diario':
-            do {
-                data.setDate(data.getDate() + 1);
-            } while(diaExcluido(data));
-            break;
-        case 'semanal':
-            do {
-                data.setDate(data.getDate() + 7);
-            } while(diaExcluido(data));
-            break;
-        case 'quinzenal':
-            do {
-                data.setDate(data.getDate() + 15);
-            } while(diaExcluido(data));
-            break;
-        case 'mensal':
-            do {
-                data.setMonth(data.getMonth() + 1);
-            } while(diaExcluido(data));
-            break;
-        case 'trimestral':
-            do {
-                data.setMonth(data.getMonth() + 3);
-            } while(diaExcluido(data));
-            break;
-    }
-    
-    return data;
-}
-
-// Função para formatar data como YYYY-MM-DD
-function formatarData(data) {
-    return data.toISOString().split('T')[0];
-}
-
-// Função para gerar JSON de parcelas
-function gerarJsonParcelas() {
-    const parcelas = [];
-    const numeroParcelas = parseInt(document.getElementById('parcelas').value) || 0;
-    const dataInicio = document.getElementById('data').value;
-    const periodo = document.getElementById('periodo_pagamento').value;
-    const modoCalculo = document.getElementById('modo_calculo').value;
-    
-    // Obtém os dias da semana selecionados
-    const diasSemana = Array.from(document.querySelectorAll('input[name="dias_semana[]"]:checked'))
-        .map(checkbox => checkbox.value)
-        .filter(valor => valor !== 'feriados'); // Remove feriados da lista de dias
-    
-    if (numeroParcelas > 0 && dataInicio && periodo) {
-        let dataAtual = new Date(dataInicio);
-        let valorParcela = 0;
-        
-        // Determina o valor da parcela
-        if (modoCalculo === 'parcela') {
-            const valorParcelaInput = document.getElementById('valor_parcela').value;
-            valorParcela = parseFloat(valorParcelaInput.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-        } else {
-            const capital = parseFloat(document.getElementById('capital').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-            const juros = parseFloat(document.getElementById('juros').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-            const valorTotal = capital * (1 + (juros/100));
-            valorParcela = valorTotal / numeroParcelas;
-        }
-        
-        // Gera as parcelas
-        for (let i = 1; i <= numeroParcelas; i++) {
-            // Calcula a próxima data de vencimento
-            if (i > 1) {
-                dataAtual = calcularProximaData(dataAtual, periodo, diasSemana);
-            }
-            
-            parcelas.push({
-                numero: i,
-                valor: valorParcela.toFixed(2),
-                vencimento: formatarData(dataAtual),
-                status: 'pendente'
-            });
-        }
-    }
-    
-    document.getElementById('json_parcelas').value = JSON.stringify(parcelas);
-}
-
-// Função para converter valores antes do envio
-function prepararEnvio(e) {
-    e.preventDefault();
-    
-    // Gera o JSON de parcelas
-    gerarJsonParcelas();
-    
-    // Converte campos de moeda
-    const camposMoeda = ['capital', 'valor_parcela', 'tlc_valor'];
-    camposMoeda.forEach(campo => {
-        const input = document.getElementById(campo);
-        if (input && input.value) {
-            // Remove qualquer caractere que não seja número ou vírgula
-            let valor = input.value.replace(/[^\d,]/g, '').replace(',', '.');
-            // Garante que é um número válido
-            if (!isNaN(valor)) {
-                input.value = valor;
-            }
-        }
+// Função para selecionar todos os dias
+function selecionarTodosDias() {
+    document.querySelectorAll('input[name="dias_semana[]"]').forEach(checkbox => {
+        checkbox.checked = true;
     });
+}
 
-    // Converte campo de juros
-    const campoJuros = document.getElementById('juros');
-    if (campoJuros && campoJuros.value) {
-        let valor = campoJuros.value.replace(/[^\d,]/g, '').replace(',', '.');
-        if (!isNaN(valor)) {
-            campoJuros.value = valor;
-        }
-    }
-
-    // Envia o formulário
-    document.getElementById('formEmprestimo').submit();
+// Função para limpar seleção de dias
+function limparSelecaoDias() {
+    document.querySelectorAll('input[name="dias_semana[]"]').forEach(checkbox => {
+        checkbox.checked = false;
+    });
 }
 
 // Adiciona formatação aos campos de moeda
@@ -517,6 +402,37 @@ document.getElementById('modo_calculo').addEventListener('change', function() {
 
 // Adiciona o evento de submit ao formulário
 document.getElementById('formEmprestimo').addEventListener('submit', prepararEnvio);
+
+// Função para converter valores antes do envio
+function prepararEnvio(e) {
+    e.preventDefault();
+    
+    // Converte campos de moeda
+    const camposMoeda = ['capital', 'valor_parcela', 'tlc_valor'];
+    camposMoeda.forEach(campo => {
+        const input = document.getElementById(campo);
+        if (input && input.value) {
+            // Remove qualquer caractere que não seja número ou vírgula
+            let valor = input.value.replace(/[^\d,]/g, '').replace(',', '.');
+            // Garante que é um número válido
+            if (!isNaN(valor)) {
+                input.value = valor;
+            }
+        }
+    });
+
+    // Converte campo de juros
+    const campoJuros = document.getElementById('juros');
+    if (campoJuros && campoJuros.value) {
+        let valor = campoJuros.value.replace(/[^\d,]/g, '').replace(',', '.');
+        if (!isNaN(valor)) {
+            campoJuros.value = valor;
+        }
+    }
+
+    // Envia o formulário
+    document.getElementById('formEmprestimo').submit();
+}
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

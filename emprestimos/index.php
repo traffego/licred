@@ -163,9 +163,14 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                 <div class="col-md-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="mb-0">Empréstimos</h5>
-                        <a href="novo.php" class="btn btn-primary btn-sm">
-                            <i class="bi bi-plus-circle"></i> Novo
-                        </a>
+                        <div>
+                            <a href="inativos.php" class="btn btn-outline-secondary btn-sm me-2">
+                                <i class="bi bi-archive"></i> Inativos
+                            </a>
+                            <a href="novo.php" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-circle"></i> Novo
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-8">
@@ -337,9 +342,14 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                                 title="Enviar Cobrança"
                                                 onclick="enviarCobranca(<?= $e['id'] ?>)">
                                             <i class="bi bi-whatsapp"></i>
-                </button>
-              </div>
-            </td>
+                                        </button>
+                                        <a href="excluir.php?id=<?= $e['id'] ?>" 
+                                           class="btn btn-sm btn-outline-danger" 
+                                           title="Excluir Empréstimo">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
           </tr>
         <?php endforeach; ?>
       </tbody>
@@ -456,6 +466,11 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                             <button type="button" class="btn btn-sm btn-outline-info flex-fill" onclick="enviarCobranca(<?= $e['id'] ?>)">
                                 <i class="bi bi-whatsapp"></i> Cobrar
                             </button>
+                        </div>
+                        <div class="d-flex mt-2">
+                            <a href="excluir.php?id=<?= $e['id'] ?>" class="btn btn-sm btn-outline-danger flex-fill">
+                                <i class="bi bi-trash"></i> Excluir
+                            </a>
                         </div>
                     </div>
                 <?php endforeach; ?>

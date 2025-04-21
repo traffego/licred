@@ -5309,3 +5309,10 @@ Stack trace:
 [21-Apr-2025 10:38:31 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
 [21-Apr-2025 10:38:31 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
 [21-Apr-2025 10:38:38 America/Sao_Paulo] PHP Fatal error:  Cannot redeclare formatarData() (previously declared in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\recibo_quitacao.php:89) in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\funcoes_data.php on line 15
+[21-Apr-2025 14:24:50 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.status' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\queries.php:75
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\queries.php(75): mysqli->query('SELECT \r\n      ...')
+#1 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\index.php(8): buscarTodosEmprestimosComCliente(Object(mysqli))
+#2 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\queries.php on line 75
+[21-Apr-2025 14:28:52 America/Sao_Paulo] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\navbar.php:42) in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\excluir.php on line 83

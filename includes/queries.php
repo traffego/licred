@@ -65,9 +65,11 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
                 e.configuracao,
                 e.data_criacao,
                 e.data_atualizacao,
+                e.status,
                 c.nome AS cliente_nome 
             FROM emprestimos e 
-            JOIN clientes c ON e.cliente_id = c.id 
+            JOIN clientes c ON e.cliente_id = c.id
+            WHERE e.status != 'inativo' OR e.status IS NULL
             ORDER BY e.id DESC";
             
     $stmt = $conn->query($sql);
@@ -180,5 +182,14 @@ function buscarEmprestimoPorId(mysqli $conn, int $id) {
         return null;
     }
     
-    return $result->fetch_assoc();
+    $emprestimo = $result->fetch_assoc();
+    
+    // Adiciona informação se é inativo
+    if ($emprestimo['status'] === 'inativo') {
+        $emprestimo['esta_inativo'] = true;
+    } else {
+        $emprestimo['esta_inativo'] = false;
+    }
+    
+    return $emprestimo;
 }

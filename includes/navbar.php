@@ -77,6 +77,15 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
                             Cobranças
                     </a>
                 </li>
+
+                <!-- Feriados -->
+                <li class="nav-item">
+                    <a class="nav-link <?= $pagina_atual === 'feriados/index.php' ? 'active' : '' ?>" 
+                       href="<?= BASE_URL ?>feriados/">
+                            <i class="bi bi-calendar-event me-1"></i>
+                            Feriados
+                    </a>
+                </li>
             </ul>
 
             <!-- Menu do Usuário -->
