@@ -164,6 +164,9 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="mb-0">Empréstimos</h5>
                         <div>
+                            <a href="parcelas/cobrancas/index.php" class="btn btn-outline-primary btn-sm me-2">
+                                <i class="bi bi-bell"></i> Cobranças
+                            </a>
                             <a href="inativos.php" class="btn btn-outline-secondary btn-sm me-2">
                                 <i class="bi bi-archive"></i> Inativos
                             </a>
