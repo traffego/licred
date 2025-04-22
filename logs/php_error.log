@@ -5332,3 +5332,782 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\clientes\index.php on line 168
+[21-Apr-2025 17:06:11 America/Sao_Paulo] PHP Warning:  require_once(C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens/menuia/vendor/autoload.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php on line 9
+[21-Apr-2025 17:06:11 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens/menuia/vendor/autoload.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php:9
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\whatsapp_config.php(47): require_once()
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php on line 9
+[21-Apr-2025 17:15:39 America/Sao_Paulo] PHP Warning:  require_once(C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens/menuia/vendor/autoload.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php on line 9
+[21-Apr-2025 17:15:39 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens/menuia/vendor/autoload.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php:9
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\whatsapp_config.php(47): require_once()
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php on line 9
+[21-Apr-2025 17:15:40 America/Sao_Paulo] PHP Warning:  require_once(C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens/menuia/vendor/autoload.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php on line 9
+[21-Apr-2025 17:15:40 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens/menuia/vendor/autoload.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php:9
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\whatsapp_config.php(47): require_once()
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php on line 9
+[21-Apr-2025 17:20:24 America/Sao_Paulo] PHP Parse error:  syntax error, unexpected token "use" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php on line 48
+[21-Apr-2025 17:22:57 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ativo' in 'where clause' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\enviar.php:80
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\enviar.php(80): mysqli->query('SELECT status F...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\enviar.php on line 80
+[21-Apr-2025 17:27:45 America/Sao_Paulo] PHP Warning:  Undefined array key "endpoint" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php on line 143
+[21-Apr-2025 17:27:45 America/Sao_Paulo] PHP Warning:  Undefined array key "authkey" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php on line 144
+[21-Apr-2025 17:27:45 America/Sao_Paulo] PHP Warning:  Undefined array key "appkey" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\WhatsAppService.php on line 145
+[21-Apr-2025 17:37:39 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'endpoint' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\whatsapp_config.php:75
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\whatsapp_config.php(75): mysqli->prepare('UPDATE whatsapp...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\whatsapp_config.php on line 75
+[21-Apr-2025 17:52:48 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:52:48 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 17:52:48 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 17:52:48 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 17:52:48 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:52:49 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 17:52:49 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 17:52:49 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 17:54:27 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:54:27 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 17:54:27 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 17:54:27 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 17:54:27 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:54:28 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 17:54:28 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 17:54:28 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 17:54:34 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:54:34 America/Sao_Paulo] WhatsAppService: Verificando status...
+[21-Apr-2025 17:54:35 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 17:54:35 America/Sao_Paulo] WhatsAppService: Erro ao verificar status: Unknown column 'data_conexao' in 'field list'
+[21-Apr-2025 17:54:43 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:54:43 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 17:54:43 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 17:54:43 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 17:54:43 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:54:44 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 17:54:44 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 17:54:44 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 17:54:58 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:54:58 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 17:54:58 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 17:54:58 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 17:54:58 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:54:59 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 17:54:59 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 17:54:59 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 17:57:40 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:57:40 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 17:57:40 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 17:57:40 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 17:57:40 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:57:41 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 17:57:41 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 17:57:41 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 17:58:00 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:58:00 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 17:58:00 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 17:58:00 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 17:58:00 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:58:02 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 17:58:02 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 17:58:02 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 17:58:17 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:58:17 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 17:58:17 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 17:58:17 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 17:58:17 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:58:19 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 17:58:19 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 17:58:19 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 17:59:25 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:59:25 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 17:59:25 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 17:59:25 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 17:59:25 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 17:59:26 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 17:59:26 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 17:59:26 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 18:02:28 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:02:28 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 18:02:28 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 18:02:28 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 18:02:28 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:02:29 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 18:02:29 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 18:02:29 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 18:02:32 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:02:32 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 18:02:32 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 18:02:32 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 18:02:32 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:02:34 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 18:02:34 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 18:02:34 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 18:02:34 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:02:34 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 18:02:34 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 18:02:34 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 18:02:34 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:02:35 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 18:02:35 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 18:02:35 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 18:02:45 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:02:45 America/Sao_Paulo] WhatsAppService: Verificando status...
+[21-Apr-2025 18:02:46 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 18:02:46 America/Sao_Paulo] WhatsAppService: Erro ao verificar status: Unknown column 'data_conexao' in 'field list'
+[21-Apr-2025 18:02:49 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:02:49 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 18:02:49 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Iniciando geração de QR Code
+[21-Apr-2025 18:02:49 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Enviando requisição para https://chatbot.menuia.com/api/
+[21-Apr-2025 18:02:49 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Dados: authkey=vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, appkey=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:02:50 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Código HTTP: 404
+[21-Apr-2025 18:02:50 America/Sao_Paulo] DirectMenuiaDevice::qrcode - Resposta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 18:02:50 America/Sao_Paulo] WhatsAppService: Resposta: {"status":404,"message":"<!DOCTYPE html>\n<html lang=\"pt-BR\">\n    <head>\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n        \n        <link rel=\"shortcut icon\" type=\"image\/x-icon\" href=\"https:\/\/chatbot.menuia.com\/uploads\/favicon.png\">\n        <title>Not Found<\/title>\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/bootstrap.min.css\">\n        <link rel=\"stylesheet\" href=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/css\/style.css?v=1.0\">\n        <!-- Styles -->\n        \n    <\/head>\n    <body class=\"grey-bg\">\n        <main>\n      <!-- error area start -->\n      <div class=\"breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per\"\n         data-background=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/img\/breadcrumb\/breadcrumb.jpg\">        \n         <div class=\"container\">\n            <div class=\"row\">\n               <div class=\"col-xxl-12\">\n                  <div class=\"breadcrumb__content text-center\">\n                     <h3 class=\"breadcrumb__title\">404<\/h3>\n                     <div class=\"breadcrumb__list\">\n                        <span>Not Found<\/span>\n                     <\/div>\n                  <\/div>\n               <\/div>\n            <\/div>\n         <\/div>\n      <\/div>\n      <!-- error area end -->      \n   <\/main>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/jquery.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/bootstrap.bundle.min.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/magnific-popup.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/wow.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/meanmenu.js\"><\/script>\n   <script src=\"https:\/\/chatbot.menuia.com\/assets\/frontend\/js\/main.js\"><\/script>\n    <\/body>\n<\/html>\n"}
+[21-Apr-2025 18:07:37 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:07:37 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 18:07:37 America/Sao_Paulo] WhatsAppService: Endpoint=https://chatbot.menuia.com/api/, Auth=HIDDEN, App=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:07:37 America/Sao_Paulo] WhatsAppService: URL completa=https://chatbot.menuia.com/api/api/developer
+[21-Apr-2025 18:07:38 America/Sao_Paulo] WhatsAppService: Código HTTP=404
+[21-Apr-2025 18:07:38 America/Sao_Paulo] WhatsAppService: Resposta (resumida)={
+    "message": "The route api/api/developer could not be found.",
+    "exception": "Symfony\\Compo...
+[21-Apr-2025 18:07:38 America/Sao_Paulo] WhatsAppService: Falha na obtenção do QR Code
+[21-Apr-2025 18:07:38 America/Sao_Paulo] WhatsApp Config - Debug Info: {"status":404,"message":{"message":"The route api\/api\/developer could not be found.","exception":"Symfony\\Component\\HttpKernel\\Exception\\NotFoundHttpException","file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/AbstractRouteCollection.php","line":44,"trace":[{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/RouteCollection.php","line":162,"function":"handleMatchedRoute","class":"Illuminate\\Routing\\AbstractRouteCollection","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/Router.php","line":753,"function":"match","class":"Illuminate\\Routing\\RouteCollection","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/Router.php","line":740,"function":"findRoute","class":"Illuminate\\Routing\\Router","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/Router.php","line":729,"function":"dispatchToRoute","class":"Illuminate\\Routing\\Router","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Kernel.php","line":200,"function":"dispatch","class":"Illuminate\\Routing\\Router","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":141,"function":"Illuminate\\Foundation\\Http\\{closure}","class":"Illuminate\\Foundation\\Http\\Kernel","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/TransformsRequest.php","line":21,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/ConvertEmptyStringsToNull.php","line":31,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/TransformsRequest.php","line":21,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/TrimStrings.php","line":40,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\TrimStrings","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/ValidatePostSize.php","line":27,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/PreventRequestsDuringMaintenance.php","line":86,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Http\/Middleware\/HandleCors.php","line":62,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Http\\Middleware\\HandleCors","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Http\/Middleware\/TrustProxies.php","line":39,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Http\\Middleware\\TrustProxies","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":116,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Kernel.php","line":175,"function":"then","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Kernel.php","line":144,"function":"sendRequestThroughRouter","class":"Illuminate\\Foundation\\Http\\Kernel","type":"->"},{"file":"\/www\/wwwroot\/menuia\/public\/index.php","line":51,"function":"handle","class":"Illuminate\\Foundation\\Http\\Kernel","type":"->"}]}}
+[21-Apr-2025 18:13:07 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:13:07 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 18:13:07 America/Sao_Paulo] WhatsAppService: Endpoint=https://chatbot.menuia.com/api/, Auth=HIDDEN, App=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:13:07 America/Sao_Paulo] WhatsAppService: URL base=https://chatbot.menuia.com/api
+[21-Apr-2025 18:13:07 America/Sao_Paulo] WhatsAppService: Enviando requisição POST para https://chatbot.menuia.com/api
+[21-Apr-2025 18:13:08 America/Sao_Paulo] WhatsAppService: Código HTTP=404
+[21-Apr-2025 18:13:08 America/Sao_Paulo] WhatsAppService: Resposta (resumida)={
+    "message": "The route api could not be found.",
+    "exception": "Symfony\\Component\\HttpKern...
+[21-Apr-2025 18:13:08 America/Sao_Paulo] WhatsAppService: Falha na obtenção do QR Code
+[21-Apr-2025 18:13:08 America/Sao_Paulo] WhatsApp Config - Debug Info: {"status":404,"message":{"message":"The route api could not be found.","exception":"Symfony\\Component\\HttpKernel\\Exception\\NotFoundHttpException","file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/AbstractRouteCollection.php","line":44,"trace":[{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/RouteCollection.php","line":162,"function":"handleMatchedRoute","class":"Illuminate\\Routing\\AbstractRouteCollection","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/Router.php","line":753,"function":"match","class":"Illuminate\\Routing\\RouteCollection","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/Router.php","line":740,"function":"findRoute","class":"Illuminate\\Routing\\Router","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/Router.php","line":729,"function":"dispatchToRoute","class":"Illuminate\\Routing\\Router","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Kernel.php","line":200,"function":"dispatch","class":"Illuminate\\Routing\\Router","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":141,"function":"Illuminate\\Foundation\\Http\\{closure}","class":"Illuminate\\Foundation\\Http\\Kernel","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/TransformsRequest.php","line":21,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/ConvertEmptyStringsToNull.php","line":31,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/TransformsRequest.php","line":21,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/TrimStrings.php","line":40,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\TrimStrings","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/ValidatePostSize.php","line":27,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/PreventRequestsDuringMaintenance.php","line":86,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Http\/Middleware\/HandleCors.php","line":49,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Http\\Middleware\\HandleCors","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Http\/Middleware\/TrustProxies.php","line":39,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Http\\Middleware\\TrustProxies","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":116,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Kernel.php","line":175,"function":"then","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Kernel.php","line":144,"function":"sendRequestThroughRouter","class":"Illuminate\\Foundation\\Http\\Kernel","type":"->"},{"file":"\/www\/wwwroot\/menuia\/public\/index.php","line":51,"function":"handle","class":"Illuminate\\Foundation\\Http\\Kernel","type":"->"}]}}
+[21-Apr-2025 18:14:24 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://chatbot.menuia.com/api/, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:14:24 America/Sao_Paulo] WhatsAppService: Verificando status...
+[21-Apr-2025 18:14:24 America/Sao_Paulo] WhatsAppService: URL base=https://chatbot.menuia.com/api
+[21-Apr-2025 18:14:24 America/Sao_Paulo] WhatsAppService: Enviando requisição de verificação para https://chatbot.menuia.com/api
+[21-Apr-2025 18:14:25 America/Sao_Paulo] WhatsAppService: Erro ao decodificar JSON (checkStatus). Resposta bruta: <!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" type="image/x-icon" href="https://chatbot.menuia.com/uploads/favicon.png">
+        <title>Not Found</title>
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://chatbot.menuia.com/assets/frontend/css/style.css?v=1.0">
+        <!-- Styles -->
+        
+    </head>
+    <body class="grey-bg">
+        <main>
+      <!-- error area start -->
+      <div class="breadcrumb__area breadcrumb-height p-relative grey-bg mt-8-per"
+         data-background="https://chatbot.menuia.com/assets/frontend/img/breadcrumb/breadcrumb.jpg">        
+         <div class="container">
+            <div class="row">
+               <div class="col-xxl-12">
+                  <div class="breadcrumb__content text-center">
+                     <h3 class="breadcrumb__title">404</h3>
+                     <div class="breadcrumb__list">
+                        <span>Not Found</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- error area end -->      
+   </main>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/jquery.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/bootstrap.bundle.min.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/magnific-popup.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/wow.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/meanmenu.js"></script>
+   <script src="https://chatbot.menuia.com/assets/frontend/js/main.js"></script>
+    </body>
+</html>
+
+[21-Apr-2025 18:14:51 America/Sao_Paulo] WhatsApp initialize - Endpoint: https://api.menuia.com, Auth: vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB, App: d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:14:51 America/Sao_Paulo] WhatsAppService: Tentando obter QR Code...
+[21-Apr-2025 18:14:51 America/Sao_Paulo] WhatsAppService: Endpoint=https://api.menuia.com, Auth=HIDDEN, App=d563230a-7727-4a4d-8d48-69c0df5c2b87
+[21-Apr-2025 18:14:51 America/Sao_Paulo] WhatsAppService: URL base=https://api.menuia.com
+[21-Apr-2025 18:14:51 America/Sao_Paulo] WhatsAppService: Enviando requisição POST para https://api.menuia.com
+[21-Apr-2025 18:14:53 America/Sao_Paulo] WhatsAppService: Código HTTP=405
+[21-Apr-2025 18:14:53 America/Sao_Paulo] WhatsAppService: Resposta (resumida)={
+    "message": "The POST method is not supported for route /. Supported methods: GET, HEAD.",
+    ...
+[21-Apr-2025 18:14:53 America/Sao_Paulo] WhatsAppService: Falha na obtenção do QR Code
+[21-Apr-2025 18:14:53 America/Sao_Paulo] WhatsApp Config - Debug Info: {"status":405,"message":{"message":"The POST method is not supported for route \/. Supported methods: GET, HEAD.","exception":"Symfony\\Component\\HttpKernel\\Exception\\MethodNotAllowedHttpException","file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/AbstractRouteCollection.php","line":122,"trace":[{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/AbstractRouteCollection.php","line":107,"function":"requestMethodNotAllowed","class":"Illuminate\\Routing\\AbstractRouteCollection","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/AbstractRouteCollection.php","line":41,"function":"getRouteForMethods","class":"Illuminate\\Routing\\AbstractRouteCollection","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/RouteCollection.php","line":162,"function":"handleMatchedRoute","class":"Illuminate\\Routing\\AbstractRouteCollection","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/Router.php","line":753,"function":"match","class":"Illuminate\\Routing\\RouteCollection","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/Router.php","line":740,"function":"findRoute","class":"Illuminate\\Routing\\Router","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Routing\/Router.php","line":729,"function":"dispatchToRoute","class":"Illuminate\\Routing\\Router","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Kernel.php","line":200,"function":"dispatch","class":"Illuminate\\Routing\\Router","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":141,"function":"Illuminate\\Foundation\\Http\\{closure}","class":"Illuminate\\Foundation\\Http\\Kernel","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/TransformsRequest.php","line":21,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/ConvertEmptyStringsToNull.php","line":31,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/TransformsRequest.php","line":21,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/TrimStrings.php","line":40,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\TrimStrings","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/ValidatePostSize.php","line":27,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Middleware\/PreventRequestsDuringMaintenance.php","line":86,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Http\/Middleware\/HandleCors.php","line":49,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Http\\Middleware\\HandleCors","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Http\/Middleware\/TrustProxies.php","line":39,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":180,"function":"handle","class":"Illuminate\\Http\\Middleware\\TrustProxies","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","line":116,"function":"Illuminate\\Pipeline\\{closure}","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Kernel.php","line":175,"function":"then","class":"Illuminate\\Pipeline\\Pipeline","type":"->"},{"file":"\/www\/wwwroot\/menuia\/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Http\/Kernel.php","line":144,"function":"sendRequestThroughRouter","class":"Illuminate\\Foundation\\Http\\Kernel","type":"->"},{"file":"\/www\/wwwroot\/menuia\/public\/index.php","line":51,"function":"handle","class":"Illuminate\\Foundation\\Http\\Kernel","type":"->"},{"file":"\/www\/wwwroot\/menuia\/index.php","line":21,"function":"require_once"}]}}
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 18:37:25 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:08:04 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\configuracoes.php on line 280
+[21-Apr-2025 19:15:56 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\conectar_whatsapp.php on line 292
+[21-Apr-2025 19:15:56 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\conectar_whatsapp.php on line 304
+[21-Apr-2025 19:21:57 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\conectar_whatsapp.php on line 292
+[21-Apr-2025 19:22:00 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined method MenuiaApi::makeRequest() in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\conectar_whatsapp.php:56
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\conectar_whatsapp.php on line 56
+[21-Apr-2025 19:23:17 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\conectar_whatsapp.php on line 286
+[21-Apr-2025 19:25:05 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined method MenuiaApi::makeRequest() in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\configuracoes.php:123
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\configuracoes.php on line 123
+[21-Apr-2025 19:25:35 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\conectar_whatsapp.php on line 286
+[21-Apr-2025 19:25:37 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\conectar_whatsapp.php on line 286
+[21-Apr-2025 19:25:39 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\conectar_whatsapp.php on line 286
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "tipo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 247
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Warning:  Undefined array key "conteudo" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 19:37:42 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\templates_mensagens.php on line 277
+[21-Apr-2025 20:49:01 America/Sao_Paulo] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\autenticacao.php on line 4
+[21-Apr-2025 20:49:01 America/Sao_Paulo] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\config.php:26) in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\autenticacao.php on line 12
+[21-Apr-2025 20:52:52 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'c.ddd' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\api\enviar_individual.php:59
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\api\enviar_individual.php(59): mysqli->prepare('SELECT e.*, c.n...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\api\enviar_individual.php on line 59
+[21-Apr-2025 20:54:34 America/Sao_Paulo] PHP Warning:  Undefined array key "valor_total" in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\api\enviar_individual.php on line 358
+[21-Apr-2025 20:54:34 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\mensagens\api\enviar_individual.php on line 358

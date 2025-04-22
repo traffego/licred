@@ -138,6 +138,20 @@ foreach ($parcelas as $p) {
 ?>
 
 <div class="container py-4">
+    <?php if (isset($_GET['success'])): ?>
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle me-2"></i><?= htmlspecialchars($_GET['success']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_GET['error'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle me-2"></i><?= htmlspecialchars($_GET['error']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+    <?php endif; ?>
+    
     <?php if ($emprestimo_quitado): ?>
     <div class="alert alert-success text-center py-3 mb-4">
         <h4 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i>EMPRÉSTIMO QUITADO</h4>
@@ -814,6 +828,14 @@ foreach ($parcelas as $p) {
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
+// Definindo a variável parcelas em escopo global
+var parcelas = [];
+
+<?php 
+// Preencher a variável parcelas para uso global
+echo 'parcelas = ' . json_encode($parcelas) . ';';
+?>
+
 // Aguarda o DOM estar completamente carregado
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializa os modais
@@ -1287,7 +1309,129 @@ function toggleCard(header) {
         cardBody.style.maxHeight = "0";
     }
 }
+
+function enviarCobranca(emprestimo_id, parcela_numero) {
+    // Abrir modal para escolher template
+    const modalTemplate = new bootstrap.Modal(document.getElementById('modalTemplate'));
+    
+    // Guardar os dados da parcela no formulário do modal
+    document.getElementById('template_emprestimo_id').value = emprestimo_id;
+    document.getElementById('template_parcela_numero').value = parcela_numero;
+    
+    // Verificar se parcelas está definido
+    if (typeof parcelas === 'undefined' || !Array.isArray(parcelas)) {
+        console.error('Erro: A variável parcelas não está definida ou não é um array');
+        modalTemplate.show();
+        return;
+    }
+    
+    // Buscar os dados da parcela para pré-selecionar o template apropriado
+    let parcela = null;
+    
+    // Encontrar a parcela pelo número
+    for (const p of parcelas) {
+        if (parseInt(p.numero) === parseInt(parcela_numero)) {
+            parcela = p;
+            break;
+        }
+    }
+    
+    if (parcela) {
+        // Determinar o status da parcela para pré-selecionar o template
+        let statusParcela = parcela.status;
+        const selectTemplate = document.getElementById('template_id');
+        
+        // Percorrer opções para encontrar a correspondente ao status
+        for (let i = 0; i < selectTemplate.options.length; i++) {
+            const option = selectTemplate.options[i];
+            if (option.dataset.status === statusParcela || 
+                (statusParcela === 'atrasado' && option.dataset.status === 'atrasado') || 
+                (statusParcela === 'pendente' && option.dataset.status === 'pendente')) {
+                selectTemplate.selectedIndex = i;
+                break;
+            }
+        }
+    }
+    
+    modalTemplate.show();
+}
+
+function enviarMensagem() {
+    const form = document.getElementById('formTemplate');
+    const emprestimo_id = document.getElementById('template_emprestimo_id').value;
+    const parcela_numero = document.getElementById('template_parcela_numero').value;
+    const template_id = document.getElementById('template_id').value;
+    
+    // Verificar se parcelas está definido
+    if (typeof parcelas === 'undefined' || !Array.isArray(parcelas)) {
+        alert('Erro: Não foi possível acessar os dados das parcelas. Por favor, recarregue a página.');
+        return;
+    }
+    
+    // Encontrar a parcela pelo número
+    let parcela_id = null;
+    for (const p of parcelas) {
+        if (parseInt(p.numero) === parseInt(parcela_numero)) {
+            parcela_id = p.id;
+            break;
+        }
+    }
+    
+    if (!parcela_id) {
+        alert('Parcela não encontrada!');
+        return;
+    }
+    
+    // Construir URL para enviar_individual.php
+    const url = `../mensagens/api/enviar_individual.php?emprestimo_id=${emprestimo_id}&parcela_id=${parcela_id}&template_id=${template_id}&telefone=<?= isset($emprestimo['telefone']) ? preg_replace('/[^0-9]/', '', $emprestimo['telefone']) : '' ?>`;
+    
+    // Enviar dados
+    window.location.href = url;
+}
 </script>
+
+<!-- Modal para Escolha de Template -->
+<div class="modal fade" id="modalTemplate" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Enviar Cobrança</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formTemplate">
+                    <input type="hidden" id="template_emprestimo_id" name="emprestimo_id">
+                    <input type="hidden" id="template_parcela_numero" name="parcela_numero">
+                    
+                    <div class="mb-3">
+                        <label for="template_id" class="form-label">Escolha o Template de Mensagem</label>
+                        <select class="form-select" id="template_id" name="template_id" required>
+                            <option value="">Selecione...</option>
+                            <?php
+                            // Buscar templates disponíveis
+                            $sql_templates = "SELECT * FROM templates_mensagens WHERE ativo = 1 ORDER BY status, nome";
+                            $result_templates = $conn->query($sql_templates);
+                            
+                            if ($result_templates && $result_templates->num_rows > 0) {
+                                while ($template = $result_templates->fetch_assoc()) {
+                                    echo '<option value="' . $template['id'] . '" data-status="' . $template['status'] . '">' 
+                                        . htmlspecialchars($template['nome']) . '</option>';
+                                }
+                            } else {
+                                echo '<option value="" disabled>Nenhum template disponível</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="enviarMensagem()">Enviar Mensagem</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php
 function formatarCPF($cpf) {
