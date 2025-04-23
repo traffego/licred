@@ -156,6 +156,26 @@ switch ($acao) {
         }
         break;
         
+    case 'buscar_por_status':
+        // Busca templates por status
+        $status = $_REQUEST['status'] ?? '';
+        
+        if (empty($status)) {
+            http_response_code(400);
+            echo json_encode(['sucesso' => false, 'erro' => 'Status não informado']);
+            exit;
+        }
+        
+        $templates = $templatesDB->getTemplatesPorStatus($status);
+        
+        if (!empty($templates)) {
+            echo json_encode(['sucesso' => true, 'templates' => $templates]);
+        } else {
+            http_response_code(404);
+            echo json_encode(['sucesso' => false, 'erro' => 'Nenhum template encontrado para o status: ' . $status]);
+        }
+        break;
+        
     default:
         http_response_code(400);
         echo json_encode(['sucesso' => false, 'erro' => 'Ação inválida']);

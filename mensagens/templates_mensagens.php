@@ -78,9 +78,27 @@ if (isset($_REQUEST['acao'])) {
                 'usuario_id' => $_SESSION['usuario_id']
             ];
 
+            // Para debug
+            error_log("Status recebido: " . $dados['status']);
+
             if (empty($dados['nome']) || empty($dados['status']) || empty($dados['mensagem'])) {
                 $response = ['success' => false, 'message' => 'Preencha todos os campos obrigatórios'];
                 break;
+            }
+
+            // Validar status
+            $status_validos = ['pendente', 'atrasado', 'pago', 'parcial'];
+            
+            // Se não for um dos status padrão, aceita como status personalizado/categoria
+            if (!in_array($dados['status'], $status_validos)) {
+                // Validação para status personalizado: limitar tamanho
+                if (strlen($dados['status']) > 30) {
+                    $response = ['success' => false, 'message' => 'Status personalizado muito longo (máximo 30 caracteres)'];
+                    break;
+                }
+                
+                // Aceita o status personalizado
+                error_log("Status personalizado aceito: " . $dados['status']);
             }
 
             if ($id > 0) {
@@ -95,7 +113,7 @@ if (isset($_REQUEST['acao'])) {
                 
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param(
-                    "sssiiiiiiiiiiiiii",
+                    "sssiiiiiiiiiiiii",
                     $dados['nome'], $dados['status'], $dados['mensagem'],
                     $dados['incluir_nome'], $dados['incluir_valor'], $dados['incluir_vencimento'],
                     $dados['incluir_atraso'], $dados['incluir_valor_total'], $dados['incluir_valor_em_aberto'],
@@ -105,7 +123,7 @@ if (isset($_REQUEST['acao'])) {
                 );
                 
                 if ($stmt->execute()) {
-                    $response = ['success' => true, 'message' => 'Template atualizado com sucesso'];
+                    $response = ['success' => true, 'message' => 'Template atualizado com sucesso', 'status' => $dados['status']];
                 } else {
                     $response = ['success' => false, 'message' => 'Erro ao atualizar template'];
                 }
@@ -131,7 +149,7 @@ if (isset($_REQUEST['acao'])) {
                 );
                 
                 if ($stmt->execute()) {
-                    $response = ['success' => true, 'message' => 'Template criado com sucesso'];
+                    $response = ['success' => true, 'message' => 'Template criado com sucesso', 'status' => $dados['status']];
                 } else {
                     $response = ['success' => false, 'message' => 'Erro ao criar template'];
                 }
@@ -221,27 +239,27 @@ require_once '../includes/head.php';
 
 <style>
     body {
-        background: linear-gradient(135deg, #2c3e50 0%, #1a1a1a 100%);
+        background: #f0f2f5;
         min-height: 100vh;
     }
 
     .page-header {
         background: #fff;
-        border-radius: 15px;
+        border-radius: 8px;
         padding: 20px;
         margin-bottom: 30px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     .page-header h1 {
-        color: #344767;
+        color: #333;
         margin: 0;
         font-size: 1.8rem;
         font-weight: 600;
     }
 
     .page-header .btn {
-        background: #0d6efd;
+        background: #25d366;
         border: none;
         padding: 10px 20px;
         font-weight: 500;
@@ -249,7 +267,7 @@ require_once '../includes/head.php';
     }
 
     .page-header .btn:hover {
-        background: #0b5ed7;
+        background: #128c7e;
         transform: translateY(-2px);
     }
 
@@ -258,8 +276,8 @@ require_once '../includes/head.php';
         transition: all 0.3s ease;
         border: 0;
         margin-bottom: 20px;
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
         overflow: hidden;
         height: 400px;
         display: flex;
@@ -268,17 +286,18 @@ require_once '../includes/head.php';
 
     .card-template:hover {
         transform: translateY(-5px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .card-template .card-header {
         padding: 1rem 1.5rem;
         border-bottom: 1px solid #e9ecef;
         flex-shrink: 0;
+        background-color: #f8f9fa;
     }
 
     .card-template .card-title {
-        color: #344767;
+        color: #333;
         font-size: 1.1rem;
         font-weight: 600;
         margin-bottom: 0;
@@ -295,33 +314,58 @@ require_once '../includes/head.php';
     }
 
     .status-pendente { 
-        background-color: #ffc107;
+        background-color: #FFC107;
         color: #000;
     }
 
     .status-atrasado { 
-        background-color: #dc3545;
+        background-color: #FF4D4F;
         color: #fff;
     }
 
-    .status-quitado { 
-        background-color: #198754;
+    .status-pago { 
+        background-color: #25D366;
+        color: #fff;
+    }
+
+    .status-parcial { 
+        background-color: #3498db;
+        color: #fff;
+    }
+
+    /* Estilo padrão para status personalizados */
+    .status-badge:not(.status-pendente):not(.status-atrasado):not(.status-pago):not(.status-parcial) {
+        background-color: #777777;
         color: #fff;
     }
 
     .template-tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
-        padding: 1rem 1.5rem;
+        padding: 1rem;
+        min-height: 120px;
+        overflow-y: auto;
+        background-color: #fff;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
     }
 
     .template-tag {
         font-size: 0.75rem;
         padding: 0.25em 0.75em;
         border-radius: 20px;
-        background-color: #e9ecef;
-        color: #495057;
+        background-color: #f0f2f5;
+        color: #333;
+        height: fit-content;
+        white-space: nowrap;
+        border: 1px solid #e0e0e0;
+    }
+
+    .template-tag.active {
+        background-color: #25D366;
+        color: white;
+        border-color: #25D366;
+        opacity: 1;
     }
 
     .card-header {
@@ -341,74 +385,114 @@ require_once '../includes/head.php';
         display: flex;
         justify-content: flex-end;
         border-top: 1px solid #e9ecef;
+        flex-shrink: 0;
+        background-color: #f8f9fa;
     }
 
     .btn-editar {
-        background-color: #11cdef;
-        border-color: #11cdef;
+        background-color: #34b7f1;
+        border-color: #34b7f1;
         color: #fff;
     }
 
     .btn-editar:hover {
-        background-color: #0fb5d4;
-        border-color: #0fb5d4;
+        background-color: #0590d3;
+        border-color: #0590d3;
         color: #fff;
     }
 
     .btn-excluir {
-        background-color: #f5365c;
-        border-color: #f5365c;
+        background-color: #FF4D4F;
+        border-color: #FF4D4F;
     }
 
     .btn-excluir:hover {
-        background-color: #f01d48;
-        border-color: #f01d48;
+        background-color: #FF3337;
+        border-color: #FF3337;
     }
 
     .modal-content {
-        background: #2c3e50;
-        color: #fff;
+        background: #fff;
+        color: #333;
     }
 
     .modal-header {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid #e0e0e0;
     }
 
     .modal-footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid #e0e0e0;
     }
 
     .form-control, .form-select {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #fff;
+        background: #fff;
+        border: 1px solid #ddd;
+        color: #333;
     }
 
     .form-control:focus, .form-select:focus {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: #0d6efd;
-        color: #fff;
+        background: #fff;
+        border-color: #25d366;
+        color: #333;
     }
 
     .form-label {
-        color: #fff;
+        color: #333;
     }
 
-    .checkbox-tag {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
+    .checkbox-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
     }
 
-    .checkbox-tag.checked {
-        background: #0d6efd;
+    .btn-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        background-color: #f0f2f5;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        user-select: none;
+        position: relative;
+        border: 1px solid #ddd;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+        color: #333;
+        font-weight: normal;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        outline: none;
     }
 
-    .checkbox-tag.todos {
-        background: #198754;
+    .btn-tag:hover {
+        background-color: #25D366;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(37, 211, 102, 0.4);
     }
 
-    .checkbox-tag.todos.checked {
-        background-color: #dc3545;
+    .btn-tag:active {
+        background-color: #128C7E;
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .btn-tag span {
+        display: inline-block;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    .btn-tag.clicked {
+        animation: pulse 0.3s ease-in-out;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
     }
 
     .card-template .template-tags {
@@ -420,16 +504,64 @@ require_once '../includes/head.php';
         flex: 1;
         align-content: flex-start;
         overflow-y: auto;
+        background-color: #ffffff;
     }
 
     .card-template .template-tag {
         font-size: 0.75rem;
         padding: 0.25em 0.75em;
         border-radius: 20px;
-        background-color: #e9ecef;
-        color: #495057;
+        background-color: #f0f2f5;
+        color: #333;
         height: fit-content;
         white-space: nowrap;
+        border: 1px solid #e0e0e0;
+    }
+
+    .card-template .preview-container {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        flex: 1;
+        overflow-y: auto;
+        background-color: #434343;
+        position: relative;
+        font-size: 0.9rem;
+        min-height: 150px;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-template .whatsapp-message-preview {
+        background-color: #DCF8C6;
+        padding: 8px 12px;
+        border-radius: 7.5px;
+        position: relative;
+        max-width: 95%;
+        margin-left: auto;
+        margin-bottom: 8px;
+        box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+    
+    .card-template .whatsapp-message-preview::after {
+        content: "";
+        position: absolute;
+        right: -8px;
+        top: 0;
+        border: 8px solid transparent;
+        border-left-color: #DCF8C6;
+        border-top: 0;
+    }
+
+    .preview-time {
+        display: inline-block;
+        font-size: 0.7rem;
+        color: #777;
+        margin-left: 8px;
+        float: right;
+        margin-top: 4px;
     }
 
     .card-template .btn-actions {
@@ -438,18 +570,7 @@ require_once '../includes/head.php';
         justify-content: flex-end;
         border-top: 1px solid #e9ecef;
         flex-shrink: 0;
-    }
-
-    .whatsapp-container {
-        display: flex;
-        flex-direction: column;
-        background-color: #e5ddd5;
-        background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAE7SURBVEhLY2QAGT/78TczM7OG8fHxZ9++fbN+//7969OnT+//+PHjAYgPAvj4+MKgWu8A2UeB+BxQ/SWgHfVA/hwQRoHkgwD3W1tb9crKyr8JCQmDGFBBOtDCb0CfQggIDwRpaWk/X7x4sQXqBBQAFBgFdPCHsbGx/0CaCFTRPKCcOpCpgCxAiisDE2MXUDhJAai4G7I80OAKoA1VQA+f+//vv8nfv3/LgOoigfgAEOcDLfkINPQb0CCwgf8Y/zsCcTcQbwLi/UC8CKbw///wf4Acwv///42A8ktB4v////sPNOQfSAyuEegJcADkCoWEBLQAKB8L9Fy5goLCeqBzDjAxMSVeIPzfBArV/y7/obh6oBOYCGkEOrQCSG0C0ieB+DkDI6MpyGXYANBVGkCqAYiZ8EkOVgAAdxuJC6HnMpYAAAAASUVORK5CYII=");
-        background-repeat: repeat;
-        position: relative;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        background-color: #f8f9fa;
     }
 
     .whatsapp-header {
@@ -511,7 +632,7 @@ require_once '../includes/head.php';
     .whatsapp-message {
         max-width: 80%;
         background-color: #DCF8C6;
-        border-radius: 10px;
+        border-radius: 8px;
         padding: 12px 15px;
         margin-bottom: 5px;
         position: relative;
@@ -597,91 +718,31 @@ require_once '../includes/head.php';
         display: none;
     }
 
-    .template-tag {
-        display: inline-block;
-        padding: 0.25rem 0.5rem;
-        margin: 0.25rem;
-        border-radius: 0.25rem;
-        background-color: #e9ecef;
-        color: #495057;
-        font-size: 0.875rem;
-        border: 1px solid #dee2e6;
-        opacity: 0.7;
+    .mensagem-container textarea {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #333;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
     }
 
-    .template-tag.active {
-        background-color: #0d6efd;
-        color: white;
-        border-color: #0d6efd;
-        opacity: 1;
+    .mensagem-container textarea:focus {
+        border-color: #25D366;
+        box-shadow: 0 0 0 0.2rem rgba(37, 211, 102, 0.25);
     }
 
-    .template-tags {
+    .whatsapp-container {
         display: flex;
-        flex-wrap: wrap;
-        padding: 1rem;
-        min-height: 120px;
-        overflow-y: auto;
-    }
-
-    .checkbox-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .checkbox-tag {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.25rem 0.75rem;
-        background-color: #e9ecef;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        user-select: none;
-    }
-
-    .checkbox-tag:hover {
-        background-color: #dee2e6;
-    }
-
-    .checkbox-tag input[type="checkbox"] {
-        display: none;
-    }
-
-    .checkbox-tag label {
-        margin-bottom: 0;
-        cursor: pointer;
-        font-size: 0.9rem;
-        padding: 0;
-    }
-
-    .checkbox-tag.checked {
-        background-color: #0d6efd;
-        color: white;
-    }
-
-    .checkbox-tag.checked:hover {
-        background-color: #0b5ed7;
-    }
-
-    .checkbox-tag.todos {
-        background-color: #198754;
-        color: white;
-        font-weight: 500;
-    }
-
-    .checkbox-tag.todos:hover {
-        background-color: #157347;
-    }
-
-    .checkbox-tag.todos.checked {
-        background-color: #dc3545;
-    }
-
-    .checkbox-tag.todos.checked:hover {
-        background-color: #bb2d3b;
+        flex-direction: column;
+        background-color: #e5ddd5;
+        background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAE7SURBVEhLY2QAGT/78TczM7OG8fHxZ9++fbN+//7969OnT+//+PHjAYgPAvj4+MKgWu8A2UeB+BxQ/SWgHfVA/hwQRoHkgwD3W1tb9crKyr8JCQmDGFBBOtDCb0CfQggIDwRpaWk/X7x4sQXqBBQAFBgFdPCHsbGx/0CaCFTRPKCcOpCpgCxAiisDE2MXUDhJAai4G7I80OAKoA1VQA+f+//vv8nfv3/LgOoigfgAEOcDLfkINPQb0CCwgf8Y/zsCcTcQbwLi/UC8CKbw///wf4Acwv///42A8ktB4v////sPNOQfSAyuEegJcADkCoWEBLQAKB8L9Fy5goLCeqBzDjAxMSVeIPzfBArV/y7/obh6oBOYCGkEOrQCSG0C0ieB+DkDI6MpyGXYANBVGkCqAYiZ8EkOVgAAdxuJC6HnMpYAAAAASUVORK5CYII=");
+        background-repeat: repeat;
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 </style>
 
@@ -694,8 +755,9 @@ require_once '../includes/head.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="formTemplate" action="salvar_template.php" method="POST">
+                <form id="formTemplate" action="templates_mensagens.php" method="POST">
                     <input type="hidden" id="template_id" name="id">
+                    <input type="hidden" name="acao" value="salvar">
                     
                     <div class="form-group-row">
                         <div class="form-group">
@@ -709,8 +771,14 @@ require_once '../includes/head.php';
                                 <option value="">Selecione...</option>
                                 <option value="pendente">Pendente</option>
                                 <option value="atrasado">Atrasado</option>
-                                <option value="quitado">Quitado</option>
+                                <option value="pago">Pago</option>
+                                <option value="parcial">Parcial</option>
+                                <option value="outro">Outro (personalizado)</option>
                             </select>
+                        </div>
+                        <div class="form-group mt-2" id="statusOutroContainer" style="display: none;">
+                            <label for="statusOutro" class="form-label">Status personalizado</label>
+                            <input type="text" class="form-control" id="statusOutro" name="statusOutro" placeholder="Digite um status personalizado">
                         </div>
                     </div>
                     
@@ -764,58 +832,45 @@ require_once '../includes/head.php';
                         <div class="mb-3">
                             <label class="form-label">Informações a Incluir</label>
                             <div class="checkbox-tags">
-                                <label class="checkbox-tag todos">
-                                    <input type="checkbox" id="incluir_todos">
-                                    <span>TODOS</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_nome" name="incluir_nome" value="1">
+                                <button type="button" class="btn-tag" data-tag="nome_cliente">
                                     <span>Nome do Cliente</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_valor" name="incluir_valor" value="1">
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="valor_parcela">
                                     <span>Valor da Parcela</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_vencimento" name="incluir_vencimento" value="1">
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="data_vencimento">
                                     <span>Data de Vencimento</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_atraso" name="incluir_atraso" value="1">
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="atraso">
                                     <span>Dias de Atraso</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_valor_total" name="incluir_valor_total" value="1">
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="valor_total">
                                     <span>Valor Total</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_valor_em_aberto" name="incluir_valor_em_aberto" value="1">
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="valor_em_aberto">
                                     <span>Valor em Aberto</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_total_parcelas" name="incluir_total_parcelas" value="1">
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="total_parcelas">
                                     <span>Total de Parcelas</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_parcelas_pagas" name="incluir_parcelas_pagas" value="1">
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="parcelas_pagas">
                                     <span>Parcelas Pagas</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_valor_pago" name="incluir_valor_pago" value="1">
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="valor_pago">
                                     <span>Valor Pago</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_numero_parcela" name="incluir_numero_parcela" value="1">
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="numero_parcela">
                                     <span>Número da Parcela</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_lista_parcelas" name="incluir_lista_parcelas" value="1">
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="lista_parcelas_restantes">
                                     <span>Lista de Parcelas</span>
-                                </label>
-                                <label class="checkbox-tag">
-                                    <input type="checkbox" id="incluir_link_pagamento" name="incluir_link_pagamento" value="1">
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="link_pagamento">
                                     <span>Link de Pagamento</span>
-                                </label>
+                                </button>
+                                <button type="button" class="btn-tag" data-tag="nomedogestor">
+                                    <span>Nome do Gestor</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -832,6 +887,25 @@ require_once '../includes/head.php';
 
 <script>
 $(document).ready(function() {
+    // Verificar se SweetAlert2 está disponível, caso contrário, carregá-lo
+    if (typeof Swal === 'undefined') {
+        // Carregar SweetAlert2 se não estiver disponível
+        var sweetAlertScript = document.createElement('script');
+        sweetAlertScript.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+        document.head.appendChild(sweetAlertScript);
+        
+        // Esperar até que o script seja carregado
+        sweetAlertScript.onload = function() {
+            console.log('SweetAlert2 carregado com sucesso');
+            inicializarFuncionalidades();
+        };
+    } else {
+        // Se já estiver disponível, inicializar normalmente
+        inicializarFuncionalidades();
+    }
+    
+    // Função principal que contém todas as funcionalidades
+    function inicializarFuncionalidades() {
     // Tratamento das mensagens de retorno
     <?php if (isset($_GET['sucesso'])): ?>
         Swal.fire({
@@ -878,55 +952,6 @@ $(document).ready(function() {
         });
     <?php endif; ?>
 
-    // Função para verificar se todas as tags estão marcadas
-    function verificarTodasTagsMarcadas() {
-        const totalTags = $('.checkbox-tag:not(.todos)').length;
-        const checkedTags = $('.checkbox-tag:not(.todos) input[type="checkbox"]:checked').length;
-        const todosTag = $('.checkbox-tag.todos');
-        
-        if (totalTags === checkedTags) {
-            todosTag.addClass('checked');
-            todosTag.find('input[type="checkbox"]').prop('checked', true);
-        } else {
-            todosTag.removeClass('checked');
-            todosTag.find('input[type="checkbox"]').prop('checked', false);
-        }
-    }
-
-    // Função para verificar quais tags estão sendo usadas na mensagem
-    function verificarTagsUsadas(mensagem) {
-        const tags = {
-            'nome_cliente': 'incluir_nome',
-            'valor_parcela': 'incluir_valor',
-            'data_vencimento': 'incluir_vencimento',
-            'atraso': 'incluir_atraso',
-            'valor_total': 'incluir_valor_total',
-            'valor_em_aberto': 'incluir_valor_em_aberto',
-            'total_parcelas': 'incluir_total_parcelas',
-            'parcelas_pagas': 'incluir_parcelas_pagas',
-            'valor_pago': 'incluir_valor_pago',
-            'numero_parcela': 'incluir_numero_parcela',
-            'lista_parcelas_restantes': 'incluir_lista_parcelas',
-            'link_pagamento': 'incluir_link_pagamento',
-            'nomedogestor': 'incluir_nome_gestor'
-        };
-
-        // Desmarcar todas as checkboxes primeiro
-        $('.checkbox-tag input[type="checkbox"]').prop('checked', false);
-        $('.checkbox-tag').removeClass('checked');
-
-        // Verificar cada tag na mensagem
-        for (const [tag, checkboxId] of Object.entries(tags)) {
-            if (mensagem.includes('{' + tag + '}')) {
-                $(`#${checkboxId}`).prop('checked', true);
-                $(`#${checkboxId}`).closest('.checkbox-tag').addClass('checked');
-            }
-        }
-
-        // Verificar estado do botão TODOS
-        verificarTodasTagsMarcadas();
-    }
-
     // Função para obter as tags usadas em uma mensagem
     function obterTagsUsadas(mensagem) {
         const tags = {
@@ -968,11 +993,40 @@ $(document).ready(function() {
             if (response.success) {
                 var html = '';
                 response.data.forEach(function(template) {
-                    var statusClass = 'status-' + template.status;
+                        // Verifica se é um status padrão ou personalizado
+                        const statusPadrao = ['pendente', 'atrasado', 'pago', 'parcial'];
+                        let statusClass = '';
+                        
+                        if (statusPadrao.includes(template.status)) {
+                            // Se for status padrão, usa a classe diretamente
+                            statusClass = 'status-' + template.status;
+                        } else {
+                            // Se for personalizado, formata o nome para camelCase sem espaços
+                            const statusFormatado = template.status
+                                .split(' ')
+                                .map((word, index) => {
+                                    if (index === 0) {
+                                        return word.toLowerCase();
+                                    }
+                                    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                                })
+                                .join('');
+                            
+                            // Remove caracteres especiais
+                            const statusLimpo = statusFormatado.replace(/[^a-zA-Z0-9]/g, '');
+                            
+                            // Adiciona o prefixo status-
+                            statusClass = 'status-' + statusLimpo.charAt(0).toUpperCase() + statusLimpo.slice(1);
+                            
+                            // Log para debugging
+                            console.log('Status personalizado:', template.status, '-> Classe CSS:', statusClass);
+                        }
+                        
                     var statusText = {
                         'pendente': 'Pendente',
                         'atrasado': 'Atrasado',
-                        'quitado': 'Quitado'
+                            'pago': 'Pago',
+                            'parcial': 'Parcial'
                     }[template.status] || template.status;
 
                     // Obter tags usadas na mensagem
@@ -1008,8 +1062,10 @@ $(document).ready(function() {
                                     <h5 class="card-title">${template.nome}</h5>
                                 </div>
                                 
-                                <div class="template-tags">
-                                    ${tagsHtml}
+                                    <div class="preview-container">
+                                        <div class="whatsapp-message-preview">
+                                            ${gerarPreviewMensagem(template.mensagem)}
+                                        </div>
                                 </div>
                                 
                                 <div class="btn-actions">
@@ -1031,6 +1087,54 @@ $(document).ready(function() {
         });
     }
 
+        // Função para gerar o preview da mensagem no card
+        function gerarPreviewMensagem(mensagem) {
+            // Dados de exemplo para preview
+            var dados = {
+                'nome_cliente': 'João da Silva',
+                'valor_parcela': 'R$ 1.000,00',
+                'data_vencimento': '10/05/2024',
+                'atraso': '5 dias',
+                'valor_total': 'R$ 12.000,00',
+                'valor_em_aberto': 'R$ 8.000,00',
+                'total_parcelas': '12',
+                'parcelas_pagas': '4',
+                'valor_pago': 'R$ 4.000,00',
+                'numero_parcela': '5',
+                'lista_parcelas_restantes': '5, 6, 7, 8, 9, 10, 11, 12',
+                'link_pagamento': 'https://exemplo.com/pagar',
+                'nomedogestor': 'Gestor'
+            };
+            
+            // Cria uma cópia da mensagem para substituição
+            var mensagemPreview = mensagem;
+            
+            // Substituir todas as tags por seus valores correspondentes
+            for (var tag in dados) {
+                var regex = new RegExp('{' + tag + '}', 'g');
+                mensagemPreview = mensagemPreview.replace(regex, dados[tag]);
+            }
+            
+            // Limitar o preview a 150 caracteres com reticências
+            if (mensagemPreview.length > 150) {
+                mensagemPreview = mensagemPreview.substring(0, 150) + '...';
+            }
+            
+            // Obter a hora atual formatada
+            const agora = new Date();
+            const hora = agora.getHours().toString().padStart(2, '0') + ':' + agora.getMinutes().toString().padStart(2, '0');
+            
+            // Formatar quebras de linha para HTML e adicionar a hora e o check duplo
+            const mensagemFormatada = mensagemPreview.replace(/\n/g, '<br>');
+            
+            return `
+                ${mensagemFormatada}
+                <span class="preview-time">${hora}
+                    <i class="fas fa-check-double" style="color: #4FC3F7; margin-left: 2px; font-size: 0.8em;"></i>
+                </span>
+            `;
+    }
+
     // Carregar templates ao iniciar
     carregarTemplates();
     
@@ -1043,30 +1147,63 @@ $(document).ready(function() {
         }, function(response) {
             if (response.success) {
                 var template = response.data;
+                    
+                    // Limpar formulário antes
+                    $('#formTemplate')[0].reset();
+                    
+                    // Definir os valores básicos
                 $('#template_id').val(template.id);
                 $('#nome').val(template.nome);
-                $('#status').val(template.status);
                 $('#mensagem').val(template.mensagem);
                 
-                // Marcar os checkboxes baseado nos dados do template
-                $('#incluir_nome').prop('checked', template.incluir_nome == 1);
-                $('#incluir_valor').prop('checked', template.incluir_valor == 1);
-                $('#incluir_vencimento').prop('checked', template.incluir_vencimento == 1);
-                $('#incluir_atraso').prop('checked', template.incluir_atraso == 1);
-                $('#incluir_valor_total').prop('checked', template.incluir_valor_total == 1);
-                $('#incluir_valor_em_aberto').prop('checked', template.incluir_valor_em_aberto == 1);
-                $('#incluir_total_parcelas').prop('checked', template.incluir_total_parcelas == 1);
-                $('#incluir_parcelas_pagas').prop('checked', template.incluir_parcelas_pagas == 1);
-                $('#incluir_valor_pago').prop('checked', template.incluir_valor_pago == 1);
-                $('#incluir_numero_parcela').prop('checked', template.incluir_numero_parcela == 1);
-                $('#incluir_lista_parcelas').prop('checked', template.incluir_lista_parcelas == 1);
-                $('#incluir_link_pagamento').prop('checked', template.incluir_link_pagamento == 1);
-                
-                // Atualizar classes das tags
-                $('.checkbox-tag').each(function() {
-                    const checkbox = $(this).find('input[type="checkbox"]');
-                    $(this).toggleClass('checked', checkbox.prop('checked'));
-                });
+                    console.log('Status do template:', template.status);
+                    
+                    // Verificar se o status é um dos padrões ou personalizado
+                    const statusPadrao = ['pendente', 'atrasado', 'pago', 'parcial'];
+                    if (statusPadrao.includes(template.status)) {
+                        $('#status').val(template.status);
+                        $('#statusOutroContainer').hide();
+                        $('#statusOutro').val('').prop('required', false);
+                    } else {
+                        // É um status personalizado
+                        $('#status').val('outro');
+                        $('#statusOutro').val(template.status);
+                        $('#statusOutroContainer').show();
+                        $('#statusOutro').prop('required', true);
+                    }
+                    
+                    // Criar campos hidden para cada variável
+                    const tagsPresentes = {
+                        'nome_cliente': 'incluir_nome',
+                        'valor_parcela': 'incluir_valor',
+                        'data_vencimento': 'incluir_vencimento',
+                        'atraso': 'incluir_atraso',
+                        'valor_total': 'incluir_valor_total',
+                        'valor_em_aberto': 'incluir_valor_em_aberto',
+                        'total_parcelas': 'incluir_total_parcelas',
+                        'parcelas_pagas': 'incluir_parcelas_pagas',
+                        'valor_pago': 'incluir_valor_pago',
+                        'numero_parcela': 'incluir_numero_parcela',
+                        'lista_parcelas_restantes': 'incluir_lista_parcelas',
+                        'link_pagamento': 'incluir_link_pagamento'
+                    };
+                    
+                    // Adicionar campos hidden se não existirem
+                    for (const [tag, fieldName] of Object.entries(tagsPresentes)) {
+                        // Verificar se já existe um campo com esse nome
+                        if ($(`input[name="${fieldName}"]`).length === 0) {
+                            // Se não existir, criar um campo hidden
+                            $('<input>').attr({
+                                type: 'hidden',
+                                name: fieldName,
+                                id: fieldName,
+                                value: template[fieldName] || '0'
+                            }).appendTo('#formTemplate');
+                        } else {
+                            // Se já existir, atualizar o valor
+                            $(`input[name="${fieldName}"]`).val(template[fieldName] || '0');
+                        }
+                    }
                 
                 // Mostrar containers e atualizar botão
                 $('.mensagem-container, .informacoes-container').addClass('show');
@@ -1095,26 +1232,237 @@ $(document).ready(function() {
     });
     
     // Atualizar checkboxes antes do envio do formulário
-    $('#formTemplate').on('submit', function() {
-        // Adiciona os checkboxes não marcados como 0
-        $('.checkbox-tag:not(.todos) input[type="checkbox"]').each(function() {
-            if (!$(this).is(':checked')) {
-                $(this).val('0');
-            } else {
-                $(this).val('1');
+        $('#formTemplate').on('submit', function(e) {
+            // Adicionar log para depuração
+            console.log('Enviando formulário - Status selecionado:', $('#status').val());
+            console.log('Status personalizado:', $('#statusOutro').val());
+            
+            // Processar status personalizado
+            if ($('#status').val() === 'outro') {
+                const statusOutro = $('#statusOutro').val().trim();
+                console.log('Status outro detectado, valor personalizado:', statusOutro);
+                
+                if (!statusOutro) {
+                    alert('Por favor, digite um status personalizado');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Criar um campo hidden com o status personalizado
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'status',
+                    value: statusOutro
+                }).appendTo('#formTemplate');
+                
+                // Certificar-se de que o campo select original não interfira
+                $('#status').prop('disabled', true);
+                
+                console.log('Campo hidden status criado com valor:', statusOutro);
             }
+            
+            // Obter a mensagem atual
+            const mensagem = $('#mensagem').val();
+            
+            // Verificar quais tags estão presentes na mensagem e atualizar os campos hidden
+            const tagsPresentes = {
+                'nome_cliente': 'incluir_nome',
+                'valor_parcela': 'incluir_valor',
+                'data_vencimento': 'incluir_vencimento',
+                'atraso': 'incluir_atraso',
+                'valor_total': 'incluir_valor_total',
+                'valor_em_aberto': 'incluir_valor_em_aberto',
+                'total_parcelas': 'incluir_total_parcelas',
+                'parcelas_pagas': 'incluir_parcelas_pagas',
+                'valor_pago': 'incluir_valor_pago',
+                'numero_parcela': 'incluir_numero_parcela',
+                'lista_parcelas_restantes': 'incluir_lista_parcelas',
+                'link_pagamento': 'incluir_link_pagamento'
+            };
+            
+            // Adicionar campos hidden se não existirem
+            for (const [tag, fieldName] of Object.entries(tagsPresentes)) {
+                // Verificar se já existe um campo com esse nome
+                if ($(`input[name="${fieldName}"]`).length === 0) {
+                    // Se não existir, criar um campo hidden
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: fieldName,
+                        id: fieldName,
+                        value: '0'
+                    }).appendTo('#formTemplate');
+                }
+                
+                // Definir o valor como 1 se a tag estiver presente na mensagem, 0 caso contrário
+                const isPresent = mensagem.includes('{' + tag + '}');
+                $(`input[name="${fieldName}"]`).val(isPresent ? '1' : '0');
+            }
+            
+            // Usar AJAX para enviar o formulário e evitar recarregar a página
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        // Determinar se é um status personalizado ou padrão
+                        const statusPadrao = ['pendente', 'atrasado', 'pago', 'parcial'];
+                        const isStatusPersonalizado = !statusPadrao.includes(response.status);
+                        
+                        let messageTitle = 'Template salvo com sucesso!';
+                        let messageHtml = response.message;
+                        
+                        // Se for um status personalizado, adicionar informação na mensagem
+                        if (isStatusPersonalizado) {
+                            messageHtml += `<br><br>Status personalizado <strong>${response.status}</strong> aplicado com sucesso!`;
+                        }
+                        
+                        // Mostrar mensagem de sucesso
+                        Swal.fire({
+                            icon: 'success',
+                            title: messageTitle,
+                            html: messageHtml,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#25D366'
+                        }).then(() => {
+                            // Fechar o modal e recarregar os templates
+                            $('#modalTemplate').modal('hide');
+                            carregarTemplates();
+                        });
+            } else {
+                        // Mostrar mensagem de erro
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro!',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro de Conexão',
+                        text: 'Não foi possível completar a operação. Verifique sua conexão e tente novamente.'
+                    });
+                }
         });
     });
     
-    // Adicionar evento de clique nas tags
-    $('.checkbox-tag').on('click', function() {
-        const checkbox = $(this).find('input[type="checkbox"]');
-        const isChecked = !checkbox.prop('checked'); // Inverte o estado atual
-        checkbox.prop('checked', isChecked);
-        $(this).toggleClass('checked', isChecked);
+        // Mostrar/ocultar campo de status personalizado
+        $('#status').on('change', function() {
+            if ($(this).val() === 'outro') {
+                $('#statusOutroContainer').show();
+                $('#statusOutro').prop('required', true);
+            } else {
+                $('#statusOutroContainer').hide();
+                $('#statusOutro').prop('required', false);
+            }
+            atualizarPreview();
+        });
+        
+        // Limpar formulário e resetar estado ao abrir modal
+        $('#modalTemplate').on('show.bs.modal', function() {
+            // Resetar texto do botão
+            $('.btn-editar-mensagem').html('<i class="fas fa-edit"></i> Editar Conteúdo da Mensagem');
+            
+            if (!$('#template_id').val()) {
+                $('#formTemplate')[0].reset();
+                
+                // Definir modelo de mensagem básica
+                var modeloMensagem = `Olá {nome_cliente},
+
+Sua parcela de {valor_parcela} que vencia em {data_vencimento} está atrasada há {atraso}.
+
+Valor total do empréstimo: {valor_total}
+Valor em aberto: {valor_em_aberto}
+Total de parcelas: {total_parcelas}
+Parcelas pagas: {parcelas_pagas}
+Valor já pago: {valor_pago}
+
+Para regularizar sua situação, acesse: {link_pagamento}
+
+Atenciosamente,
+{nomedogestor}`;
+
+                $('#mensagem').val(modeloMensagem);
+                $('#previewMensagem').empty();
+                
+                // Verificar as tags usadas na mensagem padrão
+                atualizarPreview();
+            }
+        });
+
+        // Inicialização de eventos - garante que os botões de tag funcionem corretamente
+        function inicializarEventosBotoes() {
+            // Remover eventos existentes para evitar duplicação
+            $('.btn-tag').off('click');
+            
+            // Adicionar evento de clique nos botões de tag
+            $('.btn-tag').on('click', function() {
+                const tag = $(this).data('tag');
+                
+                // Efeito de animação ao clicar
+                $(this).addClass('clicked');
+                setTimeout(() => {
+                    $(this).removeClass('clicked');
+                }, 300);
+                
+                // Inserir a tag na posição do cursor
+                inserirTagNaPosicaoDoCursor(tag);
+                
+                // Atualizar o preview
         atualizarPreview();
     });
     
+            // Armazenar a posição do cursor ao clicar no textarea
+            $('#mensagem').on('click keyup focus', function() {
+                $(this).data('cursorPosition', this.selectionStart);
+            });
+
+            // Garantir que o textarea tenha foco e posição inicial do cursor
+            $('#mensagem').on('focus', function() {
+                if ($(this).data('cursorPosition') === undefined) {
+                    $(this).data('cursorPosition', 0);
+                }
+            });
+        }
+
+        // Função para inserir a tag na posição do cursor
+        function inserirTagNaPosicaoDoCursor(tag) {
+            const tagPattern = '{' + tag + '}';
+            const mensagemTextarea = document.getElementById('mensagem');
+            const mensagem = mensagemTextarea.value;
+            
+            // Obter a posição atual do cursor
+            const cursorPosition = $('#mensagem').data('cursorPosition') || 0;
+            
+            // Inserir a tag na posição do cursor
+            const novoTexto = mensagem.substring(0, cursorPosition) + tagPattern + mensagem.substring(cursorPosition);
+            mensagemTextarea.value = novoTexto;
+            
+            // Definir a nova posição do cursor (após a tag inserida)
+            const novaPosicao = cursorPosition + tagPattern.length;
+            
+            // Aplicar a nova posição do cursor
+            setTimeout(function() {
+                mensagemTextarea.focus();
+                mensagemTextarea.setSelectionRange(novaPosicao, novaPosicao);
+                $('#mensagem').data('cursorPosition', novaPosicao);
+            }, 10);
+        }
+        
+        // Inicializar eventos ao carregar a página e depois de operações AJAX
+        inicializarEventosBotoes();
+        $(document).ajaxComplete(function() {
+            inicializarEventosBotoes();
+    });
+
     // Função para atualizar o preview no modal
     function atualizarPreview() {
         var mensagem = $('#mensagem').val();
@@ -1124,7 +1472,8 @@ $(document).ready(function() {
         var statusText = {
             'pendente': 'online',
             'atrasado': 'digitando...',
-            'quitado': 'visto por último hoje'
+                'pago': 'visto por último hoje',
+                'parcial': 'online agora'
         }[status] || 'online';
         $('#previewStatus').text(statusText);
         
@@ -1145,92 +1494,32 @@ $(document).ready(function() {
             'nomedogestor': 'Gestor'
         };
         
-        // Mapeamento dos checkboxes para as tags
-        var mapeamento = {
-            'incluir_nome': 'nome_cliente',
-            'incluir_valor': 'valor_parcela',
-            'incluir_vencimento': 'data_vencimento',
-            'incluir_atraso': 'atraso',
-            'incluir_valor_total': 'valor_total',
-            'incluir_valor_em_aberto': 'valor_em_aberto',
-            'incluir_total_parcelas': 'total_parcelas',
-            'incluir_parcelas_pagas': 'parcelas_pagas',
-            'incluir_valor_pago': 'valor_pago',
-            'incluir_numero_parcela': 'numero_parcela',
-            'incluir_lista_parcelas': 'lista_parcelas_restantes',
-            'incluir_link_pagamento': 'link_pagamento'
-        };
+        // Criar uma cópia da mensagem original para preview
+        var mensagemPreview = mensagem;
         
-        // Substituir as tags na mensagem baseado nos checkboxes selecionados
-        for (var checkbox in mapeamento) {
-            if ($('#' + checkbox).is(':checked')) {
-                var tag = mapeamento[checkbox];
+            // Substituir todas as tags por seus valores correspondentes
+            for (var tag in dados) {
                 var regex = new RegExp('{' + tag + '}', 'g');
-                mensagem = mensagem.replace(regex, dados[tag]);
-            } else {
-                // Remover a tag se o checkbox não estiver marcado
-                var tag = mapeamento[checkbox];
-                var regex = new RegExp('{' + tag + '}', 'g');
-                mensagem = mensagem.replace(regex, '');
+                mensagemPreview = mensagemPreview.replace(regex, dados[tag]);
             }
-        }
         
         // Atualizar mensagem no preview
-        var mensagemFormatada = mensagem.replace(/\n/g, '<br>');
+        var mensagemFormatada = mensagemPreview.replace(/\n/g, '<br>');
         var horaAtual = getHoraAtual();
         
         $('#previewMensagem').html(`
             ${mensagemFormatada}
-            <span class="whatsapp-message-time">${horaAtual}
-                <i class="fas fa-check-double whatsapp-message-status"></i>
+                <span class="preview-time">${horaAtual}
+                    <i class="fas fa-check-double" style="color: #4FC3F7; margin-left: 2px; font-size: 0.8em;"></i>
             </span>
         `);
     }
-    
+
     // Atualizar preview quando a mensagem mudar
     $('#mensagem').on('input', function() {
-        verificarTagsUsadas($(this).val());
         atualizarPreview();
     });
-    
-    // Limpar formulário e resetar estado ao abrir modal
-    $('#modalTemplate').on('show.bs.modal', function() {
-        // Resetar texto do botão
-        $('.btn-editar-mensagem').html('<i class="fas fa-edit"></i> Editar Conteúdo da Mensagem');
-        
-        if (!$('#template_id').val()) {
-            $('#formTemplate')[0].reset();
-            
-            // Definir modelo de mensagem básica
-            var modeloMensagem = `Olá {nome_cliente},
-
-Sua parcela de {valor_parcela} que vencia em {data_vencimento} está atrasada há {atraso}.
-
-Valor total do empréstimo: {valor_total}
-Valor em aberto: {valor_em_aberto}
-Total de parcelas: {total_parcelas}
-Parcelas pagas: {parcelas_pagas}
-Valor já pago: {valor_pago}
-
-Para regularizar sua situação, acesse: {link_pagamento}
-
-Atenciosamente,
-{nomedogestor}`;
-
-            $('#mensagem').val(modeloMensagem);
-            $('#previewMensagem').empty();
-            
-            // Desmarcar todas as checkboxes
-            $('.checkbox-tag input[type="checkbox"]').prop('checked', false);
-            $('.checkbox-tag').removeClass('checked');
-            
-            // Atualizar preview com o modelo básico
-            atualizarPreview();
-        }
-    });
-
-    // Remover o evento de clique que mostra/esconde o conteúdo
-    $('.btn-editar-mensagem').off('click');
+    }
 });
 </script>
 

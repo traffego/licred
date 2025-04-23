@@ -28,83 +28,12 @@ if ($pagina_atual !== 'login.php') {
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/volt.css">
     <script src="<?= BASE_URL ?>assets/js/logo-detector.js"></script>
     <?php if (isset($scripts_header)) echo $scripts_header; ?>
-    <style>
-    /* Breadcrumb personalizado */
-    .breadcrumb {
-        background: transparent;
-        padding: 0;
-        margin: 0;
-    }
-
-    .breadcrumb-item a {
-        color: #344767;
-        text-decoration: none;
-    }
-
-    .breadcrumb-item.active {
-        color: #6c757d;
-    }
-    </style>
 </head>
 <?php 
-
-// require_once 'conexao.php';
-// require 'autenticacao.php';
-
-// require 'conexao.php';
 
 $pagina_atual = basename($_SERVER['PHP_SELF']);
 if ($pagina_atual !== 'login.php') {
     require_once 'navbar.php';
-
-    // Gerar breadcrumb dinamicamente
-    $caminho = $_SERVER['REQUEST_URI'];
-    $caminho = str_replace('/sistema_emprestimos_v1/', '', $caminho);
-    $partes = explode('/', trim($caminho, '/'));
-    $base_url = BASE_URL;
-    
-    // Remove partes específicas do caminho e extensões
-    $partes = array_filter($partes, function($parte) {
-        return !empty($parte);
-    });
-
-    // Remove extensão .php dos nomes
-    $partes = array_map(function($parte) {
-        return str_replace('.php', '', $parte);
-    }, $partes);
-
-    // Tradução de nomes para português
-    $traducoes = [
-        'emprestimos' => 'Empréstimos',
-        'clientes' => 'Clientes',
-        'visualizar' => 'Visualizar',
-        'novo' => 'Novo',
-        'editar' => 'Editar',
-        'dashboard' => 'Painel'
-    ];
-
-    echo '<div class="container py-4">';
-    echo '<nav aria-label="breadcrumb" class="mb-4">';
-    echo '<ol class="breadcrumb">';
-    echo '<li class="breadcrumb-item"><a href="' . $base_url . '">Home</a></li>';
-
-    $caminho_atual = '';
-    foreach ($partes as $parte) {
-        if (empty($parte)) continue;
-        
-        $caminho_atual .= $parte . '/';
-        $nome_exibicao = isset($traducoes[$parte]) ? $traducoes[$parte] : ucfirst($parte);
-        
-        if ($parte === end($partes)) {
-            echo '<li class="breadcrumb-item active">' . $nome_exibicao . '</li>';
-        } else {
-            echo '<li class="breadcrumb-item"><a href="' . $base_url . $caminho_atual . '">' . $nome_exibicao . '</a></li>';
-        }
-    }
-    
-    echo '</ol>';
-    echo '</nav>';
-    echo '</div>';
 }
 
 ?>

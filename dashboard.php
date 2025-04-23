@@ -98,54 +98,198 @@ try {
         </div>
     </div>
 
-    <!-- Cards Informativos (estilo de emprestimos/index.php) -->
-    <div class="row g-3 mb-4">
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Total Emprestado</h6>
-                    <h4 class="mb-0">R$ <?= number_format($total_emprestado, 2, ',', '.') ?></h4>
+    <!-- Cards Informativos - Desktop -->
+    <div class="d-none d-md-block">
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Emprestado</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_emprestado, 2, ',', '.') ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Recebido</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_recebido, 2, ',', '.') ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-warning text-dark h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Pendente</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_pendente, 2, ',', '.') ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Empréstimos</h6>
+                        <h4 class="mb-0"><?= count($emprestimos) ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-primary bg-opacity-75 text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Ativos</h6>
+                        <h4 class="mb-0"><?= (int)$total_emprestimos_ativos ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-danger text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Atrasados</h6>
+                        <h4 class="mb-0"><?= $emprestimos_atrasados ?></h4>
+                        <small>R$ <?= number_format($total_atrasado, 2, ',', '.') ?> em atraso</small>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Total Recebido</h6>
-                    <h4 class="mb-0">R$ <?= number_format($total_recebido, 2, ',', '.') ?></h4>
+    </div>
+    
+    <!-- Cards Informativos - Mobile -->
+    <div class="d-md-none mb-4">
+        <div class="row g-3">
+            <div class="col-6">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Emprestado</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_emprestado, 2, ',', '.') ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Recebido</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_recebido, 2, ',', '.') ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card bg-warning text-dark h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Pendente</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_pendente, 2, ',', '.') ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Empréstimos</h6>
+                        <h4 class="mb-0"><?= count($emprestimos) ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card bg-primary bg-opacity-75 text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Ativos</h6>
+                        <h4 class="mb-0"><?= (int)$total_emprestimos_ativos ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card bg-danger text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Atrasados</h6>
+                        <h4 class="mb-0"><?= $emprestimos_atrasados ?></h4>
+                        <small>R$ <?= number_format($total_atrasado, 2, ',', '.') ?> em atraso</small>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-warning text-dark h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Total Pendente</h6>
-                    <h4 class="mb-0">R$ <?= number_format($total_pendente, 2, ',', '.') ?></h4>
-                </div>
-            </div>
+    </div>
+
+    <!-- Cobranças via WhatsApp -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Envio de Cobranças via WhatsApp</h5>
+            <a href="mensagens/templates_mensagens.php" class="btn btn-sm btn-outline-primary">Gerenciar Templates</a>
         </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-info text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Empréstimos</h6>
-                    <h4 class="mb-0"><?= count($emprestimos) ?></h4>
+        <div class="card-body">
+            <div class="row g-3">
+                <?php
+                // Buscar templates de mensagens para uso nos botões
+                $sql_templates = "SELECT id, nome, status FROM templates_mensagens WHERE ativo = 1 ORDER BY status, nome";
+                $templates_result = $conn->query($sql_templates);
+                $templates = [];
+                
+                if ($templates_result && $templates_result->num_rows > 0) {
+                    while ($template = $templates_result->fetch_assoc()) {
+                        $templates[] = $template;
+                    }
+                }
+
+                // Templates por status
+                $templates_atrasados = array_filter($templates, function($t) { return $t['status'] == 'atrasado'; });
+                $templates_pendentes = array_filter($templates, function($t) { return $t['status'] == 'pendente'; });
+                $templates_quitados = array_filter($templates, function($t) { return $t['status'] == 'quitado'; });
+                ?>
+                
+                <!-- Cobranças de Parcelas Atrasadas -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h6 class="mb-0">Parcelas Atrasadas</h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text mb-3">Enviar mensagens para clientes com parcelas em atraso.</p>
+                            <div class="d-grid gap-2">
+                                <?php if (!empty($templates_atrasados)): ?>
+                                    <?php foreach($templates_atrasados as $template): ?>
+                                        <a href="javascript:void(0);" 
+                                           class="btn btn-outline-danger btn-enviar-mensagem"
+                                           data-status="atrasado"
+                                           data-template="<?= $template['id'] ?>"
+                                           data-template-nome="<?= htmlspecialchars($template['nome']) ?>">
+                                            <i class="bi bi-whatsapp"></i> <?= htmlspecialchars($template['nome']) ?>
+                                        </a>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="alert alert-secondary mb-0">
+                                        Nenhum template para parcelas atrasadas encontrado.
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-primary bg-opacity-75 text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Ativos</h6>
-                    <h4 class="mb-0"><?= (int)$total_emprestimos_ativos ?></h4>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-danger text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Atrasados</h6>
-                    <h4 class="mb-0"><?= $emprestimos_atrasados ?></h4>
-                    <small>R$ <?= number_format($total_atrasado, 2, ',', '.') ?> em atraso</small>
+                
+                <!-- Cobranças de Parcelas Pendentes -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-warning">
+                        <div class="card-header bg-warning">
+                            <h6 class="mb-0">Vencimentos Hoje</h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text mb-3">Enviar para clientes com parcelas que vencem hoje.</p>
+                            <div class="d-grid gap-2">
+                                <?php if (!empty($templates_pendentes)): ?>
+                                    <?php foreach($templates_pendentes as $template): ?>
+                                        <a href="javascript:void(0);" 
+                                           class="btn btn-outline-warning btn-enviar-mensagem"
+                                           data-status="vence_hoje"
+                                           data-template="<?= $template['id'] ?>"
+                                           data-template-nome="<?= htmlspecialchars($template['nome']) ?>">
+                                            <i class="bi bi-whatsapp"></i> <?= htmlspecialchars($template['nome']) ?>
+                                        </a>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="alert alert-secondary mb-0">
+                                        Nenhum template para parcelas pendentes encontrado.
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -184,161 +328,272 @@ try {
                     </div>
                 </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th style="width: 25%">Cliente</th>
-                            <th style="width: 15%" class="d-none d-md-table-cell">Tipo</th>
-                            <th style="width: 15%">Valor</th>
-                            <th style="width: 15%">Parcelas</th>
-                            <th style="width: 15%">Progresso</th>
-                            <th style="width: 15%">Status</th>
-                            <th style="width: 15%" class="d-none d-md-table-cell">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($ultimos_emprestimos)): ?>
-                            <?php foreach ($ultimos_emprestimos as $e): 
-                                // Busca as parcelas na tabela parcelas
-                                $stmt = $conn->prepare("SELECT 
-                                    status, valor, valor_pago, vencimento 
-                                    FROM parcelas 
-                                    WHERE emprestimo_id = ?");
-                                $stmt->bind_param("i", $e['id']);
-                                $stmt->execute();
-                                $result_parcelas = $stmt->get_result();
-                                $parcelas = $result_parcelas->fetch_all(MYSQLI_ASSOC);
-                                
-                                // Calcula o progresso
-                                $total_parcelas = count($parcelas);
-                                $pagas = 0;
-                                $valor_total_pago = 0;
-                                foreach ($parcelas as $p) {
-                                    if ($p['status'] === 'pago') {
-                                        $pagas++;
-                                        $valor_total_pago += isset($p['valor']) ? floatval($p['valor']) : 0;
-                                    } elseif ($p['status'] === 'parcial') {
-                                        $valor_total_pago += isset($p['valor_pago']) ? floatval($p['valor_pago']) : 0;
-                                    }
-                                }
-                                $progresso = ($total_parcelas > 0) ? ($pagas / $total_parcelas) * 100 : 0;
-                                
-                                // Calcula o status do empréstimo
-                                $status = 'quitado';
-                                $tem_atrasada = false;
-                                $tem_pendente = false;
-
-                                foreach ($parcelas as $p) {
-                                    if ($p['status'] !== 'pago') {
-                                        $tem_pendente = true;
-                                        $status = 'ativo';
-                                        
-                                        $data_vencimento = new DateTime($p['vencimento']);
-                                        if ($data_vencimento < new DateTime()) {
-                                            $tem_atrasada = true;
-                                            $status = 'atrasado';
-                                            break;
+            
+            <!-- Tabela para Desktop -->
+            <div class="d-none d-md-block">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 25%">Cliente</th>
+                                <th style="width: 15%">Tipo</th>
+                                <th style="width: 15%">Valor</th>
+                                <th style="width: 15%">Parcelas</th>
+                                <th style="width: 15%">Progresso</th>
+                                <th style="width: 8%">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($ultimos_emprestimos)): ?>
+                                <?php foreach ($ultimos_emprestimos as $e): 
+                                    // Busca as parcelas na tabela parcelas
+                                    $stmt = $conn->prepare("SELECT 
+                                        status, valor, valor_pago, vencimento 
+                                        FROM parcelas 
+                                        WHERE emprestimo_id = ?");
+                                    $stmt->bind_param("i", $e['id']);
+                                    $stmt->execute();
+                                    $result_parcelas = $stmt->get_result();
+                                    $parcelas = $result_parcelas->fetch_all(MYSQLI_ASSOC);
+                                    
+                                    // Calcula o progresso
+                                    $total_parcelas = count($parcelas);
+                                    $pagas = 0;
+                                    $valor_total_pago = 0;
+                                    foreach ($parcelas as $p) {
+                                        if ($p['status'] === 'pago') {
+                                            $pagas++;
+                                            $valor_total_pago += isset($p['valor']) ? floatval($p['valor']) : 0;
+                                        } elseif ($p['status'] === 'parcial') {
+                                            $valor_total_pago += isset($p['valor_pago']) ? floatval($p['valor_pago']) : 0;
                                         }
                                     }
-                                }
-                                
-                                // Define as classes de status
-                                $status_class = match($status) {
-                                    'ativo' => 'text-bg-primary',
-                                    'atrasado' => 'text-bg-danger',
-                                    'quitado' => 'text-bg-success',
-                                    default => 'text-bg-secondary'
-                                };
-                            ?>
-                                <tr class="clickable-row" data-href="emprestimos/visualizar.php" data-id="<?= htmlspecialchars($e['id']) ?>">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="fw-bold"><?= htmlspecialchars($e['cliente_nome']) ?></div>
+                                    $progresso = ($total_parcelas > 0) ? ($pagas / $total_parcelas) * 100 : 0;
+                                    
+                                    // Calcula o status do empréstimo
+                                    $status = 'quitado';
+                                    $tem_atrasada = false;
+                                    $tem_pendente = false;
+
+                                    foreach ($parcelas as $p) {
+                                        if ($p['status'] !== 'pago') {
+                                            $tem_pendente = true;
+                                            $status = 'ativo';
+                                            
+                                            $data_vencimento = new DateTime($p['vencimento']);
+                                            if ($data_vencimento < new DateTime()) {
+                                                $tem_atrasada = true;
+                                                $status = 'atrasado';
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Define as classes de status
+                                    $status_class = match($status) {
+                                        'ativo' => 'text-bg-primary',
+                                        'atrasado' => 'text-bg-danger',
+                                        'quitado' => 'text-bg-success',
+                                        default => 'text-bg-secondary'
+                                    };
+                                ?>
+                                    <tr class="clickable-row" data-href="emprestimos/visualizar.php?id=<?= htmlspecialchars($e['id']) ?>" style="cursor: pointer;">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <div class="fw-bold"><?= htmlspecialchars($e['cliente_nome']) ?></div>
+                                                    <small class="text-muted">
+                                                        Início: <?= date('d/m/Y', strtotime($e['data_inicio'])) ?>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge text-bg-info">
+                                                <?php
+                                                    $tipos = [
+                                                        'parcelada_comum' => 'Parcelamento Comum',
+                                                        'reparcelada_com_juros' => 'Reparcelado c/ Juros'
+                                                    ];
+                                                    $tipo = $e['tipo_de_cobranca'] ?? '';
+                                                    echo htmlspecialchars($tipos[$tipo] ?? 'Não definido');
+                                                ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold">R$ <?= number_format((float)$e['valor_emprestado'], 2, ',', '.') ?></div>
+                                            <?php if (!empty($e['juros_percentual']) && $e['juros_percentual'] > 0): ?>
                                                 <small class="text-muted">
-                                                    Início: <?= date('d/m/Y', strtotime($e['data_inicio'])) ?>
+                                                    <?= $e['juros_percentual'] ?>% juros
                                                 </small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="d-none d-md-table-cell">
-                                        <span class="badge text-bg-info">
-                                            <?php
-                                                $tipos = [
-                                                    'parcelada_comum' => 'Parcelamento Comum',
-                                                    'reparcelada_com_juros' => 'Reparcelado c/ Juros'
-                                                ];
-                                                $tipo = $e['tipo_de_cobranca'] ?? '';
-                                                echo htmlspecialchars($tipos[$tipo] ?? 'Não definido');
-                                            ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="fw-bold">R$ <?= number_format((float)$e['valor_emprestado'], 2, ',', '.') ?></div>
-                                        <?php if (!empty($e['juros_percentual']) && $e['juros_percentual'] > 0): ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold"><?= (int)$e['parcelas'] ?>x R$ <?= number_format((float)$e['valor_parcela'], 2, ',', '.') ?></div>
                                             <small class="text-muted">
-                                                <?= $e['juros_percentual'] ?>% juros
+                                                <?= $pagas ?> pagas (R$ <?= number_format($valor_total_pago, 2, ',', '.') ?>)
                                             </small>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <div class="fw-bold"><?= (int)$e['parcelas'] ?>x R$ <?= number_format((float)$e['valor_parcela'], 2, ',', '.') ?></div>
-                                        <small class="text-muted">
-                                            <?= $pagas ?> pagas (R$ <?= number_format($valor_total_pago, 2, ',', '.') ?>)
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <div class="progress" style="height: 6px;">
-                                            <div class="progress-bar bg-success" role="progressbar" 
-                                                 style="width: <?= $progresso ?>%"
-                                                 aria-valuenow="<?= $progresso ?>" 
-                                                 aria-valuemin="0" 
-                                                 aria-valuemax="100">
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 6px;">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                     style="width: <?= $progresso ?>%"
+                                                     aria-valuenow="<?= $progresso ?>" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <small class="text-muted"><?= number_format($progresso, 1) ?>%</small>
-                                    </td>
-                                    <td>
-                                        <span class="badge <?= $status_class ?>">
-                                            <?= ucfirst($status) ?>
-                                        </span>
-                                    </td>
-                                    <td class="d-none d-md-table-cell">
-                                        <div class="btn-group">
-                                            <a href="emprestimos/visualizar.php?id=<?= $e['id'] ?>" 
-                                               class="btn btn-sm btn-outline-primary" 
-                                               title="Ver Detalhes">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <button type="button" 
-                                                    class="btn btn-sm btn-outline-success" 
-                                                    title="Registrar Pagamento"
-                                                    onclick="window.location.href='emprestimos/visualizar.php?id=<?= $e['id'] ?>#pagamento'">
-                                                <i class="bi bi-cash-coin"></i>
-                                            </button>
-                                            <button type="button" 
-                                                    class="btn btn-sm btn-outline-info" 
-                                                    title="Enviar Cobrança"
-                                                    onclick="enviarCobranca(<?= $e['id'] ?>)">
-                                                <i class="bi bi-whatsapp"></i>
-                                            </button>
+                                            <small class="text-muted"><?= number_format($progresso, 1) ?>%</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge <?= $status_class ?>">
+                                                <?= ucfirst($status) ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            Nenhum empréstimo encontrado
                                         </div>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="7" class="text-center py-4">
-                                    <div class="text-muted">
-                                        <i class="bi bi-info-circle me-2"></i>
-                                        Nenhum empréstimo encontrado
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Cards para Mobile -->
+            <div class="d-md-none">
+                <div class="list-group list-group-flush">
+                    <?php if (!empty($ultimos_emprestimos)): ?>
+                        <?php foreach ($ultimos_emprestimos as $e): 
+                            // Busca as parcelas na tabela parcelas
+                            $stmt = $conn->prepare("SELECT 
+                                status, valor, valor_pago, vencimento 
+                                FROM parcelas 
+                                WHERE emprestimo_id = ?");
+                            $stmt->bind_param("i", $e['id']);
+                            $stmt->execute();
+                            $result_parcelas = $stmt->get_result();
+                            $parcelas = $result_parcelas->fetch_all(MYSQLI_ASSOC);
+                            
+                            // Calcula o progresso
+                            $total_parcelas = count($parcelas);
+                            $pagas = 0;
+                            $valor_total_pago = 0;
+                            foreach ($parcelas as $p) {
+                                if ($p['status'] === 'pago') {
+                                    $pagas++;
+                                    $valor_total_pago += isset($p['valor']) ? floatval($p['valor']) : 0;
+                                } elseif ($p['status'] === 'parcial') {
+                                    $valor_total_pago += isset($p['valor_pago']) ? floatval($p['valor_pago']) : 0;
+                                }
+                            }
+                            $progresso = ($total_parcelas > 0) ? ($pagas / $total_parcelas) * 100 : 0;
+                            
+                            // Calcula o status do empréstimo
+                            $status = 'quitado';
+                            $tem_atrasada = false;
+                            $tem_pendente = false;
+
+                            foreach ($parcelas as $p) {
+                                if ($p['status'] !== 'pago') {
+                                    $tem_pendente = true;
+                                    $status = 'ativo';
+                                    
+                                    $data_vencimento = new DateTime($p['vencimento']);
+                                    if ($data_vencimento < new DateTime()) {
+                                        $tem_atrasada = true;
+                                        $status = 'atrasado';
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // Define as classes de status
+                            $status_class = match($status) {
+                                'ativo' => 'text-bg-primary',
+                                'atrasado' => 'text-bg-danger',
+                                'quitado' => 'text-bg-success',
+                                default => 'text-bg-secondary'
+                            };
+                            
+                            $tipos = [
+                                'parcelada_comum' => 'Parcelamento Comum',
+                                'reparcelada_com_juros' => 'Reparcelado c/ Juros'
+                            ];
+                            $tipo = $e['tipo_de_cobranca'] ?? '';
+                        ?>
+                            <div class="list-group-item p-3 mb-3 border rounded shadow-sm">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0 fw-bold"><?= htmlspecialchars($e['cliente_nome']) ?></h6>
+                                    <span class="badge <?= $status_class ?>">
+                                        <?= ucfirst($status) ?>
+                                    </span>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <small class="text-muted d-block">
+                                        Início: <?= date('d/m/Y', strtotime($e['data_inicio'])) ?>
+                                    </small>
+                                    <span class="badge text-bg-info">
+                                        <?= htmlspecialchars($tipos[$tipo] ?? 'Não definido') ?>
+                                    </span>
+                                </div>
+
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Valor</small>
+                                        <strong>R$ <?= number_format((float)$e['valor_emprestado'], 2, ',', '.') ?></strong>
                                     </div>
-                                </td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Parcelas</small>
+                                        <strong><?= (int)$e['parcelas'] ?>x R$ <?= number_format((float)$e['valor_parcela'], 2, ',', '.') ?></strong>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: <?= $progresso ?>%"
+                                             aria-valuenow="<?= $progresso ?>" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted"><?= number_format($progresso, 1) ?>% concluído</small>
+                                        <small class="text-muted"><?= $pagas ?>/<?= $total_parcelas ?> parcelas</small>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <a href="emprestimos/visualizar.php?id=<?= $e['id'] ?>" class="btn btn-sm btn-outline-primary flex-fill">
+                                        <i class="bi bi-eye"></i> Detalhes
+                                    </a>
+                                    <a href="emprestimos/visualizar.php?id=<?= $e['id'] ?>#pagamento" class="btn btn-sm btn-outline-success flex-fill">
+                                        <i class="bi bi-cash-coin"></i> Pagar
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-info flex-fill" onclick="enviarCobranca(<?= $e['id'] ?>)">
+                                        <i class="bi bi-whatsapp"></i> Cobrar
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Nenhum empréstimo encontrado
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <!-- Adiciona padding no final para o último card não ficar colado no fim da página -->
+                <div class="pb-3"></div>
             </div>
         </div>
     </div>
@@ -478,6 +733,7 @@ try {
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Tornar as linhas da tabela clicáveis
         const rows = document.querySelectorAll('.clickable-row');
         rows.forEach(row => {
             row.addEventListener('click', function(e) {
@@ -486,18 +742,10 @@ try {
                     return;
                 }
                 
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = this.dataset.href;
-                
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'id';
-                input.value = this.dataset.id;
-                
-                form.appendChild(input);
-                document.body.appendChild(form);
-                form.submit();
+                // Redirecionar para o URL especificado no atributo data-href
+                if (this.dataset.href) {
+                    window.location.href = this.dataset.href;
+                }
             });
         });
 
@@ -549,6 +797,127 @@ try {
             // Implementar lógica de envio de cobrança
             alert('Função de envio de cobrança será implementada em breve!');
         };
+
+        // Processamento dos botões de envio de mensagens WhatsApp
+        const botoesEnviarMensagem = document.querySelectorAll('.btn-enviar-mensagem');
+        
+        botoesEnviarMensagem.forEach(botao => {
+            botao.addEventListener('click', function() {
+                const status = this.getAttribute('data-status');
+                const templateId = this.getAttribute('data-template');
+                const templateNome = this.getAttribute('data-template-nome');
+                
+                if (confirm(`Deseja enviar mensagens para todos os clientes com parcelas ${status}?\nTemplate: ${templateNome}`)) {
+                    // Mostrar indicador de carregamento
+                    this.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...`;
+                    this.disabled = true;
+                    
+                    // Fazer requisição AJAX para a API de envio
+                    fetch(`mensagens/api/enviar.php?coletiva=sim&status=${status}&template=${templateId}`, {
+                        method: 'GET'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Restaurar botão
+                        this.innerHTML = `<i class="bi bi-whatsapp"></i> ${templateNome}`;
+                        this.disabled = false;
+                        
+                        // Mostrar resultado
+                        if (data.sucesso) {
+                            // Criar modal de sucesso
+                            const modalHtml = `
+                                <div class="modal fade" id="resultadoEnvioModal" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title">Envio de Mensagens - Resultado</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="alert alert-success">
+                                                    ${data.mensagem}
+                                                </div>
+                                                
+                                                ${data.total_enviados > 0 ? `
+                                                <h6 class="mt-3">Mensagens Enviadas (${data.total_enviados}):</h6>
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Cliente</th>
+                                                                <th>Telefone</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            ${data.enviados.map(item => `
+                                                                <tr>
+                                                                    <td>${item.cliente}</td>
+                                                                    <td>${item.telefone}</td>
+                                                                </tr>
+                                                            `).join('')}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                ` : ''}
+                                                
+                                                ${data.total_falhas > 0 ? `
+                                                <h6 class="mt-3 text-danger">Falhas no Envio (${data.total_falhas}):</h6>
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Cliente</th>
+                                                                <th>Telefone</th>
+                                                                <th>Erro</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            ${data.falhas.map(item => `
+                                                                <tr>
+                                                                    <td>${item.cliente}</td>
+                                                                    <td>${item.telefone}</td>
+                                                                    <td>${item.erro}</td>
+                                                                </tr>
+                                                            `).join('')}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                ` : ''}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Adicionar modal ao DOM
+                            const modalContainer = document.createElement('div');
+                            modalContainer.innerHTML = modalHtml;
+                            document.body.appendChild(modalContainer);
+                            
+                            // Mostrar modal
+                            const modal = new bootstrap.Modal(document.getElementById('resultadoEnvioModal'));
+                            modal.show();
+                            
+                            // Remover modal do DOM quando for fechado
+                            document.getElementById('resultadoEnvioModal').addEventListener('hidden.bs.modal', function() {
+                                document.body.removeChild(modalContainer);
+                            });
+                        } else {
+                            alert(`Erro: ${data.mensagem}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        this.innerHTML = `<i class="bi bi-whatsapp"></i> ${templateNome}`;
+                        this.disabled = false;
+                        alert('Erro ao processar a solicitação. Verifique o console para mais detalhes.');
+                    });
+                }
+            });
+        });
     });
 </script>
 

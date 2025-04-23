@@ -1,19 +1,28 @@
 <?php
 // Configurações básicas de segurança da sessão
 ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_secure', 1);
-ini_set('session.cookie_samesite', 'Strict');
+
+// Verifica se estamos em ambiente de produção (com HTTPS)
+$is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || 
+           (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+
+// Desativa cookie_secure para permitir login em HTTP e HTTPS
+ini_set('session.cookie_secure', 0);
+
+// Ajustar SameSite para permitir mais compatibilidade
+ini_set('session.cookie_samesite', 'Lax');
 
 session_start();
 
 require_once __DIR__ . '/config.php';             // define BASE_URL
 require_once __DIR__ . '/includes/conexao.php';   // Adicionando conexão
 
-// Limpa a sessão anterior se existir
-if (isset($_SESSION['usuario_id'])) {
-    session_destroy();
-    session_start();
-}
+// Completamente desativando a limpeza da sessão para permitir acesso simultâneo
+// if (isset($_SESSION['usuario_id']) && !isset($_GET['manterSessao'])) {
+//     // Limpa apenas variáveis de sessão específicas, em vez de destruir a sessão
+//     unset($_SESSION['usuario_id']);
+//     unset($_SESSION['usuario_email']);
+// }
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -42,6 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         if ($csrf_token !== $_SESSION['csrf_token']) {
+            // Registrar informações de depuração para problema de CSRF
+            error_log("ERRO CSRF: Token recebido: " . substr($csrf_token, 0, 10) . "... / Token sessão: " . 
+                      substr($_SESSION['csrf_token'] ?? 'vazio', 0, 10) . "... / Session ID: " . session_id());
             throw new Exception("Erro de segurança. Por favor, tente novamente.");
         }
 
@@ -76,7 +88,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Login bem-sucedido
         session_regenerate_id(true);
         $_SESSION['usuario_id'] = $usuario['id'];
-        $_SESSION['usuario_email'] = $email; // Guardando o email já que não temos o nome
+        $_SESSION['usuario_email'] = $email;
+        
+        // Log de login para depuração em dispositivos móveis
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Unknown';
+        $is_mobile = preg_match('/(android|iphone|ipad|mobile)/i', $user_agent);
+        $log_info = [
+            'time' => date('Y-m-d H:i:s'),
+            'email' => $email,
+            'is_mobile' => $is_mobile ? 'Sim' : 'Não',
+            'user_agent' => $user_agent,
+            'session_id' => session_id(),
+            'csrf_token' => strlen($_SESSION['csrf_token'])
+        ];
+        error_log("LOGIN BEM-SUCEDIDO: " . json_encode($log_info, JSON_UNESCAPED_UNICODE));
 
         $stmt->close();
         header("Location: dashboard.php");
@@ -93,7 +118,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login - Sistema de Empréstimos</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -114,7 +142,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
-        <form method="POST" autocomplete="off" id="loginForm">
+        <form method="POST" id="loginForm">
+            <!-- Adicionando campo oculto para identificar dispositivo móvel -->
+            <input type="hidden" name="is_mobile" value="1">
+            
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <div class="input-group">
@@ -123,6 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                            placeholder="Digite seu email" 
                            value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>"
                            aria-describedby="emailHelp"
+                           autocomplete="email"
+                           inputmode="email"
                            required>
                 </div>
                 <div id="emailHelp" class="form-text">Digite o email cadastrado no sistema</div>
@@ -133,6 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
                     <input type="password" id="senha" name="senha" class="form-control" 
                            placeholder="Digite sua senha"
+                           autocomplete="current-password"
                            required>
                     <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                         <i class="bi bi-eye"></i>
@@ -159,7 +193,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script>
         // Toggle password visibility
-        document.getElementById('togglePassword').addEventListener('click', function() {
+        document.getElementById('togglePassword').addEventListener('click', function(e) {
+            e.preventDefault(); // Previne comportamento padrão do botão
             const senha = document.getElementById('senha');
             const icon = this.querySelector('i');
             if (senha.type === 'password') {

@@ -194,17 +194,16 @@ foreach ($parcelas as $p) {
         </div>
     </div>
 
-    <div class="row g-5">
+    <div class="row g-3">
         <!-- Card Cliente -->
         <div class="col-md-3">
             <div class="card h-100">
-                <div class="card-header cliente-header py-2 text-center cursor-pointer" onclick="toggleCard(this)">
+                <div class="card-header cliente-header py-2 text-center">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Cliente</h5>
-                        <i class="bi bi-chevron-down toggle-icon"></i>
                     </div>
                 </div>
-                <div class="card-body py-2 d-flex flex-column justify-content-center card-content">
+                <div class="card-body py-2 d-flex flex-column justify-content-center">
                     <div class="d-flex align-items-center mb-2">
                         <i class="bi bi-person-circle me-2" style="font-size: 2rem; color: #2c7744;"></i>
                         <div>
@@ -228,13 +227,12 @@ foreach ($parcelas as $p) {
         <!-- Card Valores -->
         <div class="col-md-3">
             <div class="card h-100">
-                <div class="card-header valores-header py-2 text-center cursor-pointer" onclick="toggleCard(this)">
+                <div class="card-header valores-header py-2 text-center">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Valores</h5>
-                        <i class="bi bi-chevron-down toggle-icon"></i>
                     </div>
                 </div>
-                <div class="card-body py-2 d-flex flex-column justify-content-center card-content">
+                <div class="card-body py-2 d-flex flex-column justify-content-center">
                     <div class="mb-2">
                         <label class="text-muted small">Capital:</label>
                         <h6 class="mb-0 fs-6">R$ <?= number_format($emprestimo['valor_emprestado'], 2, ',', '.') ?></h6>
@@ -264,13 +262,12 @@ foreach ($parcelas as $p) {
         <!-- Card Status das Parcelas -->
         <div class="col-md-3">
             <div class="card h-100">
-                <div class="card-header status-header py-2 text-center cursor-pointer" onclick="toggleCard(this)">
+                <div class="card-header status-header py-2 text-center">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Status das Parcelas</h5>
-                        <i class="bi bi-chevron-down toggle-icon"></i>
                     </div>
                 </div>
-                <div class="card-body py-2 d-flex flex-column justify-content-center card-content">
+                <div class="card-body py-2 d-flex flex-column justify-content-center">
                     <div class="row g-1">
                         <div class="col-6">
                             <div class="mb-2">
@@ -328,13 +325,12 @@ foreach ($parcelas as $p) {
         <!-- Card Configurações -->
         <div class="col-md-3">
             <div class="card h-100">
-                <div class="card-header resumo-header py-2 text-center cursor-pointer" onclick="toggleCard(this)">
+                <div class="card-header resumo-header py-2 text-center">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Configurações</h5>
-                        <i class="bi bi-chevron-down toggle-icon"></i>
                     </div>
                 </div>
-                <div class="card-body py-2 d-flex flex-column justify-content-center card-content">
+                <div class="card-body py-2 d-flex flex-column justify-content-center">
                     <div class="mb-2">
                         <label class="text-muted small">Tipo de Cobrança:</label>
                         <h6 class="mb-0 fs-6">
@@ -512,12 +508,20 @@ foreach ($parcelas as $p) {
                                             <i class="bi bi-whatsapp"></i> Cobrar
                                         </button>
                                     <?php else: ?>
-                                        <a href="parcelas/recibo.php?emprestimo_id=<?= $emprestimo['id'] ?>&parcela_numero=<?= $p['numero'] ?>" 
-                                           class="btn btn-sm btn-secondary" 
-                                           target="_blank"
-                                           title="Imprimir Recibo">
-                                            <i class="bi bi-printer"></i> Recibo
-                                        </a>
+                                        <div class="btn-group">
+                                            <a href="parcelas/recibo.php?emprestimo_id=<?= $emprestimo['id'] ?>&parcela_numero=<?= $p['numero'] ?>" 
+                                               class="btn btn-sm btn-secondary" 
+                                               target="_blank"
+                                               title="Imprimir Recibo">
+                                                <i class="bi bi-printer"></i> Recibo
+                                            </a>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-success" 
+                                                    onclick="enviarReciboWhatsapp(<?= $emprestimo['id'] ?>, <?= $p['numero'] ?>)"
+                                                    title="Enviar recibo via WhatsApp">
+                                                <i class="bi bi-whatsapp"></i> Enviar
+                                            </button>
+                                        </div>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -635,12 +639,20 @@ foreach ($parcelas as $p) {
                                         <i class="bi bi-whatsapp"></i> Cobrar
                                     </button>
                                 <?php else: ?>
-                                    <a href="parcelas/recibo.php?emprestimo_id=<?= $emprestimo['id'] ?>&parcela_numero=<?= $p['numero'] ?>" 
-                                       class="btn btn-sm btn-secondary" 
-                                       target="_blank"
-                                       title="Imprimir Recibo">
-                                        <i class="bi bi-printer"></i> Recibo
-                                    </a>
+                                    <div class="d-flex gap-2">
+                                        <a href="parcelas/recibo.php?emprestimo_id=<?= $emprestimo['id'] ?>&parcela_numero=<?= $p['numero'] ?>" 
+                                           class="btn btn-sm btn-secondary flex-fill" 
+                                           target="_blank"
+                                           title="Imprimir Recibo">
+                                            <i class="bi bi-printer"></i> Recibo
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-success flex-fill" 
+                                                onclick="enviarReciboWhatsapp(<?= $emprestimo['id'] ?>, <?= $p['numero'] ?>)"
+                                                title="Enviar recibo via WhatsApp">
+                                            <i class="bi bi-whatsapp"></i> Enviar
+                                        </button>
+                                    </div>
                                 <?php endif; ?>
                                 </div>
                             </div>
@@ -1198,6 +1210,71 @@ window.registrarPagamento = function() {
                 const parcelas = Array.from(todasParcelas).map(el => JSON.parse(el.dataset.parcela));
                 const quitado = verificarEmprestimoQuitado(parcelas);
 
+                // Recolher informações para envio da mensagem
+                // Verificamos todas as parcelas que foram atualizadas neste pagamento (atual e possivelmente próximas/últimas)
+                const parcela_atual = parcelas.find(p => parseInt(p.numero) === parseInt(parcela_numero));
+                const cliente_id = <?php echo $emprestimo['cliente_id'] ?? 0; ?>;
+                const parcelas_alteradas = [];
+                
+                // Adicionamos a parcela atual que acabou de ser paga/alterada
+                if (parcela_atual) {
+                    parcelas_alteradas.push(parcela_atual);
+                }
+                
+                // Buscamos as parcelas que podem ter sido alteradas pela distribuição automática
+                if (modo_distribuicao === 'desconto_proximas' || modo_distribuicao === 'desconto_ultimas') {
+                    parcelas.forEach(p => {
+                        if (parseInt(p.numero) > parseInt(parcela_numero) && (p.status === 'pago' || p.status === 'parcial')) {
+                            // Apenas adiciona se não for a parcela principal
+                            if (parseInt(p.numero) !== parseInt(parcela_numero)) {
+                                parcelas_alteradas.push(p);
+                            }
+                        }
+                    });
+                }
+                
+                // Determinar o status para buscar o template correto (pago ou parcial)
+                const valor_parcela = parseFloat(document.getElementById('valor_parcela')?.value || 0);
+                const valor_informado = parseFloat(valor_pago);
+                const status_template = valor_informado >= valor_parcela ? 'pago' : 'parcial';
+                
+                // Buscar os templates de mensagens do status correspondente
+                fetch(`<?= BASE_URL ?>emprestimos/templates_mensagens_ajax.php?acao=buscar_por_status&status=${status_template}`)
+                    .then(response => {
+                        // Se não encontrar template para parcial, tenta buscar para pago como alternativa
+                        if (!response.ok && status_template === 'parcial') {
+                            return fetch(`<?= BASE_URL ?>emprestimos/templates_mensagens_ajax.php?acao=buscar_por_status&status=pago`);
+                        }
+                        return response;
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.sucesso && data.templates && data.templates.length > 0) {
+                            // Usar o primeiro template encontrado
+                            const template_id = data.templates[0].id;
+                            
+                            // Precisamos obter os IDs das parcelas alteradas para incluí-las na URL
+                            const parcela_ids = parcelas_alteradas.map(p => p.id).join(',');
+                            
+                            // Envio da mensagem via API
+                            const url = `<?= BASE_URL ?>mensagens/api/enviar.php?template=${template_id}&status=pago,parcial&coletiva=false&cliente_id=${cliente_id}&cliente_especifico=1&parcela_id=${parcela_ids}`;
+                            
+                            fetch(url)
+                                .then(response => response.json())
+                                .then(data => {
+                                    console.log('Mensagem enviada:', data);
+                                })
+                                .catch(error => {
+                                    console.error('Erro ao enviar mensagem:', error);
+                                });
+                        } else {
+                            console.warn('Nenhum template encontrado para o status:', status_template);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao buscar templates:', error);
+                    });
+
                 if (quitado) {
                     mostrarSucessoComAnimacao(
                         'Empréstimo Quitado!',
@@ -1272,6 +1349,34 @@ window.quitarEmprestimo = function() {
                 const modalQuitacao = bootstrap.Modal.getInstance(document.getElementById('modalQuitacao'));
                 if (modalQuitacao) modalQuitacao.hide();
                 
+                // Buscar template de quitação e enviar mensagem
+                fetch(`<?= BASE_URL ?>emprestimos/templates_mensagens_ajax.php?acao=buscar_por_status&status=quitado`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.sucesso && data.templates && data.templates.length > 0) {
+                            // Usar o primeiro template encontrado
+                            const template_id = data.templates[0].id;
+                            const cliente_id = <?php echo $emprestimo['cliente_id'] ?? 0; ?>;
+                            
+                            // Envio da mensagem via API
+                            const url = `<?= BASE_URL ?>mensagens/api/enviar.php?template=${template_id}&status=quitado&coletiva=false&cliente_id=${cliente_id}&cliente_especifico=1`;
+                            
+                            fetch(url)
+                                .then(response => response.json())
+                                .then(data => {
+                                    console.log('Mensagem de quitação enviada:', data);
+                                })
+                                .catch(error => {
+                                    console.error('Erro ao enviar mensagem de quitação:', error);
+                                });
+                        } else {
+                            console.warn('Nenhum template encontrado para quitação');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao buscar templates de quitação:', error);
+                    });
+                
                 // Mostra o sucesso com animação
                 mostrarSucessoComAnimacao(
                     'Empréstimo Quitado!',
@@ -1293,34 +1398,19 @@ window.quitarEmprestimo = function() {
     });
 };
 
-// Função atualizada para controlar o toggle dos cards
-function toggleCard(header) {
-    const cardBody = header.nextElementSibling;
-    const toggleIcon = header.querySelector('.toggle-icon');
-    
-    // Toggle das classes
-    cardBody.classList.toggle('collapsed');
-    toggleIcon.classList.toggle('collapsed');
-    
-    // Ajusta a altura máxima
-    if (!cardBody.classList.contains('collapsed')) {
-        cardBody.style.maxHeight = cardBody.scrollHeight + "px";
-    } else {
-        cardBody.style.maxHeight = "0";
-    }
-}
-
+// Função para abrir modal de template para parcelas pendentes ou atrasadas
 function enviarCobranca(emprestimo_id, parcela_numero) {
-    // Abrir modal para escolher template
-    const modalTemplate = new bootstrap.Modal(document.getElementById('modalTemplate'));
+    console.log('enviarCobranca chamado com:', { emprestimo_id, parcela_numero });
     
-    // Guardar os dados da parcela no formulário do modal
+    // Definir os valores nos campos ocultos
     document.getElementById('template_emprestimo_id').value = emprestimo_id;
     document.getElementById('template_parcela_numero').value = parcela_numero;
     
     // Verificar se parcelas está definido
     if (typeof parcelas === 'undefined' || !Array.isArray(parcelas)) {
-        console.error('Erro: A variável parcelas não está definida ou não é um array');
+        console.error('Array parcelas não está definido ou não é um array');
+        // Mesmo com erro, mostrar o modal
+        const modalTemplate = new bootstrap.Modal(document.getElementById('modalTemplate'));
         modalTemplate.show();
         return;
     }
@@ -1332,6 +1422,7 @@ function enviarCobranca(emprestimo_id, parcela_numero) {
     for (const p of parcelas) {
         if (parseInt(p.numero) === parseInt(parcela_numero)) {
             parcela = p;
+            console.log('Parcela encontrada:', p);
             break;
         }
     }
@@ -1351,42 +1442,139 @@ function enviarCobranca(emprestimo_id, parcela_numero) {
                 break;
             }
         }
+    } else {
+        console.warn('Parcela não encontrada:', parcela_numero);
     }
     
+    // Definir o título do modal
+    document.querySelector('#modalTemplate .modal-title').textContent = 'Enviar Cobrança';
+    
+    // Exibir o modal
+    const modalTemplate = new bootstrap.Modal(document.getElementById('modalTemplate'));
     modalTemplate.show();
 }
 
-function enviarMensagem() {
-    const form = document.getElementById('formTemplate');
-    const emprestimo_id = document.getElementById('template_emprestimo_id').value;
-    const parcela_numero = document.getElementById('template_parcela_numero').value;
-    const template_id = document.getElementById('template_id').value;
+// Função para abrir modal de template para parcelas pagas
+function enviarReciboWhatsapp(emprestimo_id, parcela_numero) {
+    console.log('enviarReciboWhatsapp chamado com:', { emprestimo_id, parcela_numero });
+    
+    // Definir os valores nos campos ocultos
+    document.getElementById('template_emprestimo_id').value = emprestimo_id;
+    document.getElementById('template_parcela_numero').value = parcela_numero;
     
     // Verificar se parcelas está definido
     if (typeof parcelas === 'undefined' || !Array.isArray(parcelas)) {
-        alert('Erro: Não foi possível acessar os dados das parcelas. Por favor, recarregue a página.');
+        console.error('Array parcelas não está definido ou não é um array');
+        // Mesmo com erro, mostrar o modal
+        const modalTemplate = new bootstrap.Modal(document.getElementById('modalTemplate'));
+        modalTemplate.show();
         return;
     }
     
+    // Buscar os dados da parcela para pré-selecionar o template apropriado
+    let parcela = null;
+    
     // Encontrar a parcela pelo número
-    let parcela_id = null;
     for (const p of parcelas) {
         if (parseInt(p.numero) === parseInt(parcela_numero)) {
-            parcela_id = p.id;
+            parcela = p;
+            console.log('Parcela encontrada:', p);
             break;
         }
     }
     
-    if (!parcela_id) {
-        alert('Parcela não encontrada!');
+    if (parcela) {
+        // Pré-selecionar template com status 'pago' ou 'quitado'
+        const selectTemplate = document.getElementById('template_id');
+        
+        // Percorrer opções para encontrar um template com status 'pago' ou 'quitado'
+        for (let i = 0; i < selectTemplate.options.length; i++) {
+            const option = selectTemplate.options[i];
+            if (option.dataset.status === 'pago' || option.dataset.status === 'quitado') {
+                selectTemplate.selectedIndex = i;
+                break;
+            }
+        }
+    } else {
+        console.warn('Parcela não encontrada:', parcela_numero);
+    }
+    
+    // Definir o título do modal
+    document.querySelector('#modalTemplate .modal-title').textContent = 'Enviar Recibo';
+    
+    // Exibir o modal
+    const modalTemplate = new bootstrap.Modal(document.getElementById('modalTemplate'));
+    modalTemplate.show();
+}
+
+// Função para enviar a mensagem após seleção do template
+function enviarMensagem() {
+    // Obter dados do formulário
+    const emprestimo_id = document.getElementById('template_emprestimo_id').value;
+    const parcela_numero = document.getElementById('template_parcela_numero').value;
+    const template_id = document.getElementById('template_id').value;
+    
+    console.log('Dados do formulário:', {
+        emprestimo_id,
+        parcela_numero,
+        template_id
+    });
+    
+    // Validar template
+    if (!template_id) {
+        alert('Por favor, selecione um template de mensagem.');
         return;
     }
     
-    // Construir URL para enviar_individual.php
-    const url = `../mensagens/api/enviar_individual.php?emprestimo_id=${emprestimo_id}&parcela_id=${parcela_id}&template_id=${template_id}&telefone=<?= isset($emprestimo['telefone']) ? preg_replace('/[^0-9]/', '', $emprestimo['telefone']) : '' ?>`;
-    
-    // Enviar dados
-    window.location.href = url;
+    try {
+        // Validar array de parcelas
+        if (typeof parcelas === 'undefined' || !Array.isArray(parcelas)) {
+            throw new Error('Array de parcelas não está disponível');
+        }
+        
+        console.log('Array parcelas:', parcelas);
+        console.log('Buscando parcela com número:', parcela_numero);
+        
+        // Encontrar a parcela pelo número
+        let parcela_encontrada = null;
+        for (const p of parcelas) {
+            console.log(`Comparando parcela ${p.numero} com ${parcela_numero}`);
+            if (parseInt(p.numero) === parseInt(parcela_numero)) {
+                parcela_encontrada = p;
+                console.log('Parcela encontrada:', p);
+                break;
+            }
+        }
+        
+        // Verificar se encontrou a parcela
+        if (!parcela_encontrada || !parcela_encontrada.id) {
+            throw new Error(`Parcela ${parcela_numero} não encontrada no array de parcelas`);
+        }
+        
+        // Obter o ID da parcela
+        const parcela_id = parcela_encontrada.id;
+        
+        // Formatar o telefone do cliente (remover caracteres não numéricos)
+        const telefone = '<?= preg_replace("/[^0-9]/", "", $emprestimo["telefone"] ?? "") ?>';
+        console.log('Telefone formatado:', telefone);
+        
+        // Construir URL para enviar_individual.php com caminho relativo
+        const url = '../mensagens/api/enviar_individual.php?emprestimo_id=' + emprestimo_id + '&parcela_id=' + parcela_id + '&template_id=' + template_id + '&telefone=' + telefone;
+        console.log('URL construída:', url);
+        
+        // Fechar o modal antes de redirecionar
+        const modalTemplate = bootstrap.Modal.getInstance(document.getElementById('modalTemplate'));
+        if (modalTemplate) {
+            modalTemplate.hide();
+        }
+        
+        // Redirecionar para a URL de envio
+        window.location.href = url;
+        
+    } catch (error) {
+        console.error('Erro ao processar envio:', error);
+        alert('Erro ao processar envio: ' + error.message);
+    }
 }
 </script>
 
@@ -1493,264 +1681,6 @@ function formatarTelefone($telefone) {
 }
 
 .card-body .text-muted {
-    font-size: 0.9rem;
-}
-
-.progress {
-    height: 10px;
-    margin-top: 1rem;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-}
-
-.progress-bar {
-    transition: width .6s ease, background-color .6s ease;
-    border-radius: 10px;
-}
-
-/* Estilos para badges */
-.badge {
-    font-weight: 500;
-    font-size: 0.85rem;
-    padding: 0.5em 0.8em;
-}
-
-/* Estilos para a tabela */
-.table {
-    margin-bottom: 0;
-}
-
-.table th {
-    font-weight: 600;
-    color: white;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    padding: 0.75rem;
-}
-
-.table td {
-    font-size: 0.875rem;
-    color: #344767;
-    vertical-align: middle;
-    padding: 0.75rem;
-}
-
-/* Background das linhas da tabela por status */
-.table tbody tr[data-status="pago"] {
-    background-color: rgba(40, 167, 69, 0.05);
-}
-
-.table tbody tr[data-status="pendente"] {
-    background-color: rgba(255, 193, 7, 0.05);
-}
-
-.table tbody tr[data-status="atrasado"] {
-    background-color: rgba(220, 53, 69, 0.05);
-}
-
-.table tbody tr[data-status="parcial"] {
-    background-color: rgba(23, 162, 184, 0.05);
-}
-
-/* Hover nas linhas */
-.table tbody tr:hover {
-    background-color: rgba(0, 0, 0, 0.02);
-}
-
-/* Ajuste para manter o hover mesmo com o background do status */
-.table tbody tr[data-status="pago"]:hover {
-    background-color: rgba(40, 167, 69, 0.08);
-}
-
-.table tbody tr[data-status="pendente"]:hover {
-    background-color: rgba(255, 193, 7, 0.08);
-}
-
-.table tbody tr[data-status="atrasado"]:hover {
-    background-color: rgba(220, 53, 69, 0.08);
-}
-
-.table tbody tr[data-status="parcial"]:hover {
-    background-color: rgba(23, 162, 184, 0.08);
-}
-
-/* Estilos para botões */
-.btn-group .btn {
-    padding: 0.25rem 0.5rem;
-}
-
-.btn-group .btn i {
-    font-size: 1rem;
-}
-
-.btn-whatsapp {
-    background-color: #25D366;
-    border-color: #25D366;
-    color: white;
-}
-
-.btn-whatsapp:hover {
-    background-color: #128C7E;
-    border-color: #128C7E;
-    color: white;
-}
-
-/* Estilos para textos */
-.text-muted {
-    color: #6c757d !important;
-}
-
-.small {
-    font-size: 0.875rem;
-}
-
-/* Estilos para ícones */
-.bi {
-    font-size: 1.1rem;
-}
-
-.header-card {
-    background: linear-gradient(45deg, #ffffff, #f8f9fa);
-    border: none;
-    box-shadow: 0 2px 15px rgba(0,0,0,.05);
-}
-
-.header-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(45deg, #1b5962, #13404a);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.header-icon i {
-    font-size: 24px;
-    color: white;
-}
-
-.header-card h2 {
-    color: #344767;
-    font-weight: 600;
-}
-
-.header-card .btn {
-    font-weight: 500;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 120px;
-    transition: all 0.3s ease;
-}
-
-.header-card .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(0,0,0,.1);
-}
-
-.header-card .btn-outline-secondary {
-    border-width: 2px;
-}
-
-.header-card .btn-outline-secondary:hover {
-    background-color: #6c757d;
-    color: white;
-}
-
-.header-card .btn-danger {
-    background: linear-gradient(45deg, #dc3545, #c82333);
-    border: none;
-}
-
-.header-card .btn-primary {
-    background: linear-gradient(45deg, #0d6efd, #0a58ca);
-    border: none;
-}
-
-@media (max-width: 768px) {
-    .header-card .btn {
-        width: 100%;
-    }
-}
-
-/* Estilos para os Cards de Parcelas no Mobile */
-.parcela-card {
-    background: #fff;
-    border-radius: 12px;
-    margin: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid rgba(0,0,0,0.08);
-    overflow: hidden;
-}
-
-.parcela-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.parcela-card[data-status="pago"] {
-    border-left: 4px solid #28a745;
-}
-
-.parcela-card[data-status="pendente"] {
-    border-left: 4px solid #ffc107;
-}
-
-.parcela-card[data-status="atrasado"] {
-    border-left: 4px solid #dc3545;
-}
-
-.parcela-card[data-status="parcial"] {
-    border-left: 4px solid #17a2b8;
-}
-
-.parcela-card-header {
-    padding: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #f8f9fa;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-
-.parcela-number {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #344767;
-}
-
-.parcela-number .number {
-    font-size: 1.5rem;
-}
-
-.parcela-card-body {
-    padding: 16px;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-
-.info-row:last-child {
-    border-bottom: none;
-}
-
-.info-label {
-    color: #6c757d;
-    font-size: 0.875rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.info-label i {
     font-size: 1rem;
     color: #344767;
 }
@@ -1800,6 +1730,43 @@ function formatarTelefone($telefone) {
     .card-installment .card-body {
         padding-bottom: 0.75rem;
     }
+}
+
+/* Estilos para os Cards de Parcelas no Mobile */
+.parcela-card {
+    background: #fff;
+    border-radius: 12px;
+    margin: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.parcela-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.parcela-card[data-status="pago"] {
+    border-left: 4px solid #28a745;
+}
+
+.parcela-card[data-status="pendente"] {
+    border-left: 4px solid #ffc107;
+}
+
+.parcela-card[data-status="atrasado"] {
+    border-left: 4px solid #dc3545;
+}
+
+.parcela-card[data-status="parcial"] {
+    border-left: 4px solid #17a2b8;
+}
+
+.parcela-card-header {
+    padding: 16px;
+    display: flex;
 }
 
 /* Estilos para o toggle */

@@ -8,10 +8,30 @@ use Menuia\Settings;
 use Menuia\Device;
 use Menuia\Message;
 
-// Configurar as informações da API
-$endpoint = "https://chatbot.menuia.com";
-$authkey = "vgkyTWyV3eMKdN6t2ErF2ky5Zco2MKKghdF7HppPfA1YKp8dvB";
-$appkey = "d563230a-7727-4a4d-8d48-69c0df5c2b87";
+// Buscar configurações da API Menuia no banco de dados
+$sql_config = "SELECT menuia_endpoint, menuia_auth_key, menuia_app_key FROM configuracoes WHERE id = 1";
+$result_config = $conn->query($sql_config);
+
+// Configurações devem vir obrigatoriamente do banco de dados
+if ($result_config && $result_config->num_rows > 0) {
+    $config = $result_config->fetch_assoc();
+    $endpoint = $config['menuia_endpoint'];
+    $authkey = $config['menuia_auth_key'];
+    $appkey = $config['menuia_app_key'];
+    
+    // Verificar se as credenciais estão presentes
+    if (empty($endpoint) || empty($authkey) || empty($appkey)) {
+        $status_message = "Erro: Credenciais da API Menuia não configuradas. Verifique em Configurações > MenuIA.";
+        header("Location: ../../emprestimos/visualizar.php?id=" . (isset($_GET['emprestimo_id']) ? $_GET['emprestimo_id'] : '0') . "&error=" . urlencode($status_message));
+        exit;
+    }
+} 
+// Se não encontrar configurações, encerra o processamento
+else {
+    $status_message = "Erro: Configurações da API Menuia não encontradas no banco de dados.";
+    header("Location: ../../emprestimos/visualizar.php?id=" . (isset($_GET['emprestimo_id']) ? $_GET['emprestimo_id'] : '0') . "&error=" . urlencode($status_message));
+    exit;
+}
 
 // Configurar a API com as credenciais definidas
 Settings::setEndpoint($endpoint);

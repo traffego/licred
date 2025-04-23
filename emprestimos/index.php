@@ -104,53 +104,109 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
   </div>
     <?php endif; ?>
 
-    <!-- Cards de Resumo -->
-    <div class="row g-3 mb-4">
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Total Emprestado</h6>
-                    <h4 class="mb-0">R$ <?= number_format($total_emprestado, 2, ',', '.') ?></h4>
+    <!-- Cards de Resumo - Desktop -->
+    <div class="d-none d-md-block">
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Emprestado</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_emprestado, 2, ',', '.') ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Recebido</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_recebido, 2, ',', '.') ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-warning text-dark h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Pendente</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_pendente, 2, ',', '.') ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Empréstimos</h6>
+                        <h4 class="mb-0"><?= count($emprestimos) ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-primary bg-opacity-75 text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Ativos</h6>
+                        <h4 class="mb-0"><?= $emprestimos_ativos ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="card bg-danger text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Atrasados</h6>
+                        <h4 class="mb-0"><?= $emprestimos_atrasados ?></h4>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Total Recebido</h6>
-                    <h4 class="mb-0">R$ <?= number_format($total_recebido, 2, ',', '.') ?></h4>
+    </div>
+    
+    <!-- Cards de Resumo - Mobile -->
+    <div class="d-md-none mb-4">
+        <div class="row g-3">
+            <div class="col-6">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Emprestado</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_emprestado, 2, ',', '.') ?></h4>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-warning text-dark h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Total Pendente</h6>
-                    <h4 class="mb-0">R$ <?= number_format($total_pendente, 2, ',', '.') ?></h4>
+            <div class="col-6">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Recebido</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_recebido, 2, ',', '.') ?></h4>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-info text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Empréstimos</h6>
-                    <h4 class="mb-0"><?= count($emprestimos) ?></h4>
+            <div class="col-6">
+                <div class="card bg-warning text-dark h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Pendente</h6>
+                        <h4 class="mb-0">R$ <?= number_format($total_pendente, 2, ',', '.') ?></h4>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-primary bg-opacity-75 text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Ativos</h6>
-                    <h4 class="mb-0"><?= $emprestimos_ativos ?></h4>
+            <div class="col-6">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Empréstimos</h6>
+                        <h4 class="mb-0"><?= count($emprestimos) ?></h4>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="card bg-danger text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-title">Atrasados</h6>
-                    <h4 class="mb-0"><?= $emprestimos_atrasados ?></h4>
+            <div class="col-6">
+                <div class="card bg-primary bg-opacity-75 text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Ativos</h6>
+                        <h4 class="mb-0"><?= $emprestimos_ativos ?></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card bg-danger text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Atrasados</h6>
+                        <h4 class="mb-0"><?= $emprestimos_atrasados ?></h4>
+                    </div>
                 </div>
             </div>
         </div>
@@ -164,12 +220,6 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="mb-0">Empréstimos</h5>
                         <div>
-                            <a href="parcelas/cobrancas/index.php" class="btn btn-outline-primary btn-sm me-2">
-                                <i class="bi bi-bell"></i> Cobranças
-                            </a>
-                            <a href="inativos.php" class="btn btn-outline-secondary btn-sm me-2">
-                                <i class="bi bi-archive"></i> Inativos
-                            </a>
                             <a href="novo.php" class="btn btn-primary btn-sm">
                                 <i class="bi bi-plus-circle"></i> Novo
                             </a>

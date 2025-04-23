@@ -69,15 +69,7 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
                     </ul>
                 </li>
 
-                <!-- Cobranças -->
-                <li class="nav-item">
-                    <a class="nav-link <?= $pagina_atual === 'cobrancas/pendentes.php' ? 'active' : '' ?>" 
-                       href="<?= BASE_URL ?>cobrancas/pendentes.php">
-                            <i class="bi bi-bell me-1"></i>
-                            Cobranças
-                    </a>
-                </li>
-
+                
                 <!-- Feriados -->
                 <li class="nav-item">
                     <a class="nav-link <?= $pagina_atual === 'feriados/index.php' ? 'active' : '' ?>" 
@@ -90,9 +82,9 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
 
             <!-- Menu do Usuário -->
             <div class="dropdown">
-                <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle text-white active" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person-circle me-1"></i>
-                    <span class="d-none d-lg-inline"><?= $_SESSION['usuario_email'] ?? 'Usuário' ?></span>
+                    <span class="d-none d-lg-inline">Admin</span>
                     <span class="d-lg-none">Ver Perfil</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -173,12 +165,30 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
 @media (max-width: 991.98px) {
     .navbar-collapse {
         padding: 1rem 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 80%;
+        max-width: 320px;
+        background-color: var(--bs-primary);
+        z-index: 1050;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .navbar-collapse.show {
+        transform: translateX(0);
     }
     
     .dropdown-menu {
         border: none;
         box-shadow: none;
         background-color: rgba(255,255,255,0.1);
+        padding-left: 1rem;
+        position: static !important;
+        transform: none !important;
     }
     
     .dropdown-item {
@@ -189,16 +199,58 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
         background-color: rgba(255,255,255,0.1);
         color: white;
     }
+    
+    .nav-item.dropdown .dropdown-menu {
+        display: none;
+    }
+    
+    .nav-item.dropdown.show .dropdown-menu {
+        display: block;
+    }
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializa todos os dropdowns usando o objeto bootstrap
-    var dropdowns = document.querySelectorAll('.dropdown-toggle');
-    dropdowns.forEach(function(dropdown) {
-        new bootstrap.Dropdown(dropdown);
-    });
+    // Para dispositivos móveis, substitui o comportamento padrão do dropdown
+    if (window.innerWidth < 992) {
+        // Previne o comportamento padrão em mobile e implementa toggle manual
+        document.querySelectorAll('.dropdown-toggle').forEach(function(dropdown) {
+            dropdown.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const parent = this.parentElement;
+                
+                // Fecha outros dropdowns
+                document.querySelectorAll('.nav-item.dropdown.show').forEach(function(item) {
+                    if (item !== parent) {
+                        item.classList.remove('show');
+                        item.querySelector('.dropdown-menu').style.display = 'none';
+                    }
+                });
+                
+                // Toggle do dropdown atual
+                parent.classList.toggle('show');
+                const menu = parent.querySelector('.dropdown-menu');
+                menu.style.display = parent.classList.contains('show') ? 'block' : 'none';
+            });
+        });
+        
+        // Quando clicar em um item do dropdown, fecha o menu
+        document.querySelectorAll('.dropdown-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                document.querySelector('.navbar-collapse').classList.remove('show');
+                updateCloseButton();
+            });
+        });
+    } else {
+        // Em desktop usa o comportamento padrão do Bootstrap
+        var dropdowns = document.querySelectorAll('.dropdown-toggle');
+        dropdowns.forEach(function(dropdown) {
+            new bootstrap.Dropdown(dropdown);
+        });
+    }
 
     // Gerencia o botão de fechar mobile
     const navbarToggler = document.querySelector('.navbar-toggler');
@@ -214,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Fecha o menu mobile quando um item é clicado
-    document.querySelectorAll('.navbar-nav .nav-link').forEach(function(navLink) {
+    document.querySelectorAll('.navbar-nav .nav-link:not(.dropdown-toggle)').forEach(function(navLink) {
         navLink.addEventListener('click', function() {
             if (window.innerWidth < 992) {
                 navbarCollapse.classList.remove('show');
@@ -232,7 +284,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Atualiza o botão de fechar quando a janela é redimensionada
-    window.addEventListener('resize', updateCloseButton);
+    window.addEventListener('resize', function() {
+        updateCloseButton();
+        
+        // Recarrega a página ao mudar entre desktop e mobile para garantir o comportamento correto
+        const wasMobile = window.innerWidth < 992;
+        const isMobile = window.innerWidth < 992;
+        
+        if (wasMobile !== isMobile) {
+            // Apenas recarrega se mudar entre mobile e desktop
+            location.reload();
+        }
+    });
+    
     updateCloseButton();
 });
 </script>
