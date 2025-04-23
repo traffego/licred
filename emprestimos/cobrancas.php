@@ -149,8 +149,12 @@ foreach ($emprestimos as $emprestimo) {
         // Calcula dias em atraso
         $vencimento = new DateTime($parcela['vencimento']);
         $hoje = new DateTime();
+        $ontem = clone $hoje;
+        $ontem->modify('-1 day');
+        
         $diff = $hoje->diff($vencimento);
-        $dias_atraso = $vencimento < $hoje ? $diff->days : 0;
+        // Só considera atrasada se venceu há mais de 1 dia
+        $dias_atraso = $vencimento < $ontem ? $diff->days : 0;
 
         // Define o status da parcela para exibição
         $status_exibicao = $parcela['status'];

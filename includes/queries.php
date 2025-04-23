@@ -117,7 +117,9 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
 
 function calcularTotalParcelasAtrasadas(mysqli $conn) {
     $total_atrasado = 0;
-    $hoje = date('Y-m-d');
+    
+    // Usar a data de ontem para considerar atrasadas apenas as parcelas que venceram há pelo menos 1 dia
+    $ontem = date('Y-m-d', strtotime('-1 day'));
     
     $sql = "SELECT 
                 SUM(valor) as total 
@@ -128,7 +130,7 @@ function calcularTotalParcelasAtrasadas(mysqli $conn) {
                 AND vencimento < ?";
                 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $hoje);
+    $stmt->bind_param("s", $ontem);
     $stmt->execute();
     $resultado = $stmt->get_result();
     

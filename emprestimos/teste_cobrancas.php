@@ -92,7 +92,10 @@ foreach ($emprestimos as $emprestimo) {
                 // Verificar se está atrasada
                 $vencimento = new DateTime($p['vencimento']);
                 $hoje = new DateTime();
-                if ($vencimento < $hoje) {
+                $ontem = clone $hoje;
+                $ontem->modify('-1 day');
+                
+                if ($vencimento < $ontem) {
                     $status_class = 'status-atrasado';
                 }
             }

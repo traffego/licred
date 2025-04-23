@@ -116,10 +116,11 @@ if ($resultado_parcela && $dados_parcela = $resultado_parcela->fetch_assoc()) {
     // Determinar o status da parcela
     $data_vencimento = strtotime($dados_parcela['vencimento']);
     $data_atual = strtotime(date('Y-m-d'));
+    $data_ontem = strtotime('-1 day', $data_atual);
     
     if ($dados_parcela['status'] == 'pago') {
         $status_parcela = 'quitado';
-    } elseif ($data_vencimento < $data_atual) {
+    } elseif ($data_vencimento < $data_ontem) {
         $status_parcela = 'atrasado';
         $dias_atraso = floor(($data_atual - $data_vencimento) / (60 * 60 * 24));
     } else {

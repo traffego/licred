@@ -38,7 +38,10 @@ foreach ($emprestimos as $e) {
                 $todas_pagas = false;
                 // Verifica se está atrasada
                 $data_vencimento = new DateTime($p['vencimento']);
-                if ($data_vencimento < new DateTime()) {
+                $hoje_menos_um = new DateTime();
+                $hoje_menos_um->modify('-1 day');
+                
+                if ($data_vencimento < $hoje_menos_um) {
                     $tem_atrasada = true;
                     break;
                 }
@@ -315,7 +318,10 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                     $status = 'ativo';
                                     
                                     $data_vencimento = new DateTime($p['vencimento']);
-                                    if ($data_vencimento < new DateTime()) {
+                                    $hoje_menos_um = new DateTime();
+                                    $hoje_menos_um->modify('-1 day');
+                                    
+                                    if ($data_vencimento < $hoje_menos_um) {
                                         $tem_atrasada = true;
                                         $status = 'atrasado';
                                         break;
@@ -450,7 +456,10 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                             $status = 'ativo';
                             
                             $data_vencimento = new DateTime($p['vencimento']);
-                            if ($data_vencimento < new DateTime()) {
+                            $hoje_menos_um = new DateTime();
+                            $hoje_menos_um->modify('-1 day');
+                            
+                            if ($data_vencimento < $hoje_menos_um) {
                                 $tem_atrasada = true;
                                 $status = 'atrasado';
                                 break;

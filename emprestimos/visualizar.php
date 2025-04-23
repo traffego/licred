@@ -66,8 +66,12 @@ $parcelas_atualizadas = false;
 foreach ($parcelas as &$parcela) {
     $data_vencimento = new DateTime($parcela['vencimento']);
     
-    // Verifica parcelas vencidas
-    if ($parcela['status'] === 'pendente' && $data_vencimento < $hoje) {
+    // Verifica parcelas vencidas - agora compara com o dia seguinte ao atual para dar 1 dia a mais
+    $hoje_mais_um_dia = clone $hoje;
+    $hoje_mais_um_dia->modify('-1 day'); // Subtrai 1 dia da data atual para efeito de comparação
+    
+    // Verifica parcelas vencidas - só considera atrasada se venceu há pelo menos 1 dia
+    if ($parcela['status'] === 'pendente' && $data_vencimento < $hoje_mais_um_dia) {
         $parcela['status'] = 'atrasado';
         $parcelas_atualizadas = true;
     }
@@ -1020,7 +1024,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const proximaParcela = <?= $proxima_parcela ?? 'null' ?>;
                 matchVencimento = parseInt(linha.querySelector('td:nth-child(1)').textContent) === proximaParcela;
             } else if (valorFiltroVencimento === 'atrasado') {
-                matchVencimento = vencimento < hoje && status !== 'pago';
+                // Para verificação de atraso
+                const hoje = new Date();
+                const ontem = new Date();
+                ontem.setDate(hoje.getDate() - 1);
+                
+                // Se o vencimento for menor que ONTEM e não estiver pago, está atrasado
+                matchVencimento = vencimento < ontem && status !== 'pago';
             } else if (valorFiltroVencimento === 'futuro') {
                 matchVencimento = vencimento > hoje;
             }
@@ -1059,7 +1069,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const numeroParcela = parseInt(card.querySelector('.parcela-number .number').textContent);
                 matchVencimento = numeroParcela === proximaParcela;
             } else if (valorFiltroVencimento === 'atrasado') {
-                matchVencimento = vencimento < hoje && status !== 'pago';
+                // Para verificação de atraso
+                const hoje = new Date();
+                const ontem = new Date();
+                ontem.setDate(hoje.getDate() - 1);
+                
+                // Se o vencimento for menor que ONTEM e não estiver pago, está atrasado
+                matchVencimento = vencimento < ontem && status !== 'pago';
             } else if (valorFiltroVencimento === 'futuro') {
                 matchVencimento = vencimento > hoje;
             }

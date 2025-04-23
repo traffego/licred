@@ -230,7 +230,9 @@ while ($cliente = $stmt_clientes->fetch_assoc()) {
                                         break;
                                     case 'pendente':
                                         // Verifica se está atrasada mas ainda marcada como pendente
-                                        if (strtotime($parcela['vencimento']) < time()) {
+                                        $hoje = time();
+                                        $ontem = strtotime('-1 day');
+                                        if (strtotime($parcela['vencimento']) < $ontem) {
                                             $status_class = 'bg-danger text-white';
                                         } else {
                                             $status_class = 'bg-warning text-dark';

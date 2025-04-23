@@ -77,7 +77,10 @@ foreach ($emprestimos as $emprestimo) {
                 // Verificar se está atrasada
                 $vencimento = new DateTime($parcela['vencimento']);
                 $hoje = new DateTime();
-                if ($vencimento < $hoje) {
+                $hoje_menos_um = new DateTime();
+                $hoje_menos_um->modify('-1 day');
+                
+                if ($vencimento < $hoje_menos_um) {
                     $status_class = 'status-atrasado';
                     $status_display = 'atrasado';
                 }

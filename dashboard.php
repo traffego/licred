@@ -45,8 +45,12 @@ try {
         foreach ($parcelas as $p) {
             if ($p['status'] !== 'pago') {
                 $data_vencimento = new DateTime($p['vencimento']);
-                if ($data_vencimento < new DateTime()) {
+                $hoje_menos_um = new DateTime();
+                $hoje_menos_um->modify('-1 day');
+                
+                if ($data_vencimento < $hoje_menos_um) {
                     $tem_atrasada = true;
+                    $status = 'atrasado';
                     break;
                 }
             }
@@ -381,7 +385,10 @@ try {
                                             $status = 'ativo';
                                             
                                             $data_vencimento = new DateTime($p['vencimento']);
-                                            if ($data_vencimento < new DateTime()) {
+                                            $hoje_menos_um = new DateTime();
+                                            $hoje_menos_um->modify('-1 day');
+                                            
+                                            if ($data_vencimento < $hoje_menos_um) {
                                                 $tem_atrasada = true;
                                                 $status = 'atrasado';
                                                 break;
@@ -507,7 +514,10 @@ try {
                                     $status = 'ativo';
                                     
                                     $data_vencimento = new DateTime($p['vencimento']);
-                                    if ($data_vencimento < new DateTime()) {
+                                    $hoje_menos_um = new DateTime();
+                                    $hoje_menos_um->modify('-1 day');
+                                    
+                                    if ($data_vencimento < $hoje_menos_um) {
                                         $tem_atrasada = true;
                                         $status = 'atrasado';
                                         break;
