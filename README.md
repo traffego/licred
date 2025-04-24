@@ -34,23 +34,16 @@ O Sistema de Gestão de Empréstimos e Cobranças é uma aplicação web desenvo
 - Estatísticas de pagamentos e atrasos
 - Acompanhamento de fluxo de caixa
 
-## URLs Amigáveis
+## Configuração para Hospedagem
 
-O sistema implementa URLs amigáveis para melhorar a experiência do usuário e a indexação em motores de busca através do arquivo `.htaccess`. Exemplos de URLs disponíveis:
+O sistema está configurado para funcionar imediatamente em servidores de hospedagem web sem necessidade de ajustes. As seguintes características garantem o funcionamento em ambientes online:
 
-- `/clientes` - Lista todos os clientes
-- `/clientes/novo` - Formulário para cadastrar um novo cliente
-- `/clientes/visualizar/123` - Visualiza o cliente com ID 123
-- `/emprestimos/visualizar/456` - Visualiza o empréstimo com ID 456
-- `/emprestimos/parcelas/456` - Visualiza as parcelas do empréstimo com ID 456
-- `/mensagens/templates` - Lista todos os templates de mensagens
+- Caminhos relativos em todos os arquivos PHP
+- Configuração de URL base que se adapta automaticamente ao domínio
+- Arquivo `.htaccess` com configurações básicas de segurança e desempenho
+- Não há dependência de reescrita de URLs (mod_rewrite)
 
-Para utilizar URLs amigáveis em um servidor de hospedagem:
-
-1. Certifique-se de que o módulo `mod_rewrite` está habilitado no Apache
-2. Faça upload do arquivo `.htaccess` para o diretório raiz do sistema
-3. Ajuste o valor de `RewriteBase` no arquivo `.htaccess` conforme o diretório onde o sistema está instalado
-4. Verifique se seu servidor permite a utilização de arquivos `.htaccess` e reescritas
+Para instalar em um servidor de hospedagem, basta fazer upload de todos os arquivos para o diretório raiz do seu domínio ou para uma pasta específica, conforme sua preferência.
 
 ## Estrutura do Sistema
 
@@ -73,7 +66,7 @@ Para utilizar URLs amigáveis em um servidor de hospedagem:
 │   └── api/            # Integração com API de mensagens (Menuia)
 ├── sql/                # Scripts SQL para configuração inicial
 ├── uploads/            # Armazenamento de arquivos enviados
-├── .htaccess           # Configurações do Apache (URLs amigáveis)
+├── .htaccess           # Configurações básicas do Apache
 ├── config.php          # Configurações gerais
 ├── dashboard.php       # Painel principal
 ├── index.php           # Ponto de entrada
@@ -103,7 +96,7 @@ O sistema permite a criação de templates de mensagens para diferentes situaç�
 
 - PHP 7.4 ou superior
 - MySQL 5.7 ou superior
-- Servidor web Apache com mod_rewrite habilitado
+- Servidor web Apache
 - Extensões PHP: mysqli, mbstring, json, curl
 
 ## Instalação
@@ -112,11 +105,10 @@ O sistema permite a criação de templates de mensagens para diferentes situaç�
 2. Crie um banco de dados MySQL
 3. Importe os scripts SQL da pasta `sql/`
 4. Configure o arquivo `config.php` com os dados de conexão ao banco
-5. Certifique-se de que o Apache tem permissão para usar o arquivo `.htaccess`
-6. Acesse o sistema pelo navegador e faça login com as credenciais padrão:
+5. Acesse o sistema pelo navegador e faça login com as credenciais padrão:
    - Usuário: admin
    - Senha: admin123
-7. Altere a senha padrão nas configurações
+6. Altere a senha padrão nas configurações
 
 ## Configuração da API de Mensagens
 

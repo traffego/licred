@@ -1,6 +1,6 @@
 <?php
-require_once 'config.php';
-require_once 'includes/head.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/includes/head.php';
 ?>
 
 <div class="container py-5">
@@ -26,5 +26,5 @@ require_once 'includes/head.php';
 </div>
 
 <?php
-require_once 'includes/footer.php';
+require_once __DIR__ . '/includes/footer.php';
 ?> 
