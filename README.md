@@ -34,6 +34,43 @@ O Sistema de Gestão de Empréstimos e Cobranças é uma aplicação web desenvo
 - Estatísticas de pagamentos e atrasos
 - Acompanhamento de fluxo de caixa
 
+## URLs Amigáveis
+
+O sistema suporta URLs amigáveis para melhorar a experiência do usuário e a indexação em motores de busca. Exemplos:
+
+- `/clientes` - Lista todos os clientes
+- `/clientes/novo` - Formulário para cadastrar um novo cliente
+- `/clientes/visualizar/123` - Visualiza o cliente com ID 123
+- `/emprestimos/visualizar/456` - Visualiza o empréstimo com ID 456
+- `/emprestimos/parcelas/456` - Visualiza as parcelas do empréstimo com ID 456
+- `/mensagens/templates` - Lista todos os templates de mensagens
+
+Para utilizar URLs amigáveis, siga as etapas:
+
+1. Certifique-se de que o módulo `mod_rewrite` está habilitado no Apache
+2. Certifique-se de que o arquivo `.htaccess` está corretamente configurado
+3. Ajuste o diretório base (`RewriteBase`) no `.htaccess` conforme seu ambiente
+4. Utilize as funções de URL nos links (ex: `url_clientes()`, `url_emprestimos()`)
+
+### Funções de URL Disponíveis
+
+O sistema fornece várias funções para geração de URLs amigáveis:
+
+```php
+// URL para módulo de clientes
+url_clientes('visualizar', 123); // Gera: /clientes/visualizar/123
+
+// URL para módulo de empréstimos
+url_emprestimos('novo'); // Gera: /emprestimos/novo
+url_emprestimos('visualizar', 456); // Gera: /emprestimos/visualizar/456
+
+// URL para módulo de parcelas
+url_parcelas(456); // Gera: /emprestimos/parcelas/456
+
+// URL para módulo de mensagens
+url_mensagens('templates'); // Gera: /mensagens/templates
+```
+
 ## Estrutura do Sistema
 
 ```
@@ -55,6 +92,7 @@ O Sistema de Gestão de Empréstimos e Cobranças é uma aplicação web desenvo
 │   └── api/            # Integração com API de mensagens (Menuia)
 ├── sql/                # Scripts SQL para configuração inicial
 ├── uploads/            # Armazenamento de arquivos enviados
+├── .htaccess           # Configurações do Apache (URLs amigáveis)
 ├── config.php          # Configurações gerais
 ├── dashboard.php       # Painel principal
 ├── index.php           # Ponto de entrada
@@ -86,6 +124,7 @@ O sistema permite a criação de templates de mensagens para diferentes situaç�
 - MySQL 5.7 ou superior
 - Servidor web (Apache/Nginx)
 - Extensões PHP: mysqli, mbstring, json, curl
+- Apache com mod_rewrite habilitado (para URLs amigáveis)
 
 ## Instalação
 
@@ -93,10 +132,11 @@ O sistema permite a criação de templates de mensagens para diferentes situaç�
 2. Crie um banco de dados MySQL
 3. Importe os scripts SQL da pasta `sql/`
 4. Configure o arquivo `config.php` com os dados de conexão ao banco
-5. Acesse o sistema pelo navegador e faça login com as credenciais padrão:
+5. Certifique-se de que o Apache tem permissão para usar o arquivo `.htaccess`
+6. Acesse o sistema pelo navegador e faça login com as credenciais padrão:
    - Usuário: admin
    - Senha: admin123
-6. Altere a senha padrão nas configurações
+7. Altere a senha padrão nas configurações
 
 ## Configuração da API de Mensagens
 

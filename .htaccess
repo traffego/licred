@@ -1,0 +1,89 @@
+RewriteEngine On
+
+# Definir diretório base para o sistema (ajuste conforme sua estrutura)
+# Caso esteja em uma pasta específica do servidor, ajuste para /pasta/sistema_emprestimos/
+RewriteBase /licred2/sistema_emprestimos_v1.8/sistema_emprestimos_v1/
+
+# Ignorar arquivos e diretórios reais
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirecionar página inicial
+RewriteRule ^$ index.php [L]
+
+# URLs para o módulo de clientes
+RewriteRule ^clientes/?$ clientes/index.php [L]
+RewriteRule ^clientes/novo/?$ clientes/novo.php [L]
+RewriteRule ^clientes/editar/([0-9]+)/?$ clientes/editar.php?id=$1 [L]
+RewriteRule ^clientes/visualizar/([0-9]+)/?$ clientes/visualizar.php?id=$1 [L]
+RewriteRule ^clientes/excluir/([0-9]+)/?$ clientes/excluir.php?id=$1 [L]
+
+# URLs para o módulo de empréstimos
+RewriteRule ^emprestimos/?$ emprestimos/index.php [L]
+RewriteRule ^emprestimos/novo/?$ emprestimos/novo.php [L]
+RewriteRule ^emprestimos/visualizar/([0-9]+)/?$ emprestimos/visualizar.php?id=$1 [L]
+RewriteRule ^emprestimos/excluir/([0-9]+)/?$ emprestimos/excluir.php?id=$1 [L]
+RewriteRule ^emprestimos/parcelas/([0-9]+)/?$ emprestimos/parcelas/index.php?emprestimo_id=$1 [L]
+RewriteRule ^emprestimos/cobrancas/?$ emprestimos/cobrancas.php [L]
+
+# URLs para o módulo de mensagens
+RewriteRule ^mensagens/templates/?$ mensagens/templates_mensagens.php [L]
+RewriteRule ^mensagens/novo-template/?$ mensagens/salvar_template.php [L]
+RewriteRule ^mensagens/editar-template/([0-9]+)/?$ mensagens/salvar_template.php?id=$1 [L]
+
+# URLs para o módulo de configurações
+RewriteRule ^configuracoes/?$ configuracoes/index.php [L]
+
+# URLs para autenticação
+RewriteRule ^login/?$ login.php [L]
+RewriteRule ^logout/?$ logout.php [L]
+RewriteRule ^dashboard/?$ dashboard.php [L]
+
+# Regra genérica para outros módulos (opcional)
+# RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/?$ $1/$2.php [L]
+# RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([0-9]+)/?$ $1/$2.php?id=$3 [L]
+
+# Tratar erros 404
+ErrorDocument 404 /licred2/sistema_emprestimos_v1.8/sistema_emprestimos_v1/404.php
+
+# Impedir listagem de diretórios
+Options -Indexes
+
+# Definir página de índice padrão
+DirectoryIndex index.php
+
+# Configurações de segurança adicionais
+<IfModule mod_headers.c>
+    # Proteger contra ataques clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    # Ativar proteção XSS para navegadores modernos
+    Header set X-XSS-Protection "1; mode=block"
+    # Impedir tipos MIME sniffing
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# Permitir acesso à API (ajuste conforme necessário)
+<IfModule mod_headers.c>
+    <FilesMatch "^(api|mensagens/api)">
+        Header set Access-Control-Allow-Origin "*"
+        Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+    </FilesMatch>
+</IfModule>
+
+# Compressão de arquivos para melhor desempenho
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json
+</IfModule>
+
+# Expiração de cache para melhor desempenho
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+</IfModule> 
