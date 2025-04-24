@@ -6,9 +6,9 @@ ini_set('error_log', __DIR__ . '/../logs/php_error.log');
 
 // Configurações do banco de dados
 $host = "localhost";
-$usuario = "platafo5_licred2";
-$senha = "Licred444#";
-$banco = "platafo5_licred2";
+$usuario = "root";
+$senha = "";
+$banco = "sistema_emprestimosv1_8";
 
 try {
     // Criando a conexão
