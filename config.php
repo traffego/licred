@@ -13,16 +13,21 @@ define('DB_CHARSET', 'utf8mb4');
 // Configuração de timezone
 date_default_timezone_set('America/Sao_Paulo');
 
-// Determinar o caminho base da URL do sistema automaticamente a partir do diretório atual
+// Definir o caminho base da URL - independente do diretório atual
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
 $host = $_SERVER['HTTP_HOST'];
 
-// Obter o caminho a partir do diretório raiz do servidor web até esse script
-$script_dir = dirname($_SERVER['SCRIPT_NAME']);
-$base_path = rtrim(str_replace('\\', '/', $script_dir), '/');
-
-// Se o script está sendo executado diretamente (não através de um include)
-if ($base_path == '.' || $base_path == '/') {
+// Definimos o caminho base baseado no DOCUMENT_ROOT em vez do SCRIPT_NAME
+// Isso garante que o caminho base seja sempre o mesmo, independente da página acessada
+if (isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT'])) {
+    // Obtém o caminho raiz do sistema
+    $project_root = str_replace('\\', '/', dirname(__FILE__));
+    $server_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
+    
+    // Compara os caminhos para obter o caminho relativo do projeto ao servidor
+    $base_path = str_replace($server_root, '', $project_root);
+} else {
+    // Fallback se DOCUMENT_ROOT não estiver disponível
     $base_path = '';
 }
 
@@ -34,7 +39,7 @@ define('BASE_URL', $protocol . $host . $base_path);
 // Configurações de sessão
 define('SESSION_NAME', 'SISTEMA_EMPRESTIMOS');
 define('SESSION_LIFETIME', 7200); // 2 horas em segundos
-define('SESSION_PATH', $script_dir === '/' ? '/' : $script_dir);
+define('SESSION_PATH', '/'); // Caminho fixo para permitir acesso de qualquer subdiretório
 define('SESSION_DOMAIN', '');
 define('SESSION_SECURE', false);
 define('SESSION_HTTPONLY', true);
