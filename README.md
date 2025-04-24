@@ -36,7 +36,7 @@ O Sistema de Gestão de Empréstimos e Cobranças é uma aplicação web desenvo
 
 ## URLs Amigáveis
 
-O sistema suporta URLs amigáveis para melhorar a experiência do usuário e a indexação em motores de busca. Exemplos:
+O sistema implementa URLs amigáveis para melhorar a experiência do usuário e a indexação em motores de busca através do arquivo `.htaccess`. Exemplos de URLs disponíveis:
 
 - `/clientes` - Lista todos os clientes
 - `/clientes/novo` - Formulário para cadastrar um novo cliente
@@ -45,31 +45,12 @@ O sistema suporta URLs amigáveis para melhorar a experiência do usuário e a i
 - `/emprestimos/parcelas/456` - Visualiza as parcelas do empréstimo com ID 456
 - `/mensagens/templates` - Lista todos os templates de mensagens
 
-Para utilizar URLs amigáveis, siga as etapas:
+Para utilizar URLs amigáveis em um servidor de hospedagem:
 
 1. Certifique-se de que o módulo `mod_rewrite` está habilitado no Apache
-2. Certifique-se de que o arquivo `.htaccess` está corretamente configurado
-3. Ajuste o diretório base (`RewriteBase`) no `.htaccess` conforme seu ambiente
-4. Utilize as funções de URL nos links (ex: `url_clientes()`, `url_emprestimos()`)
-
-### Funções de URL Disponíveis
-
-O sistema fornece várias funções para geração de URLs amigáveis:
-
-```php
-// URL para módulo de clientes
-url_clientes('visualizar', 123); // Gera: /clientes/visualizar/123
-
-// URL para módulo de empréstimos
-url_emprestimos('novo'); // Gera: /emprestimos/novo
-url_emprestimos('visualizar', 456); // Gera: /emprestimos/visualizar/456
-
-// URL para módulo de parcelas
-url_parcelas(456); // Gera: /emprestimos/parcelas/456
-
-// URL para módulo de mensagens
-url_mensagens('templates'); // Gera: /mensagens/templates
-```
+2. Faça upload do arquivo `.htaccess` para o diretório raiz do sistema
+3. Ajuste o valor de `RewriteBase` no arquivo `.htaccess` conforme o diretório onde o sistema está instalado
+4. Verifique se seu servidor permite a utilização de arquivos `.htaccess` e reescritas
 
 ## Estrutura do Sistema
 
@@ -122,9 +103,8 @@ O sistema permite a criação de templates de mensagens para diferentes situaç�
 
 - PHP 7.4 ou superior
 - MySQL 5.7 ou superior
-- Servidor web (Apache/Nginx)
+- Servidor web Apache com mod_rewrite habilitado
 - Extensões PHP: mysqli, mbstring, json, curl
-- Apache com mod_rewrite habilitado (para URLs amigáveis)
 
 ## Instalação
 

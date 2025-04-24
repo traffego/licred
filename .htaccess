@@ -1,49 +1,46 @@
+# Ativar a reescrita de URL
 RewriteEngine On
 
-# Definir diretório base para o sistema (ajuste conforme sua estrutura)
-# Caso esteja em uma pasta específica do servidor, ajuste para /pasta/sistema_emprestimos/
+# Definir diretório base (ajuste conforme sua estrutura de pastas no servidor)
 RewriteBase /licred2/sistema_emprestimos_v1.8/sistema_emprestimos_v1/
 
 # Ignorar arquivos e diretórios reais
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Redirecionar página inicial
-RewriteRule ^$ index.php [L]
-
-# URLs para o módulo de clientes
+# URLs amigáveis para o módulo de clientes
 RewriteRule ^clientes/?$ clientes/index.php [L]
 RewriteRule ^clientes/novo/?$ clientes/novo.php [L]
 RewriteRule ^clientes/editar/([0-9]+)/?$ clientes/editar.php?id=$1 [L]
 RewriteRule ^clientes/visualizar/([0-9]+)/?$ clientes/visualizar.php?id=$1 [L]
 RewriteRule ^clientes/excluir/([0-9]+)/?$ clientes/excluir.php?id=$1 [L]
 
-# URLs para o módulo de empréstimos
+# URLs amigáveis para o módulo de empréstimos
 RewriteRule ^emprestimos/?$ emprestimos/index.php [L]
 RewriteRule ^emprestimos/novo/?$ emprestimos/novo.php [L]
 RewriteRule ^emprestimos/visualizar/([0-9]+)/?$ emprestimos/visualizar.php?id=$1 [L]
 RewriteRule ^emprestimos/excluir/([0-9]+)/?$ emprestimos/excluir.php?id=$1 [L]
-RewriteRule ^emprestimos/parcelas/([0-9]+)/?$ emprestimos/parcelas/index.php?emprestimo_id=$1 [L]
 RewriteRule ^emprestimos/cobrancas/?$ emprestimos/cobrancas.php [L]
 
-# URLs para o módulo de mensagens
+# URLs amigáveis para o módulo de parcelas
+RewriteRule ^emprestimos/parcelas/([0-9]+)/?$ emprestimos/parcelas/index.php?emprestimo_id=$1 [L]
+RewriteRule ^emprestimos/parcelas/recibo/([0-9]+)/([0-9]+)/?$ emprestimos/parcelas/recibo.php?emprestimo_id=$1&parcela_numero=$2 [L]
+RewriteRule ^emprestimos/parcelas/recibo-quitacao/([0-9]+)/?$ emprestimos/parcelas/recibo_quitacao.php?emprestimo_id=$1 [L]
+
+# URLs amigáveis para o módulo de mensagens
 RewriteRule ^mensagens/templates/?$ mensagens/templates_mensagens.php [L]
 RewriteRule ^mensagens/novo-template/?$ mensagens/salvar_template.php [L]
 RewriteRule ^mensagens/editar-template/([0-9]+)/?$ mensagens/salvar_template.php?id=$1 [L]
 
-# URLs para o módulo de configurações
+# URLs amigáveis para o módulo de configurações
 RewriteRule ^configuracoes/?$ configuracoes/index.php [L]
 
-# URLs para autenticação
+# URLs amigáveis para autenticação
 RewriteRule ^login/?$ login.php [L]
 RewriteRule ^logout/?$ logout.php [L]
 RewriteRule ^dashboard/?$ dashboard.php [L]
 
-# Regra genérica para outros módulos (opcional)
-# RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/?$ $1/$2.php [L]
-# RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([0-9]+)/?$ $1/$2.php?id=$3 [L]
-
-# Tratar erros 404
+# Página de erro 404
 ErrorDocument 404 /licred2/sistema_emprestimos_v1.8/sistema_emprestimos_v1/404.php
 
 # Impedir listagem de diretórios

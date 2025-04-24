@@ -4,7 +4,6 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/funcoes_data.php';
 require_once __DIR__ . '/funcoes_moeda.php';
-require_once __DIR__ . '/funcoes_url.php';
 
 // Verificar se estamos na página de login antes de incluir autenticacao.php
 $pagina_atual = basename($_SERVER['PHP_SELF']);
