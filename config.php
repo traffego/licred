@@ -13,7 +13,7 @@ define('DB_CHARSET', 'utf8mb4');
 // Configurações de sessão
 define('SESSION_NAME', 'SISTEMA_EMPRESTIMOS');
 define('SESSION_LIFETIME', 7200); // 2 horas em segundos
-define('SESSION_PATH', '');
+define('SESSION_PATH', '/');
 define('SESSION_DOMAIN', '');
 define('SESSION_SECURE', false);
 define('SESSION_HTTPONLY', true);
