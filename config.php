@@ -24,7 +24,7 @@ date_default_timezone_set('America/Sao_Paulo');
 // Caminho base da URL do sistema (ajuste conforme seu ambiente)
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
 $host = $_SERVER['HTTP_HOST'];
-$base_path = '/';
+$base_path = 'licred/';
 define('BASE_URL', $protocol . $host . $base_path);
 
 // Configurações de upload
