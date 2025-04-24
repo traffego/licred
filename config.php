@@ -10,22 +10,34 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_CHARSET', 'utf8mb4');
 
-// Configurações de sessão
-define('SESSION_NAME', 'SISTEMA_EMPRESTIMOS');
-define('SESSION_LIFETIME', 7200); // 2 horas em segundos
-define('SESSION_PATH', '/');
-define('SESSION_DOMAIN', '');
-define('SESSION_SECURE', false);
-define('SESSION_HTTPONLY', true);
-
 // Configuração de timezone
 date_default_timezone_set('America/Sao_Paulo');
 
-// Caminho base da URL do sistema (ajuste conforme seu ambiente)
+// Determinar o caminho base da URL do sistema automaticamente a partir do diretório atual
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
 $host = $_SERVER['HTTP_HOST'];
-$base_path = '/'; // Incluir a barra para separar o domínio do caminho do arquivo
+
+// Obter o caminho a partir do diretório raiz do servidor web até esse script
+$script_dir = dirname($_SERVER['SCRIPT_NAME']);
+$base_path = rtrim(str_replace('\\', '/', $script_dir), '/');
+
+// Se o script está sendo executado diretamente (não através de um include)
+if ($base_path == '.' || $base_path == '/') {
+    $base_path = '';
+}
+
+// Garantir que o caminho base termine com uma barra
+$base_path = $base_path !== '' ? $base_path.'/' : '/';
+
 define('BASE_URL', $protocol . $host . $base_path);
+
+// Configurações de sessão
+define('SESSION_NAME', 'SISTEMA_EMPRESTIMOS');
+define('SESSION_LIFETIME', 7200); // 2 horas em segundos
+define('SESSION_PATH', $script_dir === '/' ? '/' : $script_dir);
+define('SESSION_DOMAIN', '');
+define('SESSION_SECURE', false);
+define('SESSION_HTTPONLY', true);
 
 // Configurações de upload
 define('UPLOAD_MAX_SIZE', 5242880); // 5MB em bytes

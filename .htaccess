@@ -7,7 +7,7 @@ Options -Indexes
 DirectoryIndex index.php
 
 # Página de erro 404 personalizada (caminho relativo)
-ErrorDocument 404 /404.php
+ErrorDocument 404 404.php
 
 # Configurações de segurança adicionais
 <IfModule mod_headers.c>
