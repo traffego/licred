@@ -24,7 +24,7 @@ date_default_timezone_set('America/Sao_Paulo');
 // Caminho base da URL do sistema (ajuste conforme seu ambiente)
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
 $host = $_SERVER['HTTP_HOST'];
-$base_path = ''; // Caminho base vazio para raiz do domínio
+$base_path = '/'; // Incluir a barra para separar o domínio do caminho do arquivo
 define('BASE_URL', $protocol . $host . $base_path);
 
 // Configurações de upload
