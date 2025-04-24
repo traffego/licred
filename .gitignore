@@ -25,7 +25,7 @@ desktop.ini
 !/backups/.gitkeep
 
 # Dados sensíveis
-# config.php
+config.php
 
 # Arquivos de IDE e editores
 .idea/
@@ -64,7 +64,7 @@ tmp/
 composer.lock
 
 # Arquivos de certificados e chaves
-# *.pem
+*.pem
 *.key
 *.crt
 *.p12
