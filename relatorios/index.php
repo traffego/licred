@@ -4,43 +4,22 @@ require_once __DIR__ . '/../includes/autenticacao.php';
 require_once __DIR__ . '/../includes/conexao.php';
 require_once __DIR__ . '/../includes/funcoes_data.php';
 require_once __DIR__ . '/../includes/funcoes_moeda.php';
+require_once __DIR__ . '/../emprestimos/parcelas/queries_parcelas.php';
 
-// Definir período do relatório (mês atual por padrão)
-$data_inicial = isset($_GET['data_inicial']) ? $_GET['data_inicial'] : date('Y-m-01');
-$data_final = isset($_GET['data_final']) ? $_GET['data_final'] : date('Y-m-t');
-$tipo_relatorio = isset($_GET['tipo']) ? $_GET['tipo'] : 'emprestimos';
-$status_filtro = isset($_GET['status']) ? $_GET['status'] : '';
-$cliente_id = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : 0;
-
-// Formatação para exibição
-$data_inicial_formatada = formatarData($data_inicial);
-$data_final_formatada = formatarData($data_final);
-
-// Variáveis para armazenar os resultados
-$emprestimos = [];
-$pagamentos = [];
-$parcelas_vencidas = [];
-$parcelas_pagas = [];
-$clientes = [];
-
-// Inicializar variáveis de totais
-$total_emprestimos = 0;
-$total_pagamentos = 0;
-$total_vencidas = 0;
-$total_pagas = 0;
-$total_pendente = 0;
-$total_atrasado = 0;
-$total_pago = 0;
-
-// Buscar clientes para o filtro
-$sql_clientes = "SELECT id, nome FROM clientes ORDER BY nome";
-$result_clientes = $conn->query($sql_clientes);
-while ($row = $result_clientes->fetch_assoc()) {
-    $clientes[] = $row;
+/**
+ * Funções para consultas de relatórios
+ */
+function buscarClientes($conn) {
+    $sql = "SELECT id, nome FROM clientes ORDER BY nome";
+    $result = $conn->query($sql);
+    $clientes = [];
+    while ($row = $result->fetch_assoc()) {
+        $clientes[] = $row;
+    }
+    return $clientes;
 }
 
-// Executar consulta com base no tipo selecionado
-if ($tipo_relatorio == 'emprestimos') {
+function buscarEmprestimos($conn, $data_inicial, $data_final, $cliente_id = 0) {
     $sql = "
         SELECT 
             e.id, 
@@ -59,7 +38,6 @@ if ($tipo_relatorio == 'emprestimos') {
             e.data_inicio BETWEEN ? AND ?
     ";
     
-    // Adicionar filtro de cliente se necessário
     $params = [$data_inicial, $data_final];
     $tipos = 'ss';
     
@@ -76,31 +54,15 @@ if ($tipo_relatorio == 'emprestimos') {
     $stmt->execute();
     $result = $stmt->get_result();
     
+    $emprestimos = [];
     while ($row = $result->fetch_assoc()) {
         $emprestimos[] = $row;
-        $total_emprestimos += $row['valor_emprestado'];
     }
     
-    // Calcular parcelas pagas e progresso para cada empréstimo
-    foreach ($emprestimos as &$emp) {
-        $sql_parcelas = "SELECT COUNT(*) as total_parcelas, 
-                              SUM(CASE WHEN status = 'pago' THEN 1 ELSE 0 END) as parcelas_pagas,
-                              SUM(valor) as valor_total
-                         FROM parcelas 
-                         WHERE emprestimo_id = ?";
-        $stmt_parcelas = $conn->prepare($sql_parcelas);
-        $stmt_parcelas->bind_param("i", $emp['id']);
-        $stmt_parcelas->execute();
-        $result_parcelas = $stmt_parcelas->get_result()->fetch_assoc();
-        
-        $emp['total_parcelas'] = $result_parcelas['total_parcelas'];
-        $emp['parcelas_pagas'] = $result_parcelas['parcelas_pagas'];
-        $emp['valor_total'] = $result_parcelas['valor_total'];
-        $emp['progresso'] = $emp['total_parcelas'] > 0 ? 
-                          round(($emp['parcelas_pagas'] / $emp['total_parcelas']) * 100) : 0;
-    }
-} 
-else if ($tipo_relatorio == 'pagamentos') {
+    return $emprestimos;
+}
+
+function buscarPagamentos($conn, $data_inicial, $data_final, $cliente_id = 0) {
     $sql = "
         SELECT 
             p.id, 
@@ -123,7 +85,6 @@ else if ($tipo_relatorio == 'pagamentos') {
             AND p.data_pagamento BETWEEN ? AND ?
     ";
     
-    // Adicionar filtro de cliente se necessário
     $params = [$data_inicial, $data_final];
     $tipos = 'ss';
     
@@ -140,93 +101,76 @@ else if ($tipo_relatorio == 'pagamentos') {
     $stmt->execute();
     $result = $stmt->get_result();
     
+    $pagamentos = [];
     while ($row = $result->fetch_assoc()) {
         $pagamentos[] = $row;
-        $total_pagamentos += $row['valor_pago'] ?? $row['valor']; // Usar valor_pago se existir, senão usar valor
+    }
+    
+    return $pagamentos;
+}
+
+/**
+ * Processamento dos dados
+ */
+// Definir período do relatório (mês atual por padrão)
+$data_inicial = isset($_GET['data_inicial']) ? $_GET['data_inicial'] : date('Y-m-01');
+$data_final = isset($_GET['data_final']) ? $_GET['data_final'] : date('Y-m-t');
+$tipo_relatorio = isset($_GET['tipo']) ? $_GET['tipo'] : 'emprestimos';
+$status_filtro = isset($_GET['status']) ? $_GET['status'] : '';
+$cliente_id = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : 0;
+
+// Formatação para exibição
+$data_inicial_formatada = formatarData($data_inicial);
+$data_final_formatada = formatarData($data_final);
+
+// Buscar dados com base no tipo de relatório
+$clientes = buscarClientes($conn);
+$emprestimos = [];
+$pagamentos = [];
+$parcelas = [];
+$totais = [
+    'emprestimos' => 0,
+    'pagamentos' => 0,
+    'vencidas' => 0,
+    'pagas' => 0,
+    'pendente' => 0,
+    'atrasado' => 0,
+    'pago' => 0
+];
+
+if ($tipo_relatorio == 'emprestimos') {
+    $emprestimos = buscarEmprestimos($conn, $data_inicial, $data_final, $cliente_id);
+    
+    // Calcular progresso e totais
+    foreach ($emprestimos as &$emp) {
+        // Usando a função do arquivo queries_parcelas.php
+        $progresso = calcularProgressoEmprestimo($conn, $emp['id']);
+        $emp['total_parcelas'] = $progresso['total_parcelas'];
+        $emp['parcelas_pagas'] = $progresso['parcelas_pagas'];
+        $emp['valor_total'] = $progresso['valor_total'];
+        $emp['progresso'] = $emp['total_parcelas'] > 0 ? 
+                          round(($emp['parcelas_pagas'] / $emp['total_parcelas']) * 100) : 0;
+        $totais['emprestimos'] += $emp['valor_emprestado'];
+    }
+} 
+elseif ($tipo_relatorio == 'pagamentos') {
+    $pagamentos = buscarPagamentos($conn, $data_inicial, $data_final, $cliente_id);
+    foreach ($pagamentos as $pag) {
+        $totais['pagamentos'] += $pag['valor_pago'] ?? $pag['valor'];
     }
 }
-else if ($tipo_relatorio == 'parcelas') {
-    // Consulta para relatório de parcelas
-    $sql = "
-        SELECT 
-            p.id,
-            p.emprestimo_id, 
-            p.numero,
-            p.vencimento,
-            p.valor,
-            p.status,
-            e.cliente_id,
-            c.nome as cliente_nome
-        FROM 
-            parcelas p
-        INNER JOIN 
-            emprestimos e ON p.emprestimo_id = e.id
-        INNER JOIN 
-            clientes c ON e.cliente_id = c.id
-        WHERE 
-            p.vencimento BETWEEN ? AND ?
-    ";
-    
-    $params = [$data_inicial, $data_final];
-    $tipos = 'ss';
-    
-    // Adicionar filtro de cliente se necessário
-    if ($cliente_id > 0) {
-        $sql .= " AND e.cliente_id = ?";
-        $params[] = $cliente_id;
-        $tipos .= 'i';
-    }
-    
-    // Adicionar filtro de status se necessário
-    if ($status_filtro != 'todos') {
-        $sql .= " AND p.status = ?";
-        $params[] = $status_filtro;
-        $tipos .= 's';
-    }
-    
-    $sql .= " ORDER BY p.vencimento ASC";
-    
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param($tipos, ...$params);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $todas_parcelas = [];
-    
-    while ($row = $result->fetch_assoc()) {
-        // Verificar se a parcela está atrasada
-        if ($row['status'] == 'pendente' && strtotime($row['vencimento']) < strtotime(date('Y-m-d'))) {
-            $row['status'] = 'atrasado';
+elseif ($tipo_relatorio == 'parcelas') {
+    // Aqui usamos a função do arquivo queries_parcelas.php
+    $parcelas = buscarParcelas($conn, $data_inicial, $data_final, $cliente_id, $status_filtro);
+    foreach ($parcelas as $parc) {
+        if ($parc['status'] == 'pago') {
+            $totais['pago'] += $parc['valor'];
+        } elseif ($parc['status'] == 'atrasado') {
+            $totais['atrasado'] += $parc['valor'];
+        } elseif ($parc['status'] == 'pendente') {
+            $totais['pendente'] += $parc['valor'];
         }
-        
-        $todas_parcelas[] = $row;
-        
-        // Calcular totais
-        if ($row['status'] == 'pago') {
-            $total_pago += $row['valor'];
-        } elseif ($row['status'] == 'atrasado') {
-            $total_atrasado += $row['valor'];
-        } elseif ($row['status'] == 'pendente') {
-            $total_pendente += $row['valor'];
-        }
     }
-}
-
-// Atualizar totais para resumo
-foreach ($emprestimos as $emp) {
-    $total_emprestimos += $emp['valor_emprestado'];
-}
-
-foreach ($pagamentos as $pag) {
-    $total_pagamentos += $pag['valor_pago'] ?? $pag['valor'];
-}
-
-foreach ($parcelas_vencidas as $parc) {
-    $total_vencidas += $parc['valor'];
-}
-
-foreach ($parcelas_pagas as $parc) {
-    $total_pagas += $parc['valor'];
 }
 
 // Título da página
@@ -364,9 +308,10 @@ $titulo_pagina = "Relatórios - " . ($tipo_relatorio == 'emprestimos' ? 'Emprés
                         <label for="status" class="form-label">Status da Parcela</label>
                         <select name="status" id="status" class="form-select">
                             <option value="">Todos</option>
-                            <option value="vencidas" <?= $status_filtro == 'vencidas' ? 'selected' : '' ?>>Vencidas</option>
-                            <option value="pagas" <?= $status_filtro == 'pagas' ? 'selected' : '' ?>>Pagas</option>
-                            <option value="pendentes" <?= $status_filtro == 'pendentes' ? 'selected' : '' ?>>Pendentes</option>
+                            <option value="atrasado" <?= $status_filtro == 'atrasado' ? 'selected' : '' ?>>Atrasado</option>
+                            <option value="pago" <?= $status_filtro == 'pago' ? 'selected' : '' ?>>Pago</option>
+                            <option value="pendente" <?= $status_filtro == 'pendente' ? 'selected' : '' ?>>Pendente</option>
+                            <option value="parcial" <?= $status_filtro == 'parcial' ? 'selected' : '' ?>>Parcial</option>
                         </select>
                     </div>
                     
@@ -389,7 +334,7 @@ $titulo_pagina = "Relatórios - " . ($tipo_relatorio == 'emprestimos' ? 'Emprés
                     <div class="card total-card">
                         <div class="card-body">
                             <h6 class="card-title">Total Emprestado</h6>
-                            <div class="value">R$ <?= number_format($total_emprestimos, 2, ',', '.') ?></div>
+                            <div class="value">R$ <?= number_format($totais['emprestimos'], 2, ',', '.') ?></div>
                             <div class="count"><?= count($emprestimos) ?> empréstimo(s)</div>
                         </div>
                     </div>
@@ -399,7 +344,7 @@ $titulo_pagina = "Relatórios - " . ($tipo_relatorio == 'emprestimos' ? 'Emprés
                     <div class="card total-card">
                         <div class="card-body">
                             <h6 class="card-title">Total Recebido</h6>
-                            <div class="value">R$ <?= number_format($total_pagamentos, 2, ',', '.') ?></div>
+                            <div class="value">R$ <?= number_format($totais['pagamentos'], 2, ',', '.') ?></div>
                             <div class="count"><?= count($pagamentos) ?> pagamento(s)</div>
                         </div>
                     </div>
@@ -408,9 +353,9 @@ $titulo_pagina = "Relatórios - " . ($tipo_relatorio == 'emprestimos' ? 'Emprés
                 <div class="col-md-4">
                     <div class="card total-card">
                         <div class="card-body">
-                            <h6 class="card-title">Parcelas Vencidas</h6>
-                            <div class="value">R$ <?= number_format($total_vencidas, 2, ',', '.') ?></div>
-                            <div class="count"><?= count($parcelas_vencidas) ?> parcela(s)</div>
+                            <h6 class="card-title">Parcelas Atrasadas</h6>
+                            <div class="value">R$ <?= number_format($totais['atrasado'], 2, ',', '.') ?></div>
+                            <div class="count"><?= count(array_filter($parcelas, fn($p) => $p['status'] == 'atrasado')) ?> parcela(s)</div>
                         </div>
                     </div>
                 </div>
@@ -418,8 +363,17 @@ $titulo_pagina = "Relatórios - " . ($tipo_relatorio == 'emprestimos' ? 'Emprés
                     <div class="card total-card">
                         <div class="card-body">
                             <h6 class="card-title">Parcelas Pagas</h6>
-                            <div class="value">R$ <?= number_format($total_pagas, 2, ',', '.') ?></div>
-                            <div class="count"><?= count($parcelas_pagas) ?> parcela(s)</div>
+                            <div class="value">R$ <?= number_format($totais['pago'], 2, ',', '.') ?></div>
+                            <div class="count"><?= count(array_filter($parcelas, fn($p) => $p['status'] == 'pago')) ?> parcela(s)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card total-card">
+                        <div class="card-body">
+                            <h6 class="card-title">Parcelas Pendentes</h6>
+                            <div class="value">R$ <?= number_format($totais['pendente'], 2, ',', '.') ?></div>
+                            <div class="count"><?= count(array_filter($parcelas, fn($p) => $p['status'] == 'pendente')) ?> parcela(s)</div>
                         </div>
                     </div>
                 </div>
@@ -532,7 +486,7 @@ $titulo_pagina = "Relatórios - " . ($tipo_relatorio == 'emprestimos' ? 'Emprés
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($todas_parcelas as $parcela): ?>
+                                <?php foreach ($parcelas as $parcela): ?>
                                 <tr>
                                     <td><?= $parcela['id'] ?></td>
                                     <td><?= htmlspecialchars($parcela['cliente_nome']) ?></td>
@@ -545,6 +499,8 @@ $titulo_pagina = "Relatórios - " . ($tipo_relatorio == 'emprestimos' ? 'Emprés
                                             <span class="badge bg-success">Pago</span>
                                         <?php elseif ($parcela['status'] == 'atrasado'): ?>
                                             <span class="badge bg-danger">Atrasado</span>
+                                        <?php elseif ($parcela['status'] == 'parcial'): ?>
+                                            <span class="badge bg-info">Parcial</span>
                                         <?php else: ?>
                                             <span class="badge bg-warning">Pendente</span>
                                         <?php endif; ?>
