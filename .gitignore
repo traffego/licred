@@ -45,7 +45,7 @@ nbproject/
 *~
 
 # Arquivos temporários
-*.log
+# *.log
 *.sql
 *.sqlite
 *.sqlite3
