@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Prepara e executa a consulta
-        $stmt = $conn->prepare("SELECT id, senha FROM usuarios WHERE email = ? LIMIT 1");
+        $stmt = $conn->prepare("SELECT id, senha, nivel_autoridade, nome FROM usuarios WHERE email = ? LIMIT 1");
         if (!$stmt) {
             throw new Exception("Erro ao preparar a consulta: " . $conn->error);
         }
@@ -89,6 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_regenerate_id(true);
         $_SESSION['usuario_id'] = $usuario['id'];
         $_SESSION['usuario_email'] = $email;
+        $_SESSION['nivel_autoridade'] = $usuario['nivel_autoridade'];
+        $_SESSION['usuario_nome'] = $usuario['nome'];
         
         // Log de login para depuração em dispositivos móveis
         $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Unknown';

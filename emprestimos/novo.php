@@ -15,13 +15,36 @@ $clientes = buscarTodosClientes($conn);
 // Se tiver um cliente_id, busca seus dados
 $cliente_selecionado = null;
 if ($cliente_id) {
-    $stmt = $conn->prepare("SELECT * FROM clientes WHERE id = ?");
+    $stmt = $conn->prepare("SELECT c.*, u.nome as investidor_nome FROM clientes c 
+                            LEFT JOIN usuarios u ON c.indicacao = u.id 
+                            WHERE c.id = ?");
     $stmt->bind_param("i", $cliente_id);
     $stmt->execute();
     $cliente_selecionado = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 }
 ?>
+
+<!-- Incluir Select2 para estilização do select -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<style>
+/* Apenas ajustes mínimos para melhor integração com Bootstrap */
+.select2-container .select2-selection--single {
+    height: calc(1.5em + 0.75rem + 2px);
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #ced4dd;
+    border-radius: 0.25rem;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: calc(1.5em + 0.75rem);
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 1.5;
+    color: #212529;
+}
+</style>
 
 <div class="container py-4">
     <div class="row justify-content-center">
@@ -42,6 +65,9 @@ if ($cliente_id) {
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <strong>Cliente Selecionado:</strong> <?= htmlspecialchars($cliente_selecionado['nome']) ?>
+                                            <?php if (!empty($cliente_selecionado['investidor_nome'])): ?>
+                                                - <?= htmlspecialchars($cliente_selecionado['investidor_nome']) ?>
+                                            <?php endif; ?>
                                             <?php if (!empty($cliente_selecionado['cpf_cnpj'])): ?>
                                             <br>
                                             <small class="text-muted">CPF: <?= formatarCPF($cliente_selecionado['cpf_cnpj']) ?></small>
@@ -57,7 +83,9 @@ if ($cliente_id) {
                                     <select class="form-select" id="cliente" name="cliente" required>
                                         <option value="">Selecione um cliente</option>
                                         <?php foreach ($clientes as $cliente): ?>
-                                            <option value="<?= $cliente['id'] ?>"><?= htmlspecialchars($cliente['nome']) ?></option>
+                                            <option value="<?= $cliente['id'] ?>" data-investidor="<?= htmlspecialchars($cliente['investidor_nome'] ?? '') ?>">
+                                                <?= htmlspecialchars($cliente['nome']) ?>
+                                            </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
@@ -81,16 +109,16 @@ if ($cliente_id) {
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-    <div class="mb-3">
+                                    <div class="mb-3">
                                         <label for="usar_tlc" class="form-label">Taxa de Liberação de Crédito (TLC):</label>
                                         <select class="form-select" id="usar_tlc" name="usar_tlc" required>
                                             <option value="0">Não</option>
                                             <option value="1">Sim</option>
-      </select>
-    </div>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="col-md-6" id="tlc_valor_container" style="display: none;">
-    <div class="mb-3">
+                                    <div class="mb-3">
                                         <label for="tlc_valor" class="form-label">Valor da TLC (R$):</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
@@ -99,7 +127,7 @@ if ($cliente_id) {
                                     </div>
                                 </div>
                             </div>
-    </div>
+                        </div>
 
                         <!-- Valores -->
                         <div class="mb-4">
@@ -145,7 +173,7 @@ if ($cliente_id) {
                                     </div>
                                 </div>
                                 <div class="col-md-6" id="valor_parcela_container" style="display: none;">
-      <div class="mb-3">
+                                    <div class="mb-3">
                                         <label for="valor_parcela" class="form-label">Valor da Parcela (R$):</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
@@ -155,9 +183,9 @@ if ($cliente_id) {
                                             </button>
                                         </div>
                                     </div>
-      </div>
+                                </div>
                                 <div class="col-md-6">
-      <div class="mb-3">
+                                    <div class="mb-3">
                                         <label for="periodo_pagamento" class="form-label">Período de Pagamento:</label>
                                         <select class="form-select" id="periodo_pagamento" name="periodo_pagamento" required>
                                             <option value="">Selecione</option>
@@ -169,18 +197,18 @@ if ($cliente_id) {
                                         </select>
                                     </div>
                                 </div>
-      </div>
-      
-      <!-- Resumo do Cálculo -->
-      <div class="row mt-3" id="resumo_calculo_container" style="display: none;">
-        <div class="col-12">
-          <div class="alert alert-info mb-3">
-            <h6 class="alert-heading"><i class="bi bi-info-circle"></i> Resumo do Cálculo</h6>
-            <div id="resumo_calculo"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+                            </div>
+                        </div>
+
+                        <!-- Resumo do Cálculo -->
+                        <div class="row mt-3" id="resumo_calculo_container" style="display: none;">
+                            <div class="col-12">
+                                <div class="alert alert-info mb-3">
+                                    <h6 class="alert-heading"><i class="bi bi-info-circle"></i> Resumo do Cálculo</h6>
+                                    <div id="resumo_calculo"></div>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Data e Dias -->
                         <div class="mb-4">
@@ -198,7 +226,7 @@ if ($cliente_id) {
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-      <div class="mb-3">
+                                    <div class="mb-3">
                                         <label class="form-label">Dias para Não Gerar Parcelas:</label>
                                         <div class="d-flex gap-2 mb-2">
                                             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selecionarTodosDias()">
@@ -260,13 +288,16 @@ if ($cliente_id) {
                                         </div>
                                     </div>
                                 </div>
-      </div>
-    </div>
+                            </div>
+                        </div>
 
-                        <!-- Botões -->
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-success" id="btnGerar" disabled>
-                                <i class="bi bi-check-circle"></i> Gerar Empréstimo
+                        <!-- Botão de Submit -->
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='index.php'">
+                                <i class="bi bi-arrow-left"></i> Voltar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Salvar Empréstimo
                             </button>
                         </div>
                     </form>
@@ -433,6 +464,30 @@ function prepararEnvio(e) {
     // Envia o formulário
     document.getElementById('formEmprestimo').submit();
 }
+
+// Inicializa o Select2 de forma mais simples
+$(document).ready(function() {
+    $('#cliente').select2({
+        placeholder: 'Selecione um cliente',
+        width: '100%',
+        templateResult: function(data) {
+            if (!data.id) return data.text;
+            
+            const investidor = $(data.element).data('investidor');
+            if (!investidor) return data.text;
+            
+            return `${data.text} - ${investidor}`;
+        },
+        templateSelection: function(data) {
+            if (!data.id) return data.text;
+            
+            const investidor = $(data.element).data('investidor');
+            if (!investidor) return data.text;
+            
+            return `${data.text} - ${investidor}`;
+        }
+    });
+});
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

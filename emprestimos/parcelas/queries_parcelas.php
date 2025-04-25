@@ -15,7 +15,7 @@
  */
 function buscarParcelas($conn, $data_inicial, $data_final, $cliente_id = 0, $status_filtro = '') {
     $sql = "
-        SELECT 
+        SELECT DISTINCT
             p.id,
             p.emprestimo_id, 
             p.numero,
@@ -52,9 +52,17 @@ function buscarParcelas($conn, $data_inicial, $data_final, $cliente_id = 0, $sta
     $result = $stmt->get_result();
     
     $parcelas = [];
+    $processedIds = []; // Para evitar duplicatas
     $hoje = date('Y-m-d');
     
     while ($row = $result->fetch_assoc()) {
+        // Verificar se o ID já foi processado para evitar duplicatas
+        if (in_array($row['id'], $processedIds)) {
+            continue;
+        }
+        
+        $processedIds[] = $row['id'];
+        
         // Se a parcela já foi paga, mantém o status pago
         if ($row['status'] == 'pago') {
             $row['status'] = 'pago';
@@ -80,6 +88,9 @@ function buscarParcelas($conn, $data_inicial, $data_final, $cliente_id = 0, $sta
         $parcelas = array_filter($parcelas, function($parcela) use ($status_filtro) {
             return $parcela['status'] == $status_filtro;
         });
+        
+        // Reindexar array após filtragem
+        $parcelas = array_values($parcelas);
     }
     
     return $parcelas;
@@ -112,16 +123,24 @@ function calcularProgressoEmprestimo($conn, $emprestimo_id) {
  * @return array Array com as parcelas do empréstimo
  */
 function buscarParcelasEmprestimo($conn, $emprestimo_id) {
-    $sql = "SELECT * FROM parcelas WHERE emprestimo_id = ? ORDER BY numero";
+    $sql = "SELECT DISTINCT * FROM parcelas WHERE emprestimo_id = ? ORDER BY numero";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $emprestimo_id);
     $stmt->execute();
     $result = $stmt->get_result();
     
     $parcelas = [];
+    $processedIds = []; // Para evitar duplicatas
     $hoje = date('Y-m-d');
     
     while ($row = $result->fetch_assoc()) {
+        // Verificar se o ID já foi processado para evitar duplicatas
+        if (in_array($row['id'], $processedIds)) {
+            continue;
+        }
+        
+        $processedIds[] = $row['id'];
+        
         // Se a parcela já foi paga, mantém o status pago
         if ($row['status'] == 'pago') {
             $row['status'] = 'pago';
@@ -183,7 +202,7 @@ function atualizarStatusParcela($conn, $parcela_id, $status, $valor_pago = null)
  */
 function buscarParcelasAtrasadas($conn, $dias_atraso = 0) {
     $sql = "
-        SELECT 
+        SELECT DISTINCT
             p.*,
             e.cliente_id,
             c.nome as cliente_nome,
@@ -212,7 +231,15 @@ function buscarParcelasAtrasadas($conn, $dias_atraso = 0) {
     $result = $stmt->get_result();
     
     $parcelas = [];
+    $processedIds = []; // Para evitar duplicatas
+    
     while ($row = $result->fetch_assoc()) {
+        // Verificar se o ID já foi processado para evitar duplicatas
+        if (in_array($row['id'], $processedIds)) {
+            continue;
+        }
+        
+        $processedIds[] = $row['id'];
         $row['status'] = 'atrasado';
         $parcelas[] = $row;
     }

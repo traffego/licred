@@ -22,6 +22,15 @@ if (!$cliente) {
     exit;
 }
 
+// Buscar usuários investidores
+$sql_investidores = "SELECT id, nome, email FROM usuarios WHERE tipo = 'investidor'";
+$resultado_investidores = $conn->query($sql_investidores);
+$tem_investidores = $resultado_investidores && $resultado_investidores->num_rows > 0;
+
+// Obter dados do usuário logado
+$usuario_logado_id = $_SESSION['usuario_id'] ?? null;
+$usuario_logado_nivel = $_SESSION['nivel_autoridade'] ?? null;
+
 function selecionado($valor, $comparar) {
     return $valor == $comparar ? 'selected' : '';
 }
@@ -109,8 +118,26 @@ function selecionado($valor, $comparar) {
                 <input type="text" name="chave_pix" class="form-control" value="<?= htmlspecialchars($cliente['chave_pix']) ?>">
             </div>
             <div class="col-md-6">
-                <label class="form-label">Indicação</label>
-                <input type="text" name="indicacao" class="form-control" value="<?= htmlspecialchars($cliente['indicacao']) ?>">
+                <label class="form-label">Investidor</label>
+                <select name="investidor_id" class="form-select" <?= !$tem_investidores ? 'disabled' : '' ?>>
+                    <?php if ($tem_investidores): ?>
+                        <option value="">Selecione um investidor</option>
+                        <?php 
+                        while ($investidor = $resultado_investidores->fetch_assoc()): 
+                            $selected = ($cliente['indicacao'] == $investidor['id']) ? 'selected' : '';
+                        ?>
+                            <option value="<?= $investidor['id'] ?>" <?= $selected ?>><?= htmlspecialchars($investidor['nome']) ?></option>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <option value="">Nenhum investidor disponível</option>
+                        <?php if ($usuario_logado_nivel == 'administrador' || $usuario_logado_nivel == 'superadmin'): ?>
+                            <input type="hidden" name="investidor_id" value="<?= $usuario_logado_id ?>">
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </select>
+                <?php if (!$tem_investidores && ($usuario_logado_nivel == 'administrador' || $usuario_logado_nivel == 'superadmin')): ?>
+                    <small class="form-text text-muted">Você será automaticamente definido como investidor.</small>
+                <?php endif; ?>
             </div>
         </div>
 

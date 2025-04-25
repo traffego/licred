@@ -28,6 +28,20 @@ $stmtEmp->execute();
 $resumo = $stmtEmp->get_result()->fetch_assoc();
 $stmtEmp->close();
 
+// Buscar informações do investidor
+$investidor_nome = '';
+if (!empty($cliente['indicacao'])) {
+    $stmt_investidor = $conn->prepare("SELECT nome FROM usuarios WHERE id = ?");
+    $stmt_investidor->bind_param("i", $cliente['indicacao']);
+    $stmt_investidor->execute();
+    $resultado_investidor = $stmt_investidor->get_result();
+    if ($resultado_investidor && $resultado_investidor->num_rows > 0) {
+        $investidor = $resultado_investidor->fetch_assoc();
+        $investidor_nome = $investidor['nome'];
+    }
+    $stmt_investidor->close();
+}
+
 $total_emprestimos = (int) $resumo['total'];
 $valor_total = (float) $resumo['total_valor'] ?? 0.00;
 $total_parcelas = 0; // Ainda mockado até a tabela parcelas estar pronta
@@ -104,7 +118,7 @@ $total_parcelas = 0; // Ainda mockado até a tabela parcelas estar pronta
                 <div class="card-header">Outras informações</div>
                 <div class="card-body">
                     <p><strong>Chave Pix:</strong> <?= $cliente['chave_pix'] ?></p>
-                    <p><strong>Indicação:</strong> <?= $cliente['indicacao'] ?></p>
+                    <p><strong>Investidor:</strong> <?= $investidor_nome ?: 'Não definido' ?></p>
                     <p><strong>Nome Secundário:</strong> <?= $cliente['nome_secundario'] ?></p>
                     <p><strong>Telefone Secundário:</strong> <?= $cliente['telefone_secundario'] ?></p>
                     <p><strong>Endereço Secundário:</strong> <?= $cliente['endereco_secundario'] ?></p>

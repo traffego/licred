@@ -156,7 +156,12 @@ function contarEmprestimosAtivos(mysqli $conn) {
 }
 
 function buscarTodosClientes(mysqli $conn): array {
-    $stmt = $conn->query("SELECT id, nome FROM clientes ORDER BY nome ASC");
+    $sql = "SELECT c.id, c.nome, c.indicacao, u.nome as investidor_nome 
+           FROM clientes c 
+           LEFT JOIN usuarios u ON c.indicacao = u.id 
+           ORDER BY c.nome ASC";
+    
+    $stmt = $conn->query($sql);
     return $stmt->fetch_all(MYSQLI_ASSOC);
 }
 

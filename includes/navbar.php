@@ -142,6 +142,7 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
                     <span class="d-lg-none">Ver Perfil</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="<?= BASE_URL ?>usuarios/"><i class="bi bi-people me-2"></i>Usuários</a></li>
                     <li><a class="dropdown-item" href="<?= BASE_URL ?>configuracoes/"><i class="bi bi-gear me-2"></i>Configurações</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="<?= BASE_URL ?>logout.php"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>

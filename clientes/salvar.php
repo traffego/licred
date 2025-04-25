@@ -7,6 +7,12 @@ try {
     $tipo_pessoa = $_POST['tipo_pessoa'] == '2' ? 'Jurídica' : 'Física';
     $nascimento = !empty($_POST['nascimento']) ? DateTime::createFromFormat('d/m/Y', $_POST['nascimento']) : null;
     $nascimento_sql = $nascimento ? $nascimento->format('Y-m-d') : null;
+    
+    // Tratando o investidor
+    $investidor_id = isset($_POST['investidor_id']) ? $_POST['investidor_id'] : null;
+    if (empty($investidor_id) && (isset($_SESSION['nivel_autoridade']) && ($_SESSION['nivel_autoridade'] == 'administrador' || $_SESSION['nivel_autoridade'] == 'superadmin'))) {
+        $investidor_id = $_SESSION['usuario_id'] ?? null;
+    }
 
     if (!empty($_POST['id'])) {
         // UPDATE
@@ -37,7 +43,7 @@ try {
             $_POST['estado'],
             $_POST['status'],
             $_POST['chave_pix'],
-            $_POST['indicacao'],
+            $investidor_id,
             $_POST['nome_secundario'],
             $_POST['telefone_secundario'],
             $_POST['endereco_secundario'],
@@ -86,7 +92,7 @@ try {
             $_POST['estado'],
             $_POST['status'],
             $_POST['chave_pix'],
-            $_POST['indicacao'],
+            $investidor_id,
             $_POST['nome_secundario'],
             $_POST['telefone_secundario'],
             $_POST['endereco_secundario'],
