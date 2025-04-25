@@ -17,6 +17,8 @@ desktop.ini
 # Diretórios de cache e uploads (manter as pastas, ignorar o conteúdo)
 /cache/*
 cache/*
+cache/
+cache
 !/cache/.gitkeep
 # /uploads/*
 # !/uploads/.gitkeep
