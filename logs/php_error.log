@@ -39,3 +39,32 @@ Stack trace:
 [25-Apr-2025 14:46:25 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-04-25 14:46:25","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/135.0.0.0 Safari\/537.36 Edg\/135.0.0.0","session_id":"06gv9m8todeeed2cup5986m6lv","csrf_token":64}
 [25-Apr-2025 14:56:24 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-04-25 14:56:24","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/135.0.0.0 Safari\/537.36 Edg\/135.0.0.0","session_id":"nj10s0m2v5tbh1sebev4u5slqf","csrf_token":64}
 [25-Apr-2025 14:57:18 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-04-25 14:57:18","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/135.0.0.0 Safari\/537.36 Edg\/135.0.0.0","session_id":"f7kaf2q8rqnv1am20on8dujqev","csrf_token":64}
+[25-Apr-2025 15:50:02 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\resumo_cliente.php on line 242
+[25-Apr-2025 15:50:02 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\resumo_cliente.php on line 242
+[25-Apr-2025 15:50:02 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\resumo_cliente.php on line 242
+[25-Apr-2025 15:50:02 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\resumo_cliente.php on line 242
+[25-Apr-2025 15:51:13 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'platafo5_licred2.historico_pagamentos' doesn't exist in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\pagamentos_diarios.php:30
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\pagamentos_diarios.php(30): mysqli->query('SELECT \r\n      ...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\pagamentos_diarios.php on line 30
+[25-Apr-2025 15:52:06 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\resumo_cliente.php on line 242
+[25-Apr-2025 15:52:06 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\resumo_cliente.php on line 242
+[25-Apr-2025 15:52:06 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\resumo_cliente.php on line 242
+[25-Apr-2025 15:52:51 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'platafo5_licred2.historico_pagamentos' doesn't exist in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\pagamentos_diarios.php:30
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\pagamentos_diarios.php(30): mysqli->query('SELECT \r\n      ...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\pagamentos_diarios.php on line 30
+[25-Apr-2025 15:53:09 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'platafo5_licred2.historico_pagamentos' doesn't exist in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\pagamentos_diarios.php:30
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\pagamentos_diarios.php(30): mysqli->query('SELECT \r\n      ...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\pagamentos_diarios.php on line 30
+[25-Apr-2025 15:54:15 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\resumo_cliente.php on line 242
+[25-Apr-2025 15:54:15 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\resumo_cliente.php on line 242
+[25-Apr-2025 15:54:15 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\resumo_cliente.php on line 242
+[25-Apr-2025 16:09:24 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 16:09:24 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 16:09:24 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 16:53:19 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-04-25 16:53:19","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/135.0.0.0 Safari\/537.36","session_id":"vuon1o5dj11i3b8o31f0v5kt2v","csrf_token":64}

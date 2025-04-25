@@ -16,17 +16,21 @@ desktop.ini
 
 # Diretórios de cache e uploads (manter as pastas, ignorar o conteúdo)
 /cache/*
+cache/*
 !/cache/.gitkeep
 # /uploads/*
 # !/uploads/.gitkeep
 /logs/*
+logs/*
+logs/
+logs
 !/logs/.gitkeep
 /backups/*
 !/backups/.gitkeep
 
 # Dados sensíveis
 config.php
-# /includes/conexao.php
+/includes/conexao.php
 
 # Arquivos de IDE e editores
 .idea/
