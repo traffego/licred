@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/conexao.php';
+require_once __DIR__ . '/../includes/funcoes_data.php';
 require_once __DIR__ . '/queries_feriados.php';
 
 // Obter o ano via GET ou usar o ano atual
@@ -25,12 +26,6 @@ if (isset($_GET['mensagem'])) {
         'tipo' => $tipo,
         'texto' => $_GET['texto'] ?? ($tipo === 'sucesso' ? 'Operação realizada com sucesso' : 'Ocorreu um erro ao processar sua solicitação.')
     ];
-}
-
-// Função para formatar a data
-function formatarData($data) {
-    $timestamp = strtotime($data);
-    return date('d/m/Y', $timestamp);
 }
 
 // Mapeamento dos tipos de feriado

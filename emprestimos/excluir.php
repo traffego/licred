@@ -43,14 +43,15 @@ $tem_parcelas_pagas = ($result['total_pagas'] > 0);
 
 // Verifica se a confirmação foi dada
 $confirmado = filter_input(INPUT_GET, 'confirmar', FILTER_VALIDATE_INT);
+$forcar_exclusao = filter_input(INPUT_GET, 'force', FILTER_VALIDATE_INT);
 
 if ($confirmado == 1) {
     // Inicia a transação
     $conn->begin_transaction();
     
     try {
-        // Se tiver parcelas pagas, marca o empréstimo como inativo em vez de excluir
-        if ($tem_parcelas_pagas) {
+        // Se tiver parcelas pagas e não estiver forçando a exclusão, marca o empréstimo como inativo
+        if ($tem_parcelas_pagas && $forcar_exclusao != 1) {
             // Atualiza o status do empréstimo para inativo
             $stmt = $conn->prepare("UPDATE emprestimos SET status = 'inativo' WHERE id = ?");
             $stmt->bind_param("i", $emprestimo_id);
@@ -108,6 +109,14 @@ require_once __DIR__ . '/../includes/head.php';
                 <?php if ($tem_parcelas_pagas): ?>
                     <p>Este empréstimo possui parcelas já pagas, portanto ele será apenas <strong>INATIVADO</strong> e não excluído permanentemente.</p>
                     <p>Empréstimos inativados não aparecerão nas listagens, mas seus dados serão mantidos no sistema para referência futura.</p>
+                    <p class="mb-0 mt-2">
+                        <strong>Caso realmente deseje excluir definitivamente este empréstimo, use o botão de exclusão permanente abaixo.</strong>
+                    </p>
+                    <hr>
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>AVISO:</strong> A exclusão permanente irá remover todos os dados do empréstimo, incluindo o histórico de pagamentos!
+                    </div>
                 <?php else: ?>
                     <p>Você está prestes a <strong>EXCLUIR PERMANENTEMENTE</strong> este empréstimo e todas as suas parcelas.</p>
                     <p>Esta ação não poderá ser desfeita!</p>
@@ -144,13 +153,18 @@ require_once __DIR__ . '/../includes/head.php';
                 <a href="index.php" class="btn btn-secondary">
                     <i class="bi bi-arrow-left me-2"></i>Cancelar
                 </a>
-                <a href="excluir.php?id=<?= $emprestimo_id ?>&confirmar=1" class="btn btn-danger">
-                    <?php if ($tem_parcelas_pagas): ?>
+                <?php if ($tem_parcelas_pagas): ?>
+                    <a href="excluir.php?id=<?= $emprestimo_id ?>&confirmar=1" class="btn btn-warning">
                         <i class="bi bi-x-circle me-2"></i>Inativar Empréstimo
-                    <?php else: ?>
+                    </a>
+                    <a href="excluir.php?id=<?= $emprestimo_id ?>&confirmar=1&force=1" class="btn btn-danger" onclick="return confirm('ATENÇÃO: Você está prestes a EXCLUIR PERMANENTEMENTE este empréstimo e TODAS as suas parcelas, mesmo as que já foram pagas. Esta ação é IRREVERSÍVEL. Tem certeza que deseja continuar?')">
                         <i class="bi bi-trash me-2"></i>Excluir Permanentemente
-                    <?php endif; ?>
-                </a>
+                    </a>
+                <?php else: ?>
+                    <a href="excluir.php?id=<?= $emprestimo_id ?>&confirmar=1" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>Excluir Permanentemente
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>

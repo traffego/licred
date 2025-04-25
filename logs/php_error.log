@@ -8708,3 +8708,186 @@ Stack trace:
 [24-Apr-2025 11:41:20 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
 [24-Apr-2025 11:41:20 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
 [24-Apr-2025 15:21:27 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-04-24 15:21:27","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/135.0.0.0 Safari\/537.36","session_id":"5n1heukdkfecvv3fifct95t1oj","csrf_token":64}
+[24-Apr-2025 18:00:00 America/Sao_Paulo] PHP Warning:  mysqli::__construct(): Error while reading greeting packet. PID=13872 in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\conexao.php on line 15
+[24-Apr-2025 18:00:00 America/Sao_Paulo] Erro de conexão: MySQL server has gone away
+[24-Apr-2025 18:02:42 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-04-24 18:02:42","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/135.0.0.0 Safari\/537.36","session_id":"28hvrfl2dpj3nivaffjhsdpqlr","csrf_token":64}
+[24-Apr-2025 18:02:42 America/Sao_Paulo] PHP Deprecated:  json_decode(): Passing null to parameter #1 ($json) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\verificar_parcelas.php on line 107
+[24-Apr-2025 18:02:42 America/Sao_Paulo] PHP Deprecated:  json_decode(): Passing null to parameter #1 ($json) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\verificar_parcelas.php on line 107
+[24-Apr-2025 18:02:42 America/Sao_Paulo] PHP Deprecated:  json_decode(): Passing null to parameter #1 ($json) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\verificar_parcelas.php on line 107
+[24-Apr-2025 18:02:42 America/Sao_Paulo] PHP Deprecated:  json_decode(): Passing null to parameter #1 ($json) of type string is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\verificar_parcelas.php on line 107
+[24-Apr-2025 18:02:42 America/Sao_Paulo] Erro ao verificar parcelas: {"verificado":true,"emprestimos_verificados":4,"parcelas_atualizadas":0,"erros":4,"data_hora":"2025-04-24 18:02:42"}
+[24-Apr-2025 18:35:22 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.data_emprestimo' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php:46
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php(46): mysqli->prepare('\r\n    SELECT e....')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php on line 46
+[24-Apr-2025 18:38:36 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.data_emprestimo' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php:46
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php(46): mysqli->prepare('\r\n    SELECT e....')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php on line 46
+[24-Apr-2025 18:40:18 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.data_emprestimo' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php:46
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php(46): mysqli->prepare('\r\n    SELECT e....')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php on line 46
+[24-Apr-2025 18:43:19 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 18:43:19 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 18:43:19 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[24-Apr-2025 18:44:20 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.data_emprestimo' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php:46
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php(46): mysqli->prepare('\r\n    SELECT e....')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php on line 46
+[24-Apr-2025 18:44:23 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.data_emprestimo' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php:46
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php(46): mysqli->prepare('\r\n    SELECT e....')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php on line 46
+[24-Apr-2025 19:15:55 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.data_emprestimo' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php:46
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php(46): mysqli->prepare('\r\n    SELECT e....')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php on line 46
+[24-Apr-2025 19:15:58 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.taxa_juros' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php:65
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php(65): mysqli->prepare('\r\n        SELEC...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php on line 65
+[24-Apr-2025 19:27:35 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'sistema_emprestimosv1_8.pagamentos' doesn't exist in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php:67
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php(67): mysqli->prepare('\r\n    SELECT p....')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php on line 67
+[24-Apr-2025 19:27:42 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'sistema_emprestimosv1_8.pagamentos' doesn't exist in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php:67
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php(67): mysqli->prepare('\r\n    SELECT p....')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php on line 67
+[24-Apr-2025 19:27:49 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'sistema_emprestimosv1_8.pagamentos' doesn't exist in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php:67
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php(67): mysqli->prepare('\r\n    SELECT p....')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php on line 67
+[24-Apr-2025 19:27:56 America/Sao_Paulo] PHP Warning:  Undefined variable $total_emprestimos in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php on line 72
+[24-Apr-2025 19:30:29 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'p.numero_parcela' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php:186
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php(186): mysqli->prepare('\r\n        SELEC...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php on line 186
+[24-Apr-2025 19:31:48 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'p.numero_parcela' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php:186
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php(186): mysqli->prepare('\r\n        SELEC...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php on line 186
+[24-Apr-2025 19:31:48 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'p.numero_parcela' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php:186
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php(186): mysqli->prepare('\r\n        SELEC...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php on line 186
+[24-Apr-2025 19:31:49 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'p.numero_parcela' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php:186
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php(186): mysqli->prepare('\r\n        SELEC...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php on line 186
+[24-Apr-2025 19:31:49 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'p.numero_parcela' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php:186
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php(186): mysqli->prepare('\r\n        SELEC...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php on line 186
+[24-Apr-2025 19:36:31 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'sistema_emprestimosv1_8.pagamentos' doesn't exist in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php:136
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php(136): mysqli->prepare('\r\n        SELEC...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\index.php on line 136
+[24-Apr-2025 20:41:15 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'sistema_emprestimosv1_8.pagamentos' doesn't exist in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php:67
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php(67): mysqli->prepare('\r\n    SELECT p....')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\relatorios\diario.php on line 67
+[24-Apr-2025 20:43:31 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 20:43:31 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 20:43:31 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[24-Apr-2025 21:16:51 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-04-24 21:16:51","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/135.0.0.0 Safari\/537.36","session_id":"vcb2hmgi37lqaav43ambv5eb2f","csrf_token":64}
+[24-Apr-2025 21:47:01 America/Sao_Paulo] PHP Fatal error:  Cannot redeclare formatarData() (previously declared in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\feriados\index.php:31) in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\funcoes_data.php on line 15
+[24-Apr-2025 21:49:47 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.json_parcelas' in 'field list' in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\cobrancas.php:89
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\cobrancas.php(89): mysqli->query('SELECT \r\n      ...')
+#1 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\cobrancas.php on line 89
+[24-Apr-2025 22:19:27 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 22:19:27 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 22:19:27 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[24-Apr-2025 22:26:34 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 22:26:34 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 22:26:34 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[24-Apr-2025 22:32:02 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 22:32:02 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 22:32:02 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[24-Apr-2025 22:32:42 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 22:32:42 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 22:32:42 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[24-Apr-2025 22:56:24 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-04-24 22:56:24","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/134.0.0.0 Safari\/537.36 Edg\/134.0.0.0","session_id":"rjjhlmkem7vsd5qpndtjc5qmkm","csrf_token":64}
+[24-Apr-2025 22:56:44 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 22:56:44 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 22:56:44 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[24-Apr-2025 23:01:04 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 23:01:04 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 23:01:04 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[24-Apr-2025 23:01:49 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 23:01:49 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 23:01:49 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[24-Apr-2025 23:05:31 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 23:05:31 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 23:05:31 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[24-Apr-2025 23:07:45 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 23:07:45 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 23:07:45 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[24-Apr-2025 23:08:47 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-04-24 23:08:47","email":"admin@teste.com","is_mobile":"Sim","user_agent":"Mozilla\/5.0 (Linux; Android 10; K) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/135.0.0.0 Mobile Safari\/537.36","session_id":"69qff643qdhecpag7i1evv3ud8","csrf_token":64}
+[24-Apr-2025 23:09:14 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[24-Apr-2025 23:09:14 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[24-Apr-2025 23:09:14 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 00:30:17 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 00:30:17 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 00:30:17 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 00:32:02 America/Sao_Paulo] PHP Warning:  Array to string conversion in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\cobrancas\index.php on line 406
+[25-Apr-2025 00:32:04 America/Sao_Paulo] PHP Warning:  Array to string conversion in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\cobrancas\index.php on line 406
+[25-Apr-2025 00:32:09 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 00:32:09 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 00:32:09 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 00:32:09 America/Sao_Paulo] PHP Warning:  Array to string conversion in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\cobrancas\index.php on line 406
+[25-Apr-2025 00:32:13 America/Sao_Paulo] PHP Warning:  Array to string conversion in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\cobrancas\index.php on line 406
+[25-Apr-2025 00:33:29 America/Sao_Paulo] PHP Warning:  Array to string conversion in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\cobrancas\index.php on line 406
+[25-Apr-2025 00:33:32 America/Sao_Paulo] PHP Warning:  Array to string conversion in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\cobrancas\index.php on line 406
+[25-Apr-2025 00:33:32 America/Sao_Paulo] PHP Warning:  Array to string conversion in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\cobrancas\index.php on line 406
+[25-Apr-2025 00:33:32 America/Sao_Paulo] PHP Warning:  Array to string conversion in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\cobrancas\index.php on line 406
+[25-Apr-2025 00:33:33 America/Sao_Paulo] PHP Warning:  Array to string conversion in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\cobrancas\index.php on line 406
+[25-Apr-2025 00:33:37 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 00:33:37 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 00:33:37 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 00:33:37 America/Sao_Paulo] PHP Warning:  Array to string conversion in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\cobrancas\index.php on line 406
+[25-Apr-2025 00:35:29 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 00:35:29 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 00:35:29 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 00:37:19 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 00:37:19 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 00:37:19 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 00:39:20 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 00:39:20 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 00:39:20 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 00:40:41 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 00:40:41 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 00:40:41 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 00:42:14 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 00:42:14 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 00:42:14 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 00:44:01 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-04-25 00:44:01","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/135.0.0.0 Safari\/537.36","session_id":"mv3nh73sq7stfga2ubgavsmuv0","csrf_token":64}
+[25-Apr-2025 00:44:24 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 00:44:24 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 00:44:24 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 00:46:18 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 00:46:18 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 00:46:18 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
+[25-Apr-2025 00:47:31 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 00:47:31 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 00:47:31 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33

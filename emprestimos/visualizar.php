@@ -11,6 +11,9 @@ if (!$emprestimo_id) {
     $emprestimo_id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 }
 
+// Recebe o número da parcela, se existir
+$parcela_numero = filter_input(INPUT_GET, 'parcela', FILTER_VALIDATE_INT);
+
 if (!$emprestimo_id) {
     echo '<div class="container py-4"><div class="alert alert-danger">ID do empréstimo não recebido.</div></div>';
     exit;
@@ -65,13 +68,10 @@ $parcelas_atualizadas = false;
 
 foreach ($parcelas as &$parcela) {
     $data_vencimento = new DateTime($parcela['vencimento']);
+    $hoje = new DateTime();
     
-    // Verifica parcelas vencidas - agora compara com o dia seguinte ao atual para dar 1 dia a mais
-    $hoje_mais_um_dia = clone $hoje;
-    $hoje_mais_um_dia->modify('-1 day'); // Subtrai 1 dia da data atual para efeito de comparação
-    
-    // Verifica parcelas vencidas - só considera atrasada se venceu há pelo menos 1 dia
-    if ($parcela['status'] === 'pendente' && $data_vencimento < $hoje_mais_um_dia) {
+    // Verifica parcelas vencidas - considera atrasada se a data de vencimento já passou
+    if ($parcela['status'] === 'pendente' && $data_vencimento < $hoje) {
         $parcela['status'] = 'atrasado';
         $parcelas_atualizadas = true;
     }
@@ -907,8 +907,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Calcula e exibe os valores formatados
-        const valorTotal = valor;
-        const valorPagoAtual = valor_pago || 0;
+        const valorTotal = parseFloat(valor);
+        const valorPagoAtual = parseFloat(valor_pago) || 0;
         const valorAReceber = valorTotal - valorPagoAtual;
         
         const valor_total_display = document.getElementById('valor_total_display');
@@ -920,7 +920,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (valor_total_display) valor_total_display.textContent = 'R$ ' + valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         if (valor_pago_display) valor_pago_display.textContent = 'R$ ' + valorPagoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         if (valor_a_receber_display) valor_a_receber_display.textContent = 'R$ ' + valorAReceber.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        if (valor_pago_input) valor_pago_input.value = valorAReceber.toFixed(2);
+        
+        // Sempre define o campo de valor para o valor a receber (valor pendente)
+        if (valor_pago_input) {
+            valor_pago_input.value = valorAReceber.toFixed(2);
+            // Dispara evento 'input' para ativar listeners que dependem deste valor
+            const event = new Event('input', { bubbles: true });
+            valor_pago_input.dispatchEvent(event);
+        }
+        
         if (data_pagamento_input) data_pagamento_input.value = new Date().toISOString().split('T')[0];
         
         // Esconde as opções de distribuição inicialmente
@@ -1291,18 +1299,38 @@ window.registrarPagamento = function() {
                         console.error('Erro ao buscar templates:', error);
                     });
 
-                if (quitado) {
-                    mostrarSucessoComAnimacao(
-                        'Empréstimo Quitado!',
-                        'Parabéns! Todas as parcelas foram pagas.',
-                        true // mostra fogos
-                    );
+                // Verificar se o pagamento veio da página de cobrança e redirecionar se necessário
+                const urlParams = new URLSearchParams(window.location.search);
+                const origem = urlParams.get('origem');
+                
+                if (origem === 'cobrancas') {
+                    // Obter informações adicionais para passar na URL
+                    const cliente_nome = '<?= htmlspecialchars(urlencode($emprestimo['cliente_nome'] ?? '')) ?>';
+                    const parcelas_total = '<?= $emprestimo['parcelas'] ?? 0 ?>';
+                    const valor_emprestimo = '<?= $emprestimo['valor_emprestado'] ?? 0 ?>';
+                    
+                    // Redirecionar para a página de cobrança com informações completas
+                    window.location.href = '<?= BASE_URL ?>emprestimos/parcelas/cobrancas/index.php?sucesso=1&parcela=' + 
+                        parcela_numero + 
+                        '&parcela_total=' + parcelas_total + 
+                        '&cliente=' + cliente_nome + 
+                        '&emprestimo=' + <?= $emprestimo_id ?> + 
+                        '&valor_emprestimo=' + valor_emprestimo;
                 } else {
-                    mostrarSucessoComAnimacao(
-                        'Pagamento Registrado!',
-                        'O pagamento foi registrado com sucesso.',
-                        false // não mostra fogos
-                    );
+                    // Comportamento padrão: mostrar modal de sucesso
+                    if (quitado) {
+                        mostrarSucessoComAnimacao(
+                            'Empréstimo Quitado!',
+                            'Parabéns! Todas as parcelas foram pagas.',
+                            true // mostra fogos
+                        );
+                    } else {
+                        mostrarSucessoComAnimacao(
+                            'Pagamento Registrado!',
+                            'O pagamento foi registrado com sucesso.',
+                            false // não mostra fogos
+                        );
+                    }
                 }
             } else {
                 throw new Error(data.message || 'Erro desconhecido');
@@ -1575,7 +1603,7 @@ function enviarMensagem() {
         console.log('Telefone formatado:', telefone);
         
         // Construir URL para enviar_individual.php com caminho relativo
-        const url = '../mensagens/api/enviar_individual.php?emprestimo_id=' + emprestimo_id + '&parcela_id=' + parcela_id + '&template_id=' + template_id + '&telefone=' + telefone;
+        const url = '<?= BASE_URL ?>mensagens/api/enviar_individual.php?emprestimo_id=' + emprestimo_id + '&parcela_id=' + parcela_id + '&template_id=' + template_id + '&telefone=' + telefone;
         console.log('URL construída:', url);
         
         // Fechar o modal antes de redirecionar
@@ -1590,6 +1618,42 @@ function enviarMensagem() {
     } catch (error) {
         console.error('Erro ao processar envio:', error);
         alert('Erro ao processar envio: ' + error.message);
+    }
+}
+
+// Cria uma variável global com os dados das parcelas para uso em JavaScript
+const parcelasData = <?php echo json_encode($parcelas); ?>;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Quando a página carregar completamente, abre o modal de pagamento para a parcela especificada
+    setTimeout(function() {
+        abrirModalPagamentoParcela(<?= $emprestimo_id ?>, <?= $parcela_numero ?>);
+    }, 500);
+});
+
+// Função para abrir o modal de pagamento para uma parcela específica
+function abrirModalPagamentoParcela(emprestimo_id, parcela_numero) {
+    // Encontrar a parcela com o número especificado
+    const parcela = parcelasData.find(p => parseInt(p.numero) === parseInt(parcela_numero));
+    
+    if (parcela) {
+        // Converter valores para números com parseFloat
+        const valorParcela = parseFloat(parcela.valor) || 0;
+        const valorPago = parseFloat(parcela.valor_pago) || 0;
+        
+        // Abrir o modal de pagamento para esta parcela
+        abrirModalPagamento(
+            emprestimo_id,
+            parcela.numero,
+            valorParcela,
+            valorPago,
+            parcela.status
+        );
+        
+        // Rolar até a seção de pagamento
+        document.getElementById('pagamento').scrollIntoView({ behavior: 'smooth' });
+    } else {
+        console.error('Parcela não encontrada:', parcela_numero);
     }
 }
 </script>

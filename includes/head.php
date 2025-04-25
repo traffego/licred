@@ -9,6 +9,15 @@ require_once __DIR__ . '/funcoes_moeda.php';
 $pagina_atual = basename($_SERVER['PHP_SELF']);
 if ($pagina_atual !== 'login.php') {
     require_once __DIR__ . '/autenticacao.php';
+    
+    // Verificar e atualizar parcelas vencidas (no máximo a cada 10 minutos)
+    require_once __DIR__ . '/verificar_parcelas.php';
+    $verificacao_parcelas = verificarAtualizarParcelasVencidas();
+    
+    // Se ocorreu algum erro sério, registra para debug
+    if (isset($verificacao_parcelas['erros']) && $verificacao_parcelas['erros'] > 0) {
+        error_log("Erro ao verificar parcelas: " . json_encode($verificacao_parcelas));
+    }
 }
 ?>
 <html lang="pt-br">

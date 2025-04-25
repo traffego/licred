@@ -87,7 +87,7 @@ try {
                                 <i class="bi bi-person-plus-fill"></i>
                                 <span class="d-none d-md-inline">Novo Cliente</span>
                             </a>
-                            <a href="relatorios/diario.php" class="btn btn-sm btn-info text-white d-flex align-items-center gap-2">
+                            <a href="relatorios/" class="btn btn-sm btn-info text-white d-flex align-items-center gap-2">
                                 <i class="bi bi-graph-up"></i>
                                 <span class="d-none d-md-inline">Relatório Diário</span>
                             </a>

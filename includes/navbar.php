@@ -6,6 +6,60 @@ require_once __DIR__ . '/autenticacao.php';
 $pagina_atual = basename($_SERVER['PHP_SELF']);
 ?>
 
+<!-- Barra superior com informações de parcelas -->
+<div class="topbar bg-dark text-white py-1">
+    <div class="container d-flex justify-content-between align-items-center">
+        <?php
+        // Indicador de última verificação de parcelas
+        $arquivo_cache = __DIR__ . '/../cache/ultima_verificacao_parcelas.txt';
+        if (file_exists($arquivo_cache)) {
+            $ultima_verificacao = file_get_contents($arquivo_cache);
+            $data_hora_verificacao = date('d/m/Y H:i', (int)$ultima_verificacao);
+            
+            // Calcula tempo desde a última verificação
+            $agora = time();
+            $minutos_desde_ultima = floor(($agora - (int)$ultima_verificacao) / 60);
+            
+            // Define a cor baseada no tempo desde a última verificação
+            if ($minutos_desde_ultima < 30) {
+                $status_cor = "success"; // Verde para verificação recente
+            } elseif ($minutos_desde_ultima < 120) {
+                $status_cor = "warning"; // Amarelo para verificação entre 30min e 2h
+            } else {
+                $status_cor = "danger"; // Vermelho para verificação antiga (mais de 2h)
+            }
+        ?>
+            <div class="d-flex align-items-center">
+                <span class="badge text-bg-<?= $status_cor ?> me-2">
+                    <i class="bi bi-clock-history"></i>
+                </span>
+                <small>
+                    Última verificação de parcelas: <?= $data_hora_verificacao ?>
+                </small>
+            </div>
+            <a href="<?= BASE_URL ?>includes/verificar_parcelas.php" class="btn btn-sm btn-<?= $status_cor ?>" title="Atualizar parcelas">
+                <i class="bi bi-arrow-clockwise"></i> Atualizar Parcelas
+            </a>
+        <?php 
+        } else {
+        ?>
+            <div class="d-flex align-items-center">
+                <span class="badge text-bg-secondary me-2">
+                    <i class="bi bi-exclamation-circle"></i>
+                </span>
+                <small>
+                    Parcelas não verificadas ainda
+                </small>
+            </div>
+            <a href="<?= BASE_URL ?>includes/verificar_parcelas.php" class="btn btn-sm btn-light" title="Verificar parcelas agora">
+                <i class="bi bi-arrow-clockwise"></i> Verificar Parcelas
+            </a>
+        <?php
+        }
+        ?>
+    </div>
+</div>
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-blue-dark">
     <div class="container">
         <!-- Logo e Nome -->
@@ -98,12 +152,51 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
 </nav>
 
 <!-- Botão de Fechar Mobile -->
-<button class="btn-close btn-close-white d-lg-none position-fixed top-0 end-0 m-3" 
-        style="z-index: 1050;" 
+<button class="btn-close btn-close-white d-lg-none position-fixed end-0 m-3" 
+        style="z-index: 1050; top: 40px;" 
         data-bs-toggle="collapse" 
         data-bs-target="#navbarMain"></button>
 
 <style>
+/* Estilos para a barra superior */
+.topbar {
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+    z-index: 1060; /* Valor maior que a navbar e outros elementos */
+}
+
+/* Animação sutil para destacar a topbar quando a página carrega */
+@keyframes highlight-topbar {
+    0% { background-color: #343a40; }
+    50% { background-color: #495057; }
+    100% { background-color: #343a40; }
+}
+
+.topbar {
+    animation: highlight-topbar 2s ease-in-out;
+}
+
+.topbar .badge {
+    padding: 0.35em 0.5em;
+}
+
+.topbar .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+@media (max-width: 576px) {
+    .topbar small {
+        font-size: 0.7rem;
+    }
+    
+    .topbar .btn-sm {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
 .navbar {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -166,13 +259,13 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
     .navbar-collapse {
         padding: 1rem 0;
         position: fixed;
-        top: 0;
+        top: 37px; /* Deixa espaço para a topbar */
         left: 0;
         bottom: 0;
         width: 80%;
         max-width: 320px;
         background-color: var(--bs-primary);
-        z-index: 1050;
+        z-index: 1040; /* Menor que a topbar */
         overflow-y: auto;
         transform: translateX(-100%);
         transition: transform 0.3s ease;
@@ -180,6 +273,19 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
     
     .navbar-collapse.show {
         transform: translateX(0);
+    }
+    
+    /* Ajustes para garantir que a topbar fique visível em celulares pequenos */
+    .topbar .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .topbar small {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     
     .dropdown-menu {
@@ -207,6 +313,17 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
     .nav-item.dropdown.show .dropdown-menu {
         display: block;
     }
+}
+
+/* Animação de pulso para o botão de atualizar */
+@keyframes btn-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.btn-pulse {
+    animation: btn-pulse 1s ease-in-out;
 }
 </style>
 
@@ -298,5 +415,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     updateCloseButton();
+    
+    // Garantir que a topbar seja sempre visível
+    const topbar = document.querySelector('.topbar');
+    const navbar = document.querySelector('.navbar');
+    
+    if (topbar && navbar) {
+        // Animar o botão de atualizar parcelas periodicamente para chamar atenção
+        const btnAtualizar = topbar.querySelector('a.btn');
+        
+        // A cada 5 minutos, pisca o botão de atualizar para lembrar o usuário
+        if (btnAtualizar) {
+            setInterval(function() {
+                btnAtualizar.classList.add('btn-pulse');
+                setTimeout(function() {
+                    btnAtualizar.classList.remove('btn-pulse');
+                }, 2000);
+            }, 300000); // 5 minutos
+        }
+    }
 });
 </script>

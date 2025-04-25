@@ -390,18 +390,6 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                            title="Ver Detalhes">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <button type="button" 
-                                                class="btn btn-sm btn-outline-success" 
-                                                title="Registrar Pagamento"
-                                                onclick="window.location.href='visualizar.php?id=<?= $e['id'] ?>#pagamento'">
-                                            <i class="bi bi-cash-coin"></i>
-                                        </button>
-                                        <button type="button" 
-                                                class="btn btn-sm btn-outline-info" 
-                                                title="Enviar Cobrança"
-                                                onclick="enviarCobranca(<?= $e['id'] ?>)">
-                                            <i class="bi bi-whatsapp"></i>
-                                        </button>
                                         <a href="excluir.php?id=<?= $e['id'] ?>" 
                                            class="btn btn-sm btn-outline-danger" 
                                            title="Excluir Empréstimo">
@@ -518,18 +506,10 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 mt-3">
                             <a href="visualizar.php?id=<?= $e['id'] ?>" class="btn btn-sm btn-outline-primary flex-fill">
-                                <i class="bi bi-eye"></i> Detalhes
+                                <i class="bi bi-eye"></i> Visualizar
                             </a>
-                            <a href="visualizar.php?id=<?= $e['id'] ?>#pagamento" class="btn btn-sm btn-outline-success flex-fill">
-                                <i class="bi bi-cash-coin"></i> Pagar
-                            </a>
-                            <button type="button" class="btn btn-sm btn-outline-info flex-fill" onclick="enviarCobranca(<?= $e['id'] ?>)">
-                                <i class="bi bi-whatsapp"></i> Cobrar
-                            </button>
-                        </div>
-                        <div class="d-flex mt-2">
                             <a href="excluir.php?id=<?= $e['id'] ?>" class="btn btn-sm btn-outline-danger flex-fill">
                                 <i class="bi bi-trash"></i> Excluir
                             </a>

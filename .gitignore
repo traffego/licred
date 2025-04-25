@@ -26,6 +26,7 @@ desktop.ini
 
 # Dados sensíveis
 config.php
+/includes/conexao.php
 
 # Arquivos de IDE e editores
 .idea/
