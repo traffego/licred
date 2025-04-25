@@ -68,3 +68,9 @@ Stack trace:
 [25-Apr-2025 16:09:24 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
 [25-Apr-2025 16:09:24 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33
 [25-Apr-2025 16:53:19 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-04-25 16:53:19","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/135.0.0.0 Safari\/537.36","session_id":"vuon1o5dj11i3b8o31f0v5kt2v","csrf_token":64}
+[25-Apr-2025 18:26:42 America/Sao_Paulo] Erro no dashboard: Column 'status' in SELECT is ambiguous
+[25-Apr-2025 18:26:43 America/Sao_Paulo] Erro no dashboard: Column 'status' in SELECT is ambiguous
+[25-Apr-2025 18:26:49 America/Sao_Paulo] Erro no dashboard: Column 'status' in SELECT is ambiguous
+[25-Apr-2025 18:32:00 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 31
+[25-Apr-2025 18:32:00 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 32
+[25-Apr-2025 18:32:00 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\emprestimos\parcelas\pagar.php on line 33

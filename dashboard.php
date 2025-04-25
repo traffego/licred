@@ -61,7 +61,26 @@ try {
         }
     }
     
-    $total_pendente = $total_emprestado - $total_recebido;
+    // Calculando o total pendente de maneira correta - somando todas as parcelas pendentes
+    $sql_pendente = "SELECT 
+                        SUM(
+                            CASE 
+                                WHEN p.status = 'pendente' THEN p.valor 
+                                WHEN p.status = 'parcial' THEN (p.valor - IFNULL(p.valor_pago, 0))
+                                ELSE 0 
+                            END
+                        ) AS total 
+                    FROM parcelas p
+                    INNER JOIN emprestimos e ON p.emprestimo_id = e.id
+                    WHERE p.status IN ('pendente', 'parcial') 
+                    AND (e.status != 'inativo' OR e.status IS NULL)";
+    $result_pendente = $conn->query($sql_pendente);
+    if ($result_pendente && $row_pendente = $result_pendente->fetch_assoc()) {
+        $total_pendente = floatval($row_pendente['total'] ?? 0);
+    } else {
+        error_log("Erro ao calcular total pendente: " . $conn->error);
+        $total_pendente = 0;
+    }
 } catch (Exception $e) {
     // Log do erro (você pode implementar um sistema de log)
     error_log("Erro no dashboard: " . $e->getMessage());
