@@ -1,0 +1,18 @@
+[25-Apr-2025 02:19:06 America/Sao_Paulo] PHP Warning:  Undefined variable $conexao in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\navbar.php on line 10
+[25-Apr-2025 02:19:06 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\navbar.php:10
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\head.php(47): require_once()
+#1 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\dashboard.php(5): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\navbar.php on line 10
+[25-Apr-2025 02:19:47 America/Sao_Paulo] PHP Warning:  Undefined variable $conexao in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\navbar.php on line 10
+[25-Apr-2025 02:19:47 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\navbar.php:10
+Stack trace:
+#0 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\head.php(47): require_once()
+#1 C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\dashboard.php(5): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+  thrown in C:\xampp\htdocs\licred2\sistema_emprestimos_v1.8\sistema_emprestimos_v1\includes\navbar.php on line 10
+[25-Apr-2025 02:27:59 America/Sao_Paulo] Erro de conexão: Access denied for user 'platafo5_licred2'@'201.50.72.135' (using password: YES)
+[25-Apr-2025 02:29:09 America/Sao_Paulo] Erro de conexão: Access denied for user 'platafo5_licred2'@'201.50.72.135' (using password: YES)
+[25-Apr-2025 02:29:10 America/Sao_Paulo] Erro de conexão: Access denied for user 'platafo5_licred2'@'201.50.72.135' (using password: YES)
+[25-Apr-2025 02:29:10 America/Sao_Paulo] Erro de conexão: Access denied for user 'platafo5_licred2'@'201.50.72.135' (using password: YES)
