@@ -21,7 +21,7 @@ $stmt = $conn->prepare("
         c.telefone AS cliente_telefone,
         c.endereco AS cliente_endereco,
         c.cidade AS cliente_cidade,
-        c.uf AS cliente_uf
+        c.estado AS cliente_uf
     FROM 
         emprestimos e
     JOIN 
@@ -68,8 +68,11 @@ function formatarMoeda($valor) {
     return 'R$ ' . number_format($valor, 2, ',', '.');
 }
 
-function formatarData($data) {
-    return date('d/m/Y', strtotime($data));
+// Só define formatarData se ela ainda não existir
+if (!function_exists('formatarData')) {
+    function formatarData($data) {
+        return date('d/m/Y', strtotime($data));
+    }
 }
 
 function formatarCPF($cpf) {
@@ -78,25 +81,36 @@ function formatarCPF($cpf) {
 }
 
 // Formata a data por extenso
-function dataPorExtenso($data) {
-    setlocale(LC_TIME, 'pt_BR', 'pt_BR.utf-8', 'portuguese');
-    $meses = [
-        1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
-        5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
-        9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
-    ];
-    
-    $data_obj = new DateTime($data);
-    $dia = $data_obj->format('d');
-    $mes = (int)$data_obj->format('m');
-    $ano = $data_obj->format('Y');
-    
-    return "$dia de {$meses[$mes]} de $ano";
+if (!function_exists('dataPorExtenso')) {
+    function dataPorExtenso($data) {
+        setlocale(LC_TIME, 'pt_BR', 'pt_BR.utf-8', 'portuguese');
+        $meses = [
+            1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+            5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+            9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
+        ];
+        
+        $data_obj = new DateTime($data);
+        $dia = $data_obj->format('d');
+        $mes = (int)$data_obj->format('m');
+        $ano = $data_obj->format('Y');
+        
+        return "$dia de {$meses[$mes]} de $ano";
+    }
 }
 
 // Função para converter valor em extenso
 function valorPorExtenso($valor) {
-    $valor = number_format($valor, 2, ',', '.');
+    // Primeiro, certifique-se de que o valor está no formato adequado para processamento
+    if (is_string($valor)) {
+        // Se for string, converte vírgula para ponto
+        $valor = str_replace(',', '.', $valor);
+    }
+    
+    // Agora converte para float para garantir
+    $valor = (float) $valor;
+    
+    $valor_formatado = number_format($valor, 2, ',', '.');
     $singular = array('centavo', 'real', 'mil', 'milhão', 'bilhão');
     $plural = array('centavos', 'reais', 'mil', 'milhões', 'bilhões');
 

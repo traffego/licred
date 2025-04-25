@@ -7,12 +7,15 @@
  * Formata uma data para o formato brasileiro (DD/MM/YYYY)
  * 
  * @param string $data Data no formato aceito pelo strtotime
+ * @param string $formato Formato da data (padrão: d/m/Y)
  * @return string Data formatada
  */
-function formatarData($data) {
-    if (!$data) return '';
-    
-    return date('d/m/Y', strtotime($data));
+if (!function_exists('formatarData')) {
+    function formatarData($data, $formato = 'd/m/Y') {
+        if (!$data) return '';
+        
+        return date($formato, strtotime($data));
+    }
 }
 
 /**
@@ -111,13 +114,15 @@ function mesExtenso($mes) {
  * @param string $data Data a ser formatada
  * @return string Data por extenso
  */
-function dataPorExtenso($data) {
-    $dt = new DateTime($data);
-    $dia = $dt->format('d');
-    $mes = mesExtenso((int)$dt->format('m'));
-    $ano = $dt->format('Y');
-    
-    return "$dia de $mes de $ano";
+if (!function_exists('dataPorExtenso')) {
+    function dataPorExtenso($data) {
+        $dt = new DateTime($data);
+        $dia = $dt->format('d');
+        $mes = mesExtenso((int)$dt->format('m'));
+        $ano = $dt->format('Y');
+        
+        return "$dia de $mes de $ano";
+    }
 }
 
 /**
