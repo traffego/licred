@@ -63,6 +63,21 @@ if ($nivel_usuario !== 'administrador' && $nivel_usuario !== 'superadmin') {
                     </div>
                 </div>
             </div>
+            
+            <!-- Relatório 4 - Investidores -->
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Relatório de Investidores</h5>
+                        <p class="card-text">Apresenta os dados financeiros dos investidores, seus clientes e empréstimos relacionados.</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <a href="investidores_clientes.php" class="btn btn-warning text-dark w-100">
+                            <i class="bi bi-people-fill me-2"></i>Visualizar
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     

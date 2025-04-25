@@ -19,49 +19,20 @@ try {
     }
 
     // Calcula totais com tratamento de erro
-    $total_atrasado = calcularTotalParcelasAtrasadas($conn);
     $total_emprestimos_ativos = contarEmprestimosAtivos($conn);
     
     // Cálculos adicionais para cards
     $total_emprestado = 0;
     $total_recebido = 0;
-    $total_pendente = 0;
-    $emprestimos_atrasados = 0;
     
     foreach ($emprestimos as $e) {
         $total_emprestado += floatval($e['valor_emprestado']);
         if (isset($e['total_pago'])) {
             $total_recebido += floatval($e['total_pago']);
         }
-        
-        // Verifica se há parcelas atrasadas
-        $stmt = $conn->prepare("SELECT status, vencimento FROM parcelas WHERE emprestimo_id = ?");
-        $stmt->bind_param("i", $e['id']);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $parcelas = $result->fetch_all(MYSQLI_ASSOC);
-        
-        $tem_atrasada = false;
-        foreach ($parcelas as $p) {
-            if ($p['status'] !== 'pago') {
-                $data_vencimento = new DateTime($p['vencimento']);
-                $hoje_menos_um = new DateTime();
-                $hoje_menos_um->modify('-1 day');
-                
-                if ($data_vencimento < $hoje_menos_um) {
-                    $tem_atrasada = true;
-                    $status = 'atrasado';
-                    break;
-                }
-            }
-        }
-        
-        if ($tem_atrasada) {
-            $emprestimos_atrasados++;
-        }
     }
     
-    // Calculando o total pendente de maneira correta - somando todas as parcelas pendentes
+    // Calculando o total pendente - somando todas as parcelas pendentes
     $sql_pendente = "SELECT 
                         SUM(
                             CASE 
@@ -80,6 +51,40 @@ try {
     } else {
         error_log("Erro ao calcular total pendente: " . $conn->error);
         $total_pendente = 0;
+    }
+    
+    // Calculando total atrasado corretamente
+    $ontem = date('Y-m-d', strtotime('-1 day'));
+    $sql_atrasado = "SELECT 
+                        SUM(
+                            CASE 
+                                WHEN p.status = 'pendente' THEN p.valor 
+                                WHEN p.status = 'parcial' THEN (p.valor - IFNULL(p.valor_pago, 0))
+                                ELSE 0 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT p.emprestimo_id) AS total_emprestimos,
+                        COUNT(p.id) AS total_parcelas
+                    FROM parcelas p
+                    INNER JOIN emprestimos e ON p.emprestimo_id = e.id
+                    WHERE p.status IN ('pendente', 'parcial') 
+                    AND p.vencimento < ?
+                    AND (e.status != 'inativo' OR e.status IS NULL)";
+    
+    $stmt_atrasado = $conn->prepare($sql_atrasado);
+    $stmt_atrasado->bind_param("s", $ontem);
+    $stmt_atrasado->execute();
+    $result_atrasado = $stmt_atrasado->get_result();
+    
+    if ($result_atrasado && $row_atrasado = $result_atrasado->fetch_assoc()) {
+        $total_atrasado = floatval($row_atrasado['total_valor'] ?? 0);
+        $emprestimos_atrasados = intval($row_atrasado['total_emprestimos'] ?? 0);
+        $parcelas_atrasadas = intval($row_atrasado['total_parcelas'] ?? 0);
+    } else {
+        error_log("Erro ao calcular total atrasado: " . $conn->error);
+        $total_atrasado = 0;
+        $emprestimos_atrasados = 0;
+        $parcelas_atrasadas = 0;
     }
 } catch (Exception $e) {
     // Log do erro (você pode implementar um sistema de log)
@@ -167,9 +172,8 @@ try {
             <div class="col-sm-6 col-md-4">
                 <div class="card bg-danger text-white h-100">
                     <div class="card-body">
-                        <h6 class="card-title">Atrasados</h6>
-                        <h4 class="mb-0"><?= $emprestimos_atrasados ?></h4>
-                        <small>R$ <?= number_format($total_atrasado, 2, ',', '.') ?> em atraso</small>
+                        <h6 class="card-title">Parcelas Atrasadas</h6>
+                         <h4><?= $parcelas_atrasadas ?> parcelas | R$ <?= number_format($total_atrasado, 2, ',', '.') ?></h4>
                     </div>
                 </div>
             </div>
@@ -224,7 +228,7 @@ try {
                     <div class="card-body">
                         <h6 class="card-title">Atrasados</h6>
                         <h4 class="mb-0"><?= $emprestimos_atrasados ?></h4>
-                        <small>R$ <?= number_format($total_atrasado, 2, ',', '.') ?> em atraso</small>
+                        <small><?= $parcelas_atrasadas ?> parcelas | R$ <?= number_format($total_atrasado, 2, ',', '.') ?></small>
                     </div>
                 </div>
             </div>
@@ -233,9 +237,9 @@ try {
 
     <!-- Cobranças via WhatsApp -->
     <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white">
             <h5 class="mb-0">Envio de Cobranças via WhatsApp</h5>
-            <a href="mensagens/templates_mensagens.php" class="btn btn-sm btn-outline-primary">Gerenciar Templates</a>
+            <a href="mensagens/templates_mensagens.php" class="btn btn-sm btn-outline-primary bg-white text-dark">Gerenciar Templates</a>
         </div>
         <div class="card-body">
             <div class="row g-3">
