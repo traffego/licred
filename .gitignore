@@ -17,8 +17,8 @@ desktop.ini
 # Diretórios de cache e uploads (manter as pastas, ignorar o conteúdo)
 /cache/*
 !/cache/.gitkeep
-/uploads/*
-!/uploads/.gitkeep
+# /uploads/*
+# !/uploads/.gitkeep
 /logs/*
 !/logs/.gitkeep
 /backups/*
@@ -26,7 +26,7 @@ desktop.ini
 
 # Dados sensíveis
 config.php
-/includes/conexao.php
+# /includes/conexao.php
 
 # Arquivos de IDE e editores
 .idea/
@@ -45,7 +45,7 @@ nbproject/
 *~
 
 # Arquivos temporários
-# *.log
+*.log
 *.sql
 *.sqlite
 *.sqlite3

@@ -7,7 +7,7 @@ ini_set('error_log', __DIR__ . '/../logs/php_error.log');
 // Configurações do banco de dados
 $host = "187.33.241.40";
 $usuario = "platafo5_licred2";
-$senha = "Licred2444#";
+$senha = "Licred444#";
 $banco = "platafo5_licred2";
 
 try {
