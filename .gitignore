@@ -1,74 +1,74 @@
-# # Arquivos do sistema operacional
-# .DS_Store
-# Thumbs.db
-# desktop.ini
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
 
-# # Arquivos de configuração de ambiente
-# .env
-# .env.local
-# .env.development.local
-# .env.test.local
-# .env.production.local
+# Arquivos de configuração de ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# # Diretórios de dependências
-# # /vendor/
-# # /node_modules/
+# Diretórios de dependências
+# /vendor/
+# /node_modules/
 
-# # Diretórios de cache e uploads (manter as pastas, ignorar o conteúdo)
-# /cache/*
-# !/cache/.gitkeep
-# # /uploads/*
-# # !/uploads/.gitkeep
-# /logs/*
-# !/logs/.gitkeep
-# /backups/*
-# !/backups/.gitkeep
+# Diretórios de cache e uploads (manter as pastas, ignorar o conteúdo)
+/cache/*
+!/cache/.gitkeep
+# /uploads/*
+# !/uploads/.gitkeep
+/logs/*
+!/logs/.gitkeep
+/backups/*
+!/backups/.gitkeep
 
-# # Dados sensíveis
-# config.php
-# # /includes/conexao.php
+# Dados sensíveis
+config.php
+# /includes/conexao.php
 
-# # Arquivos de IDE e editores
-# .idea/
-# .vscode/
-# .cursor/
-# *.sublime-project
-# *.sublime-workspace
-# *.komodoproject
-# .komodotools/
-# *.tmproj
-# *.tmproject
-# tmtags
-# nbproject/
-# .netbeans.xml
-# *.swp
-# *~
+# Arquivos de IDE e editores
+.idea/
+.vscode/
+.cursor/
+*.sublime-project
+*.sublime-workspace
+*.komodoproject
+.komodotools/
+*.tmproj
+*.tmproject
+tmtags
+nbproject/
+.netbeans.xml
+*.swp
+*~
 
-# # Arquivos temporários
-# *.log
-# *.sql
-# *.sqlite
-# *.sqlite3
-# .sass-cache/
-# *.css.map
-# *.js.map
-# *.tmp
-# *.temp
-# temp/
-# tmp/
+# Arquivos temporários
+*.log
+*.sql
+*.sqlite
+*.sqlite3
+.sass-cache/
+*.css.map
+*.js.map
+*.tmp
+*.temp
+temp/
+tmp/
 
-# # Exceções para o banco de dados de exemplo
-# !/sql/*.sql
+# Exceções para o banco de dados de exemplo
+!/sql/*.sql
 
-# # Arquivos específicos do projeto que não devem ser versionados
-# /mensagens/api/vendor/
-# composer.lock
+# Arquivos específicos do projeto que não devem ser versionados
+/mensagens/api/vendor/
+composer.lock
 
-# # Arquivos de certificados e chaves
-# *.pem
-# *.key
-# *.crt
-# *.p12
+# Arquivos de certificados e chaves
+*.pem
+*.key
+*.crt
+*.p12
 
-# # Exceções para manter a estrutura do projeto
-# !.gitkeep 
+# Exceções para manter a estrutura do projeto
+!.gitkeep 
