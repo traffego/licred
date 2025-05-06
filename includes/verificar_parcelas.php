@@ -83,82 +83,41 @@ function verificarAtualizarParcelasVencidas() {
         $hoje = new DateTime();
         $hoje_formatado = $hoje->format('Y-m-d');
         
-        // Busca empréstimos ativos baseado na tabela de parcelas
-        $sql = "SELECT DISTINCT p.emprestimo_id 
-                FROM parcelas p 
-                INNER JOIN emprestimos e ON p.emprestimo_id = e.id 
-                WHERE e.status = 'ativo'";
-        
-        $result = $conn->query($sql);
-        
-        if (!$result) {
-            $erro_mensagem = "Erro ao executar a consulta: " . $conn->error;
+        // Método mais simples e eficiente: atualizar todas as parcelas de uma vez
+        $sql_update_todas = "UPDATE parcelas SET status = 'atrasado' 
+                             WHERE status IN ('pendente', 'parcial') 
+                             AND vencimento < ? 
+                             AND id IN (
+                                SELECT p.id 
+                                FROM (SELECT * FROM parcelas) AS p
+                                INNER JOIN emprestimos e ON p.emprestimo_id = e.id 
+                                WHERE (e.status = 'ativo' OR e.status IS NULL)
+                             )";
+                             
+        $stmt_update_todas = $conn->prepare($sql_update_todas);
+        if (!$stmt_update_todas) {
+            $erro_mensagem = "Erro ao preparar atualização em massa: " . $conn->error;
             $stats['log_erros'][] = $erro_mensagem;
             throw new Exception($erro_mensagem);
         }
         
-        // Prepara stmt para buscar parcelas não pagas
-        $stmt_parcelas = $conn->prepare("
-            SELECT id, emprestimo_id, numero, vencimento, status
-            FROM parcelas
-            WHERE emprestimo_id = ? AND status != 'pago'
-        ");
-        
-        if (!$stmt_parcelas) {
-            $erro_mensagem = "Erro ao preparar consulta de parcelas: " . $conn->error;
+        $stmt_update_todas->bind_param("s", $hoje_formatado);
+        if (!$stmt_update_todas->execute()) {
+            $erro_mensagem = "Erro ao executar atualização em massa: " . $stmt_update_todas->error;
             $stats['log_erros'][] = $erro_mensagem;
             throw new Exception($erro_mensagem);
         }
         
-        // Prepara stmt para atualizar parcelas vencidas
-        $stmt_update = $conn->prepare("
-            UPDATE parcelas 
-            SET status = 'atrasado' 
-            WHERE id = ?
-        ");
+        $stats['parcelas_atualizadas'] = $stmt_update_todas->affected_rows;
+        $stmt_update_todas->close();
         
-        if (!$stmt_update) {
-            $erro_mensagem = "Erro ao preparar atualização de parcelas: " . $conn->error;
-            $stats['log_erros'][] = $erro_mensagem;
-            throw new Exception($erro_mensagem);
+        // Verifica e conta os empréstimos afetados
+        $sql_count = "SELECT COUNT(DISTINCT emprestimo_id) as total FROM parcelas 
+                     WHERE status = 'atrasado'";
+        $result_count = $conn->query($sql_count);
+        if ($result_count && $row = $result_count->fetch_assoc()) {
+            $stats['emprestimos_verificados'] = (int)$row['total'];
         }
-        
-        // Processa cada empréstimo
-        while ($row = $result->fetch_assoc()) {
-            $emprestimo_id = $row['emprestimo_id'];
-            $stats['emprestimos_verificados']++;
-            
-            // Busca parcelas não pagas deste empréstimo
-            $stmt_parcelas->bind_param("i", $emprestimo_id);
-            
-            if (!$stmt_parcelas->execute()) {
-                $stats['erros']++;
-                $stats['log_erros'][] = "Erro ao buscar parcelas do empréstimo ID #{$emprestimo_id}: " . $stmt_parcelas->error;
-                continue;
-            }
-            
-            $parcelas_result = $stmt_parcelas->get_result();
-            
-            // Atualiza cada parcela vencida
-            while ($parcela = $parcelas_result->fetch_assoc()) {
-                // Verifica se a parcela já venceu (se a data de vencimento é anterior à data atual)
-                if ($parcela['vencimento'] < $hoje_formatado && $parcela['status'] !== 'atrasado') {
-                    // Atualiza o status para 'atrasado'
-                    $parcela_id = $parcela['id'];
-                    $stmt_update->bind_param("i", $parcela_id);
-                    
-                    if ($stmt_update->execute() && $stmt_update->affected_rows > 0) {
-                        $stats['parcelas_atualizadas']++;
-                    } else if ($stmt_update->error) {
-                        $stats['erros']++;
-                        $stats['log_erros'][] = "Erro ao atualizar parcela ID #{$parcela_id} do empréstimo #{$emprestimo_id}: " . $stmt_update->error;
-                    }
-                }
-            }
-        }
-        
-        $stmt_parcelas->close();
-        $stmt_update->close();
         
         // Registra que a verificação foi realizada
         registrarVerificacao();

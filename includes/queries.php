@@ -143,11 +143,11 @@ function calcularTotalParcelasAtrasadas(mysqli $conn) {
 
 function contarEmprestimosAtivos(mysqli $conn) {
     $sql = "SELECT 
-                COUNT(DISTINCT emprestimo_id) as total
+                COUNT(id) as total
             FROM 
-                parcelas
+                emprestimos
             WHERE 
-                status IN ('pendente', 'parcial', 'atrasado')";
+                (status = 'ativo' OR status IS NULL)";
                 
     $resultado = $conn->query($sql);
     $linha = $resultado->fetch_assoc();

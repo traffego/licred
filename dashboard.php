@@ -4,6 +4,10 @@ require_once __DIR__ . '/includes/conexao.php';
 require_once __DIR__ . '/includes/autenticacao.php';
 require_once __DIR__ . '/includes/head.php';
 require_once __DIR__ . '/includes/queries.php';
+require_once __DIR__ . '/includes/verificar_parcelas.php';
+
+// Executar verificação de parcelas vencidas
+verificarAtualizarParcelasVencidas();
 
 // Inicializa variáveis com valores padrão
 $emprestimos = [];
@@ -20,6 +24,16 @@ try {
 
     // Calcula totais com tratamento de erro
     $total_emprestimos_ativos = contarEmprestimosAtivos($conn);
+    
+    // Debug - verificar empréstimos ativos manualmente
+    $sql_debug_ativos = "SELECT id, cliente_id, status FROM emprestimos WHERE (status = 'ativo' OR status IS NULL)";
+    $result_debug_ativos = $conn->query($sql_debug_ativos);
+    $emprestimos_ativos_ids = [];
+    while ($row = $result_debug_ativos->fetch_assoc()) {
+        $emprestimos_ativos_ids[] = $row['id'];
+    }
+    error_log("Total de empréstimos ativos (IDs): " . implode(', ', $emprestimos_ativos_ids));
+    error_log("Total de empréstimos ativos (contagem): " . count($emprestimos_ativos_ids));
     
     // Cálculos adicionais para cards
     $total_emprestado = 0;
@@ -55,36 +69,61 @@ try {
     
     // Calculando total atrasado corretamente
     $ontem = date('Y-m-d', strtotime('-1 day'));
+    
+    // Debug - verificar quantas parcelas têm status explicitamente 'atrasado'
+    $sql_debug = "SELECT COUNT(*) AS total FROM parcelas WHERE status = 'atrasado'";
+    $result_debug = $conn->query($sql_debug);
+    $row_debug = $result_debug->fetch_assoc();
+    $count_atrasado = $row_debug['total'];
+    error_log("Total de parcelas com status 'atrasado': " . $count_atrasado);
+    
+    // Debug - verificar quantas parcelas deveriam estar atrasadas (vencimento < ontem e não pagas)
+    $sql_debug_vencidas = "SELECT COUNT(*) AS total FROM parcelas 
+                          WHERE status IN ('pendente', 'parcial') 
+                          AND vencimento < '$ontem'";
+    $result_debug_vencidas = $conn->query($sql_debug_vencidas);
+    $row_debug_vencidas = $result_debug_vencidas->fetch_assoc();
+    $count_vencidas = $row_debug_vencidas['total'];
+    error_log("Total de parcelas vencidas (deveriam estar atrasadas): " . $count_vencidas);
+    
+    // Consulta simplificada para parcelas atrasadas
     $sql_atrasado = "SELECT 
                         SUM(
                             CASE 
-                                WHEN p.status = 'pendente' THEN p.valor 
-                                WHEN p.status = 'parcial' THEN (p.valor - IFNULL(p.valor_pago, 0))
-                                ELSE 0 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
                             END
                         ) AS total_valor,
-                        COUNT(DISTINCT p.emprestimo_id) AS total_emprestimos,
-                        COUNT(p.id) AS total_parcelas
-                    FROM parcelas p
-                    INNER JOIN emprestimos e ON p.emprestimo_id = e.id
-                    WHERE p.status IN ('pendente', 'parcial') 
-                    AND p.vencimento < ?
-                    AND (e.status != 'inativo' OR e.status IS NULL)";
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < ?))";
+    
+    // Debug - log da consulta completa
+    $sql_debug_completo = str_replace("?", "'" . $ontem . "'", $sql_atrasado);
+    error_log("Consulta de parcelas atrasadas: " . $sql_debug_completo);
     
     $stmt_atrasado = $conn->prepare($sql_atrasado);
-    $stmt_atrasado->bind_param("s", $ontem);
-    $stmt_atrasado->execute();
-    $result_atrasado = $stmt_atrasado->get_result();
-    
-    if ($result_atrasado && $row_atrasado = $result_atrasado->fetch_assoc()) {
-        $total_atrasado = floatval($row_atrasado['total_valor'] ?? 0);
-        $emprestimos_atrasados = intval($row_atrasado['total_emprestimos'] ?? 0);
-        $parcelas_atrasadas = intval($row_atrasado['total_parcelas'] ?? 0);
-    } else {
-        error_log("Erro ao calcular total atrasado: " . $conn->error);
+    if (!$stmt_atrasado) {
+        error_log("Erro ao preparar a query de parcelas atrasadas: " . $conn->error);
         $total_atrasado = 0;
         $emprestimos_atrasados = 0;
         $parcelas_atrasadas = 0;
+    } else {
+        $stmt_atrasado->bind_param("s", $ontem);
+        $stmt_atrasado->execute();
+        $result_atrasado = $stmt_atrasado->get_result();
+        
+        if ($result_atrasado && $row_atrasado = $result_atrasado->fetch_assoc()) {
+            $total_atrasado = floatval($row_atrasado['total_valor'] ?? 0);
+            $emprestimos_atrasados = intval($row_atrasado['total_emprestimos'] ?? 0);
+            $parcelas_atrasadas = intval($row_atrasado['total_parcelas'] ?? 0);
+        } else {
+            error_log("Erro ao calcular total atrasado: " . $conn->error);
+            $total_atrasado = 0;
+            $emprestimos_atrasados = 0;
+            $parcelas_atrasadas = 0;
+        }
     }
 } catch (Exception $e) {
     // Log do erro (você pode implementar um sistema de log)

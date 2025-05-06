@@ -11,14 +11,18 @@ $emprestimos = buscarTodosEmprestimosComCliente($conn);
 $total_emprestado = 0;
 $total_recebido = 0;
 $total_pendente = 0;
-$emprestimos_ativos = 0;
+
+// Usar a função corrigida para contar empréstimos ativos
+$emprestimos_ativos = contarEmprestimosAtivos($conn);
+
+// Calcula os demais valores
 $emprestimos_atrasados = 0;
 
 foreach ($emprestimos as $e) {
     $total_emprestado += $e['valor_emprestado'];
     $total_recebido += $e['total_pago'];
 
-    // Verifica o status baseado nas parcelas
+    // Verifica o status baseado nas parcelas para contar emprestimos atrasados
     $stmt = $conn->prepare("
         SELECT status, vencimento 
         FROM parcelas 
@@ -29,13 +33,11 @@ foreach ($emprestimos as $e) {
     $result = $stmt->get_result();
     $parcelas = $result->fetch_all(MYSQLI_ASSOC);
     
-    $todas_pagas = true;
     $tem_atrasada = false;
     
     if (count($parcelas) > 0) {
         foreach ($parcelas as $p) {
             if ($p['status'] !== 'pago') {
-                $todas_pagas = false;
                 // Verifica se está atrasada
                 $data_vencimento = new DateTime($p['vencimento']);
                 $hoje_menos_um = new DateTime();
@@ -49,11 +51,8 @@ foreach ($emprestimos as $e) {
         }
     }
 
-    if (!$todas_pagas) {
-        $emprestimos_ativos++;
-        if ($tem_atrasada) {
-            $emprestimos_atrasados++;
-        }
+    if ($tem_atrasada && $e['status'] != 'inativo') {
+        $emprestimos_atrasados++;
     }
 }
 $total_pendente = $total_emprestado - $total_recebido;
