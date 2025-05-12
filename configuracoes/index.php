@@ -331,20 +331,75 @@ require_once '../includes/head.php';
 ?>
 
 <div class="container py-4">
+    <h1 class="mb-4">Configurações do Sistema</h1>
+    
+    <?php if ($mensagem): ?>
+        <div class="alert alert-<?= $tipo_mensagem ?> alert-dismissible fade show" role="alert">
+            <?= $mensagem ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+    <?php endif; ?>
+
+    <!-- Cards de Acesso Rápido -->
     <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-wallet2 text-primary"></i> Contas de Investidores
+                    </h5>
+                    <p class="card-text">Gerencie contas para investidores depositarem e movimentarem créditos.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="contas.php" class="btn btn-primary w-100">
+                        <i class="bi bi-arrow-right-circle"></i> Acessar Contas
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Adicione mais cards aqui para outras funcionalidades relacionadas -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-people text-success"></i> Usuários do Sistema
+                    </h5>
+                    <p class="card-text">Gerenciar usuários e permissões de acesso ao sistema.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="../usuarios/" class="btn btn-success w-100">
+                        <i class="bi bi-arrow-right-circle"></i> Gerenciar Usuários
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-envelope text-warning"></i> Templates de Mensagens
+                    </h5>
+                    <p class="card-text">Configure modelos de mensagens para envio de cobranças e notificações.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="../mensagens/templates_mensagens.php" class="btn btn-warning w-100">
+                        <i class="bi bi-arrow-right-circle"></i> Editar Templates
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Configurações Gerais -->
+    <div class="row">
         <div class="col-12">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Configurações do Sistema</h5>
+                    <h5 class="mb-0">Configurações Gerais</h5>
                 </div>
                 <div class="card-body">
-                    <?php if (!empty($mensagem)): ?>
-                        <div class="alert alert-<?= $tipo_mensagem ?> alert-dismissible fade show" role="alert">
-                            <?= $mensagem ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    <?php endif; ?>
-                    
                     <form method="post" enctype="multipart/form-data">
                         <ul class="nav nav-tabs mb-4" id="configTabs" role="tablist">
                             <li class="nav-item" role="presentation">

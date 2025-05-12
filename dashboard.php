@@ -67,6 +67,41 @@ try {
         $total_pendente = 0;
     }
     
+    // Calculando o total a receber - somando todas as parcelas (pagas e não pagas) de empréstimos ativos
+    $sql_a_receber = "SELECT 
+                        SUM(p.valor) AS total 
+                    FROM parcelas p
+                    INNER JOIN emprestimos e ON p.emprestimo_id = e.id
+                    WHERE e.status = 'ativo'";
+    $result_a_receber = $conn->query($sql_a_receber);
+    if ($result_a_receber && $row_a_receber = $result_a_receber->fetch_assoc()) {
+        $total_a_receber = floatval($row_a_receber['total'] ?? 0);
+    } else {
+        error_log("Erro ao calcular total a receber: " . $conn->error);
+        $total_a_receber = 0;
+    }
+    
+    // Calculando o total que falta receber - somando todas as parcelas não pagas
+    $sql_falta_receber = "SELECT 
+                        SUM(
+                            CASE 
+                                WHEN p.status = 'pendente' THEN p.valor 
+                                WHEN p.status = 'parcial' THEN (p.valor - IFNULL(p.valor_pago, 0))
+                                WHEN p.status = 'atrasado' THEN p.valor
+                                ELSE 0 
+                            END
+                        ) AS total 
+                    FROM parcelas p
+                    INNER JOIN emprestimos e ON p.emprestimo_id = e.id
+                    WHERE p.status != 'pago'";
+    $result_falta_receber = $conn->query($sql_falta_receber);
+    if ($result_falta_receber && $row_falta_receber = $result_falta_receber->fetch_assoc()) {
+        $total_falta_receber = floatval($row_falta_receber['total'] ?? 0);
+    } else {
+        error_log("Erro ao calcular total que falta receber: " . $conn->error);
+        $total_falta_receber = 0;
+    }
+    
     // Calculando total atrasado corretamente
     $ontem = date('Y-m-d', strtotime('-1 day'));
     
@@ -173,6 +208,7 @@ try {
                     <div class="card-body">
                         <h6 class="card-title">Total Emprestado</h6>
                         <h4 class="mb-0">R$ <?= number_format($total_emprestado, 2, ',', '.') ?></h4>
+                        <p class="mt-1 mb-0">A receber: R$ <?= number_format($total_a_receber, 2, ',', '.') ?></p>
                     </div>
                 </div>
             </div>
@@ -181,6 +217,7 @@ try {
                     <div class="card-body">
                         <h6 class="card-title">Total Recebido</h6>
                         <h4 class="mb-0">R$ <?= number_format($total_recebido, 2, ',', '.') ?></h4>
+                        <p class="mt-1 mb-0">Falta receber: R$ <?= number_format($total_falta_receber, 2, ',', '.') ?></p>
                     </div>
                 </div>
             </div>
@@ -227,6 +264,7 @@ try {
                     <div class="card-body">
                         <h6 class="card-title">Total Emprestado</h6>
                         <h4 class="mb-0">R$ <?= number_format($total_emprestado, 2, ',', '.') ?></h4>
+                        <p class="mt-1 mb-0">A receber: R$ <?= number_format($total_a_receber, 2, ',', '.') ?></p>
                     </div>
                 </div>
             </div>
@@ -235,6 +273,7 @@ try {
                     <div class="card-body">
                         <h6 class="card-title">Total Recebido</h6>
                         <h4 class="mb-0">R$ <?= number_format($total_recebido, 2, ',', '.') ?></h4>
+                        <p class="mt-1 mb-0">Falta receber: R$ <?= number_format($total_falta_receber, 2, ',', '.') ?></p>
                     </div>
                 </div>
             </div>
