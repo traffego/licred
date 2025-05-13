@@ -2,6 +2,10 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/includes/conexao.php';
 require_once __DIR__ . '/includes/autenticacao.php';
+
+// Verificar se o usuário é administrador
+apenasAdmin();
+
 require_once __DIR__ . '/includes/head.php';
 require_once __DIR__ . '/includes/queries.php';
 require_once __DIR__ . '/includes/verificar_parcelas.php';

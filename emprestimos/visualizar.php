@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/autenticacao.php';
 require_once __DIR__ . '/../includes/conexao.php';
+
+// Verificar se o usuário é administrador
+apenasAdmin();
+
 require_once __DIR__ . '/../includes/head.php';
 require_once __DIR__ . '/../includes/queries.php';
 
@@ -20,7 +24,12 @@ if (!$emprestimo_id) {
 }
 
 // Buscar informações básicas do empréstimo
-$stmt = $conn->prepare("SELECT e.*, c.nome AS cliente_nome, c.cpf_cnpj as cpf, c.telefone FROM emprestimos e JOIN clientes c ON e.cliente_id = c.id WHERE e.id = ?");
+$stmt = $conn->prepare("SELECT e.*, c.nome AS cliente_nome, c.cpf_cnpj as cpf, c.telefone, 
+                         u.nome AS investidor_nome 
+                         FROM emprestimos e 
+                         JOIN clientes c ON e.cliente_id = c.id 
+                         LEFT JOIN usuarios u ON e.investidor_id = u.id 
+                         WHERE e.id = ?");
 $stmt->bind_param("i", $emprestimo_id);
 $stmt->execute();
 $emprestimo = $stmt->get_result()->fetch_assoc();
@@ -212,18 +221,54 @@ foreach ($parcelas as $p) {
                         <i class="bi bi-person-circle me-2" style="font-size: 2rem; color: #2c7744;"></i>
                         <div>
                             <h6 class="mb-0 fs-6"><?= htmlspecialchars($emprestimo['cliente_nome']) ?></h6>
-                            <span class="text-muted small"><?= formatarCPF($emprestimo['cpf'] ?? '') ?></span>
+                            <?php if (!empty($emprestimo['cpf'])): ?>
+                                <small class="text-muted"><?= formatarCPF($emprestimo['cpf']) ?></small>
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <div class="border-top pt-2">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-telephone me-2" style="color: #2c7744;"></i>
-                            <div>
-                                <div class="text-muted small">Telefone:</div>
-                                <strong class="fs-6"><?= formatarTelefone($emprestimo['telefone']) ?></strong>
-                            </div>
+                    <?php if (!empty($emprestimo['telefone'])): ?>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-2"><i class="bi bi-telephone"></i></div>
+                            <a href="tel:<?= preg_replace('/\D/', '', $emprestimo['telefone']) ?>" class="text-decoration-none">
+                                <?= formatarTelefone($emprestimo['telefone']) ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                    <div class="d-flex mt-1">
+                        <a href="../clientes/visualizar.php" class="btn btn-sm btn-outline-secondary w-100"
+                           onclick="event.preventDefault(); document.getElementById('visualizar-cliente').submit();">
+                            Ver Detalhes do Cliente
+                        </a>
+                    </div>
+                    <form id="visualizar-cliente" action="../clientes/visualizar.php" method="post" style="display: none;">
+                        <input type="hidden" name="id" value="<?= $emprestimo['cliente_id'] ?>">
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card Investidor -->
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-header investidor-header py-2 text-center" style="background-color: #234878; color: white;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Investidor</h5>
+                    </div>
+                </div>
+                <div class="card-body py-2 d-flex flex-column justify-content-center">
+                    <?php if (!empty($emprestimo['investidor_nome'])): ?>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-person-badge me-2" style="font-size: 2rem; color: #234878;"></i>
+                        <div>
+                            <h6 class="mb-0 fs-6"><?= htmlspecialchars($emprestimo['investidor_nome']) ?></h6>
+                            <small class="text-muted">Fonte do capital</small>
                         </div>
                     </div>
+                    <?php else: ?>
+                    <div class="alert alert-warning py-2 mb-0">
+                        <small>Nenhum investidor vinculado</small>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

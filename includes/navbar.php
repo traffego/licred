@@ -4,9 +4,12 @@ require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/autenticacao.php';
 
 $pagina_atual = basename($_SERVER['PHP_SELF']);
+$is_admin = temPermissao('admin');
+$is_investidor = isset($_SESSION['nivel_autoridade']) && $_SESSION['nivel_autoridade'] === 'investidor';
 ?>
 
-<!-- Barra superior com informações de parcelas -->
+<!-- Barra superior com informações de parcelas (visível apenas para administradores) -->
+<?php if ($is_admin): ?>
 <div class="topbar bg-dark text-white py-1">
     <div class="container d-flex justify-content-between align-items-center">
         <?php
@@ -59,11 +62,12 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
         ?>
     </div>
 </div>
+<?php endif; ?>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-blue-dark">
     <div class="container">
         <!-- Logo e Nome -->
-        <a class="navbar-brand" href="<?= BASE_URL ?>">
+        <a class="navbar-brand" href="<?= $is_investidor ? BASE_URL . 'investidor.php' : BASE_URL ?>">
             <img id="logo-img" src="<?= BASE_URL ?>assets/img/logo.png" alt="Logo" height="30" class="me-2">
         </a>
 
@@ -75,7 +79,8 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
         <!-- Menu Principal -->
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav mx-auto">
-                <!-- Dashboard -->
+                <?php if ($is_admin): ?>
+                <!-- Dashboard (Admin) -->
                 <li class="nav-item">
                     <a class="nav-link <?= $pagina_atual === 'dashboard.php' ? 'active' : '' ?>" 
                        href="<?= BASE_URL ?>dashboard.php">
@@ -84,7 +89,7 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
                     </a>
                 </li>
 
-                <!-- Empréstimos -->
+                <!-- Empréstimos (Admin) -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['emprestimos/index.php', 'emprestimos/novo.php', 'emprestimos/visualizar.php']) ? 'active' : '' ?>" 
                        href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -97,7 +102,7 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
                     </ul>
                 </li>
 
-                <!-- Clientes -->
+                <!-- Clientes (Admin) -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['clientes/index.php', 'clientes/novo.php', 'clientes/visualizar.php']) ? 'active' : '' ?>" 
                        href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -110,7 +115,7 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
                     </ul>
                 </li>
 
-                <!-- Relatórios -->
+                <!-- Relatórios (Admin) -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['relatorios/diario.php', 'relatorios/mensal.php']) ? 'active' : '' ?>" 
                        href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -124,7 +129,7 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
                 </li>
 
                 
-                <!-- Feriados -->
+                <!-- Feriados (Admin) -->
                 <li class="nav-item">
                     <a class="nav-link <?= $pagina_atual === 'feriados/index.php' ? 'active' : '' ?>" 
                        href="<?= BASE_URL ?>feriados/">
@@ -132,20 +137,64 @@ $pagina_atual = basename($_SERVER['PHP_SELF']);
                             Feriados
                     </a>
                 </li>
+                
+                <!-- Contas (Admin) -->
+                <li class="nav-item">
+                    <a class="nav-link <?= $pagina_atual === 'configuracoes/contas.php' ? 'active' : '' ?>" 
+                       href="<?= BASE_URL ?>configuracoes/contas.php">
+                            <i class="bi bi-wallet2 me-1"></i>
+                            Contas
+                    </a>
+                </li>
+
+                <!-- Solicitações de Saque (Admin) -->
+                <li class="nav-item">
+                    <a class="nav-link <?= $pagina_atual === 'configuracoes/saques.php' ? 'active' : '' ?>" 
+                       href="<?= BASE_URL ?>configuracoes/saques.php">
+                            <i class="bi bi-cash-coin me-1"></i>
+                            Solicitações de Saque
+                    </a>
+                </li>
+                <?php else: ?>
+                <!-- Menu do Investidor -->
+                <li class="nav-item">
+                    <a class="nav-link <?= $pagina_atual === 'investidor.php' ? 'active' : '' ?>" 
+                       href="<?= BASE_URL ?>investidor.php">
+                            <i class="bi bi-speedometer2 me-1"></i>
+                            Dashboard
+                    </a>
+                </li>
+                
+                <!-- Histórico de Aportes (Investidor) -->
+                <li class="nav-item">
+                    <a class="nav-link <?= strpos($pagina_atual, 'configuracoes/movimentacoes.php') !== false ? 'active' : '' ?>" 
+                       href="<?= BASE_URL ?>configuracoes/movimentacoes.php?meus_aportes=1">
+                            <i class="bi bi-cash-coin me-1"></i>
+                            Meus Aportes
+                    </a>
+                </li>
+                <?php endif; ?>
             </ul>
 
             <!-- Menu do Usuário -->
             <div class="dropdown">
                 <a class="nav-link dropdown-toggle text-white active" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person-circle me-1"></i>
-                    <span class="d-none d-lg-inline">Admin</span>
+                    <span class="d-none d-lg-inline">
+                        <?= $is_admin ? 'Admin' : 'Investidor' ?>
+                    </span>
                     <span class="d-lg-none">Ver Perfil</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
+                    <?php if ($is_admin): ?>
                     <li><a class="dropdown-item" href="<?= BASE_URL ?>usuarios/"><i class="bi bi-people me-2"></i>Usuários</a></li>
                     <li><a class="dropdown-item" href="<?= BASE_URL ?>relatorios/"><i class="bi bi-bar-chart me-2"></i>Relatórios</a></li>
                     <li><a class="dropdown-item" href="<?= BASE_URL ?>configuracoes/"><i class="bi bi-gear me-2"></i>Configurações</a></li>
                     <li><hr class="dropdown-divider"></li>
+                    <?php else: ?>
+                    <li><a class="dropdown-item" href="<?= BASE_URL ?>configuracoes/perfil.php"><i class="bi bi-person me-2"></i>Meu Perfil</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <?php endif; ?>
                     <li><a class="dropdown-item text-danger" href="<?= BASE_URL ?>logout.php"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
                 </ul>
             </div>

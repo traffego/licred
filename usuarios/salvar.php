@@ -118,6 +118,28 @@ try {
             throw new Exception("Erro ao inserir usuário: " . $stmt->error);
         }
         
+        // Se for um investidor, criar automaticamente uma conta para ele
+        if ($tipo === 'investidor') {
+            $novo_usuario_id = $conn->insert_id;
+            
+            // Criar conta principal para o investidor
+            $sql_conta = "INSERT INTO contas (usuario_id, nome, descricao, saldo_inicial, comissao, status, criado_em, atualizado_em) 
+                         VALUES (?, 'Conta Principal', 'Conta padrão para operações de investimento', 0.00, 40.00, 'ativo', NOW(), NOW())";
+            $stmt_conta = $conn->prepare($sql_conta);
+            
+            if (!$stmt_conta) {
+                // Log do erro, mas não impede a criação do usuário
+                error_log("Erro ao preparar a criação da conta para o investidor: " . $conn->error);
+            } else {
+                $stmt_conta->bind_param("i", $novo_usuario_id);
+                
+                if (!$stmt_conta->execute()) {
+                    // Log do erro, mas não impede a criação do usuário
+                    error_log("Erro ao criar conta para o investidor: " . $stmt_conta->error);
+                }
+            }
+        }
+        
         $_SESSION['sucesso'] = 'Usuário cadastrado com sucesso!';
         header('Location: index.php');
         exit;

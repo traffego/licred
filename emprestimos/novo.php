@@ -12,6 +12,54 @@ if (!$cliente_id) {
 // Busca clientes para o select
 $clientes = buscarTodosClientes($conn);
 
+// Buscar usuários investidores
+$sql_investidores = "SELECT id, nome FROM usuarios WHERE tipo = 'investidor' OR id = 1 ORDER BY nome";
+$result_investidores = $conn->query($sql_investidores);
+$investidores = [];
+
+if ($result_investidores && $result_investidores->num_rows > 0) {
+    while ($row = $result_investidores->fetch_assoc()) {
+        // Marcar o administrador (id=1)
+        if ($row['id'] == 1) {
+            $row['nome'] = $row['nome'] . ' (Administrador)';
+        }
+        $investidores[] = $row;
+    }
+}
+
+// Buscar investidores que têm contas ativas
+$sql_contas = "SELECT DISTINCT usuario_id FROM contas WHERE status = 'ativo'";
+$result_contas = $conn->query($sql_contas);
+$investidores_com_conta = [];
+
+if ($result_contas && $result_contas->num_rows > 0) {
+    while ($row = $result_contas->fetch_assoc()) {
+        $investidores_com_conta[] = $row['usuario_id'];
+    }
+}
+
+// Se não houver resultados, verificar se a coluna 'tipo' existe na tabela 'usuarios'
+if (empty($investidores)) {
+    $check_column = $conn->query("SHOW COLUMNS FROM usuarios LIKE 'tipo'");
+    $tipo_column_exists = ($check_column && $check_column->num_rows > 0);
+    
+    if (!$tipo_column_exists) {
+        // Se a coluna não existir, buscar todos os usuários
+        $sql_usuarios = "SELECT id, nome FROM usuarios ORDER BY nome";
+        $result_usuarios = $conn->query($sql_usuarios);
+        
+        if ($result_usuarios && $result_usuarios->num_rows > 0) {
+            while ($row = $result_usuarios->fetch_assoc()) {
+                // Marcar o administrador (id=1)
+                if ($row['id'] == 1) {
+                    $row['nome'] = $row['nome'] . ' (Administrador)';
+                }
+                $investidores[] = $row;
+            }
+        }
+    }
+}
+
 // Se tiver um cliente_id, busca seus dados
 $cliente_selecionado = null;
 if ($cliente_id) {
@@ -90,6 +138,35 @@ if ($cliente_id) {
                                     </select>
                                 </div>
                             <?php endif; ?>
+                        </div>
+
+                        <!-- Investidor -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="bi bi-person-badge"></i> Investidor
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="investidor_id" class="form-label">Selecione o Investidor:</label>
+                                        <select class="form-select" id="investidor_id" name="investidor_id" required>
+                                            <option value="">Selecione um investidor</option>
+                                            <?php foreach ($investidores as $investidor): 
+                                                $tem_conta = in_array($investidor['id'], $investidores_com_conta);
+                                            ?>
+                                                <option value="<?= $investidor['id'] ?>" <?= !$tem_conta ? 'data-sem-conta="true"' : '' ?>>
+                                                    <?= htmlspecialchars($investidor['nome']) ?><?= !$tem_conta ? ' (Sem conta)' : '' ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <div id="aviso-investidor" class="text-danger mt-2" style="display: none;">
+                                            <i class="bi bi-exclamation-triangle-fill"></i> Este investidor não possui uma conta ativa. 
+                                            Por favor, solicite ao administrador que crie uma conta para este investidor antes de registrar empréstimos.
+                                        </div>
+                                        <small class="form-text text-muted">O valor do empréstimo será debitado da conta deste investidor.</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Configurações -->
@@ -431,11 +508,20 @@ document.getElementById('modo_calculo').addEventListener('change', function() {
     verificarFormulario();
 });
 
-// Adiciona o evento de submit ao formulário
-document.getElementById('formEmprestimo').addEventListener('submit', prepararEnvio);
-
-// Função para converter valores antes do envio
-function prepararEnvio(e) {
+// Verifica quando o formulário é enviado
+document.getElementById('formEmprestimo').addEventListener('submit', function(e) {
+    // Primeiro validar se o investidor tem conta
+    const investidorSelect = document.getElementById('investidor_id');
+    const option = investidorSelect.options[investidorSelect.selectedIndex];
+    
+    if (option && option.getAttribute('data-sem-conta') === 'true') {
+        e.preventDefault();
+        alert('Não é possível registrar o empréstimo. O investidor selecionado não possui uma conta ativa.');
+        investidorSelect.focus();
+        return false;
+    }
+    
+    // Se passar pela validação da conta, preparar os valores para envio
     e.preventDefault();
     
     // Converte campos de moeda
@@ -463,7 +549,7 @@ function prepararEnvio(e) {
 
     // Envia o formulário
     document.getElementById('formEmprestimo').submit();
-}
+});
 
 // Inicializa o Select2 de forma mais simples
 $(document).ready(function() {
@@ -487,6 +573,21 @@ $(document).ready(function() {
             return `${data.text} - ${investidor}`;
         }
     });
+});
+
+// Verificar se o investidor selecionado tem conta ativa
+document.getElementById('investidor_id').addEventListener('change', function() {
+    const option = this.options[this.selectedIndex];
+    const avisoInvestidor = document.getElementById('aviso-investidor');
+    const semConta = option.getAttribute('data-sem-conta') === 'true';
+    
+    if (semConta) {
+        avisoInvestidor.style.display = 'block';
+        this.classList.add('is-invalid');
+    } else {
+        avisoInvestidor.style.display = 'none';
+        this.classList.remove('is-invalid');
+    }
 });
 </script>
 

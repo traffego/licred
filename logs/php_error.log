@@ -558,3 +558,458 @@ Stack trace:
                      FROM parcelas 
                      WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-11'))
 [12-May-2025 10:30:34 America/Sao_Paulo] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\emprestimos\includes\navbar.php:96) in C:\xampp\htdocs\emprestimos\configuracoes\movimentacoes.php on line 19
+[12-May-2025 15:10:35 America/Sao_Paulo] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\emprestimos\includes\navbar.php:96) in C:\xampp\htdocs\emprestimos\emprestimos\confirmar_saldo_negativo.php on line 167
+[12-May-2025 15:36:00 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27, 28, 29, 30, 31
+[12-May-2025 15:36:00 America/Sao_Paulo] Total de empréstimos ativos (contagem): 5
+[12-May-2025 15:36:00 America/Sao_Paulo] Total de parcelas com status 'atrasado': 9
+[12-May-2025 15:36:00 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[12-May-2025 15:36:00 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-11'))
+[12-May-2025 15:37:33 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27, 28, 29, 30, 31
+[12-May-2025 15:37:33 America/Sao_Paulo] Total de empréstimos ativos (contagem): 5
+[12-May-2025 15:37:33 America/Sao_Paulo] Total de parcelas com status 'atrasado': 9
+[12-May-2025 15:37:33 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[12-May-2025 15:37:33 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-11'))
+[12-May-2025 15:37:44 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27, 28, 29, 30, 31
+[12-May-2025 15:37:44 America/Sao_Paulo] Total de empréstimos ativos (contagem): 5
+[12-May-2025 15:37:44 America/Sao_Paulo] Total de parcelas com status 'atrasado': 9
+[12-May-2025 15:37:44 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[12-May-2025 15:37:44 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-11'))
+[12-May-2025 15:51:42 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27, 28, 34
+[12-May-2025 15:51:42 America/Sao_Paulo] Total de empréstimos ativos (contagem): 3
+[12-May-2025 15:51:42 America/Sao_Paulo] Total de parcelas com status 'atrasado': 9
+[12-May-2025 15:51:42 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[12-May-2025 15:51:42 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-11'))
+[12-May-2025 15:51:44 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27, 28, 34
+[12-May-2025 15:51:44 America/Sao_Paulo] Total de empréstimos ativos (contagem): 3
+[12-May-2025 15:51:44 America/Sao_Paulo] Total de parcelas com status 'atrasado': 9
+[12-May-2025 15:51:44 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[12-May-2025 15:51:44 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-11'))
+[12-May-2025 15:54:06 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27, 28, 34, 35
+[12-May-2025 15:54:06 America/Sao_Paulo] Total de empréstimos ativos (contagem): 4
+[12-May-2025 15:54:06 America/Sao_Paulo] Total de parcelas com status 'atrasado': 9
+[12-May-2025 15:54:06 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[12-May-2025 15:54:06 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-11'))
+[13-May-2025 10:38:06 America/Sao_Paulo] [PARCELAS] 1 parcelas atualizadas para status 'atrasado'
+[13-May-2025 10:47:14 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27, 28, 34, 35, 36, 37, 38, 39, 40
+[13-May-2025 10:47:14 America/Sao_Paulo] Total de empréstimos ativos (contagem): 9
+[13-May-2025 10:47:14 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 10:47:14 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 10:47:14 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 10:47:32 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\relatorios\parcelas_atraso.php on line 140
+[13-May-2025 10:47:32 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\relatorios\parcelas_atraso.php on line 140
+[13-May-2025 10:47:32 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\relatorios\parcelas_atraso.php on line 140
+[13-May-2025 10:47:32 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\relatorios\parcelas_atraso.php on line 140
+[13-May-2025 10:47:32 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\relatorios\parcelas_atraso.php on line 140
+[13-May-2025 10:47:32 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\relatorios\parcelas_atraso.php on line 140
+[13-May-2025 10:47:32 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\relatorios\parcelas_atraso.php on line 140
+[13-May-2025 10:47:32 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\relatorios\parcelas_atraso.php on line 140
+[13-May-2025 10:47:32 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\relatorios\parcelas_atraso.php on line 140
+[13-May-2025 10:47:32 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\relatorios\parcelas_atraso.php on line 140
+[13-May-2025 10:47:45 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27, 28, 34, 35, 36, 37, 38, 39, 40
+[13-May-2025 10:47:45 America/Sao_Paulo] Total de empréstimos ativos (contagem): 9
+[13-May-2025 10:47:45 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 10:47:45 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 10:47:45 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 10:50:40 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27, 28, 34, 35, 36, 37, 38, 39, 40
+[13-May-2025 10:50:40 America/Sao_Paulo] Total de empréstimos ativos (contagem): 9
+[13-May-2025 10:50:40 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 10:50:40 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 10:50:40 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 10:51:14 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27, 28, 34, 35, 36, 37, 38, 39, 40
+[13-May-2025 10:51:14 America/Sao_Paulo] Total de empréstimos ativos (contagem): 9
+[13-May-2025 10:51:14 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 10:51:14 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 10:51:14 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 11:14:40 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27
+[13-May-2025 11:14:40 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 11:14:40 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 11:14:40 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 11:14:40 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 11:15:57 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27
+[13-May-2025 11:15:57 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 11:15:57 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 11:15:57 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 11:15:57 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 11:17:35 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27
+[13-May-2025 11:17:35 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 11:17:35 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 11:17:35 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 11:17:35 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 11:17:36 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27
+[13-May-2025 11:17:36 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 11:17:36 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 11:17:36 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 11:17:36 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 11:17:36 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27
+[13-May-2025 11:17:36 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 11:17:36 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 11:17:36 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 11:17:36 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 11:19:24 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27
+[13-May-2025 11:19:24 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 11:19:24 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 11:19:24 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 11:19:24 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 11:25:09 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27
+[13-May-2025 11:25:09 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 11:25:09 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 11:25:09 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 11:25:09 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 11:25:10 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27
+[13-May-2025 11:25:10 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 11:25:10 America/Sao_Paulo] Total de parcelas com status 'atrasado': 10
+[13-May-2025 11:25:10 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 11:25:10 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 11:46:26 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27
+[13-May-2025 11:46:26 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 11:46:26 America/Sao_Paulo] Total de parcelas com status 'atrasado': 11
+[13-May-2025 11:46:26 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 11:46:26 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 14:38:27 America/Sao_Paulo] PHP Warning:  Undefined array key "comissao" in C:\xampp\htdocs\emprestimos\configuracoes\contas.php on line 68
+[13-May-2025 14:38:27 America/Sao_Paulo] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in C:\xampp\htdocs\emprestimos\configuracoes\contas.php on line 68
+[13-May-2025 14:41:06 America/Sao_Paulo] PHP Warning:  Undefined array key "comissao" in C:\xampp\htdocs\emprestimos\configuracoes\contas.php on line 68
+[13-May-2025 14:41:06 America/Sao_Paulo] PHP Deprecated:  str_replace(): Passing null to parameter #3 ($subject) of type array|string is deprecated in C:\xampp\htdocs\emprestimos\configuracoes\contas.php on line 68
+[13-May-2025 15:03:08 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 15:03:08","email":"investidor@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"b1diubsiiadugcplj2kfo96241","csrf_token":64}
+[13-May-2025 15:03:34 America/Sao_Paulo] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\emprestimos\includes\navbar.php:96) in C:\xampp\htdocs\emprestimos\configuracoes\contas.php on line 9
+[13-May-2025 15:03:42 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 15:03:42","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"rekmbnlmcikdbrb0i9rs05slkb","csrf_token":64}
+[13-May-2025 15:03:42 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27
+[13-May-2025 15:03:42 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 15:03:42 America/Sao_Paulo] Total de parcelas com status 'atrasado': 11
+[13-May-2025 15:03:42 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 15:03:42 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 15:04:39 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 15:04:39","email":"investidor@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"ajbmccsacgtunib071vj7ceae5","csrf_token":64}
+[13-May-2025 15:05:15 America/Sao_Paulo] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\emprestimos\includes\navbar.php:96) in C:\xampp\htdocs\emprestimos\investidor.php on line 123
+[13-May-2025 15:07:37 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 15:07:37","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"r8obdq5ip4o9rfvqlfkq0uuen5","csrf_token":64}
+[13-May-2025 15:07:37 America/Sao_Paulo] Total de empréstimos ativos (IDs): 27
+[13-May-2025 15:07:37 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 15:07:37 America/Sao_Paulo] Total de parcelas com status 'atrasado': 11
+[13-May-2025 15:07:37 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 15:07:37 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 15:10:48 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 15:10:48","email":"investidor@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"iuplfreumgq97h8npvan513gle","csrf_token":64}
+[13-May-2025 15:12:11 America/Sao_Paulo] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\emprestimos\includes\navbar.php:96) in C:\xampp\htdocs\emprestimos\configuracoes\movimentacoes.php on line 9
+[13-May-2025 15:23:22 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 15:23:22","email":"investidor@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"39k0osdi6h4rvjdj7avtl6uu8s","csrf_token":64}
+[13-May-2025 15:30:31 America/Sao_Paulo] [2025-05-13 15:30:31] Tentativa de acesso não autorizado: Usuário ID 2 tentou acessar /emprestimos/emprestimos/visualizar.php?id=35
+[13-May-2025 15:49:41 America/Sao_Paulo] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\emprestimos\includes\navbar.php:189) in C:\xampp\htdocs\emprestimos\configuracoes\movimentacoes.php on line 35
+[13-May-2025 15:49:48 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 15:49:48","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"ithshqesj82p19anink5v76qs0","csrf_token":64}
+[13-May-2025 15:49:48 America/Sao_Paulo] Total de empréstimos ativos (IDs): 41
+[13-May-2025 15:49:48 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 15:49:48 America/Sao_Paulo] Total de parcelas com status 'atrasado': 0
+[13-May-2025 15:49:48 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 15:49:48 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 15:56:47 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 15:56:48","email":"investidor@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"sudjvjg04cb24ium1qf3rse4t7","csrf_token":64}
+[13-May-2025 16:04:18 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'emprestimosv2.solicitacoes_saque' doesn't exist in C:\xampp\htdocs\emprestimos\investidor.php:222
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\investidor.php(222): mysqli->prepare('SELECT * FROM s...')
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\investidor.php on line 222
+[13-May-2025 16:05:20 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'emprestimosv2.solicitacoes_saque' doesn't exist in C:\xampp\htdocs\emprestimos\investidor.php:222
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\investidor.php(222): mysqli->prepare('SELECT * FROM s...')
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\investidor.php on line 222
+[13-May-2025 16:07:22 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 16:07:22","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"46dn1qks78u7d7r61qdeq72p0s","csrf_token":64}
+[13-May-2025 16:07:22 America/Sao_Paulo] Total de empréstimos ativos (IDs): 41
+[13-May-2025 16:07:22 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 16:07:22 America/Sao_Paulo] Total de parcelas com status 'atrasado': 0
+[13-May-2025 16:07:22 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 16:07:22 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 16:07:39 America/Sao_Paulo] Total de empréstimos ativos (IDs): 41
+[13-May-2025 16:07:39 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[13-May-2025 16:07:39 America/Sao_Paulo] Total de parcelas com status 'atrasado': 0
+[13-May-2025 16:07:39 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 16:07:39 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 16:09:06 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 16:09:06","email":"investidor@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"4iblpgrr4q09cfpvl13flub2ce","csrf_token":64}
+[13-May-2025 16:26:31 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'c.numero' in 'field list' in C:\xampp\htdocs\emprestimos\investidor.php:52
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\investidor.php(52): mysqli->prepare('SELECT \r\n      ...')
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\investidor.php on line 52
+[13-May-2025 16:27:34 America/Sao_Paulo] PHP Warning:  Undefined array key "descricao" in C:\xampp\htdocs\emprestimos\investidor.php on line 497
+[13-May-2025 16:27:34 America/Sao_Paulo] PHP Warning:  Undefined array key "valor_total" in C:\xampp\htdocs\emprestimos\investidor.php on line 552
+[13-May-2025 16:27:34 America/Sao_Paulo] PHP Warning:  Undefined array key "comissao" in C:\xampp\htdocs\emprestimos\investidor.php on line 553
+[13-May-2025 16:27:34 America/Sao_Paulo] PHP Warning:  Undefined array key "parcelas_pendentes" in C:\xampp\htdocs\emprestimos\investidor.php on line 557
+[13-May-2025 16:27:34 America/Sao_Paulo] PHP Warning:  Undefined array key "parcelas_pendentes" in C:\xampp\htdocs\emprestimos\investidor.php on line 565
+[13-May-2025 16:27:34 America/Sao_Paulo] PHP Warning:  Undefined array key "data_inicio" in C:\xampp\htdocs\emprestimos\investidor.php on line 580
+[13-May-2025 16:27:34 America/Sao_Paulo] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in C:\xampp\htdocs\emprestimos\investidor.php on line 580
+[13-May-2025 16:28:58 America/Sao_Paulo] PHP Warning:  Undefined array key "descricao" in C:\xampp\htdocs\emprestimos\investidor.php on line 497
+[13-May-2025 16:29:20 America/Sao_Paulo] PHP Warning:  Undefined array key "descricao" in C:\xampp\htdocs\emprestimos\investidor.php on line 497
+[13-May-2025 16:30:08 America/Sao_Paulo] PHP Warning:  Undefined array key "descricao" in C:\xampp\htdocs\emprestimos\investidor.php on line 497
+[13-May-2025 16:30:27 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 16:30:27","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"r5iujmquse1ud9uo87o8kbp5na","csrf_token":64}
+[13-May-2025 16:30:28 America/Sao_Paulo] Total de empréstimos ativos (IDs): 41, 42
+[13-May-2025 16:30:28 America/Sao_Paulo] Total de empréstimos ativos (contagem): 2
+[13-May-2025 16:30:28 America/Sao_Paulo] Total de parcelas com status 'atrasado': 0
+[13-May-2025 16:30:28 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 16:30:28 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 16:49:41 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 16:49:41","email":"investidor@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"1quitqflm93b9kj74bmta7hmqv","csrf_token":64}
+[13-May-2025 16:49:41 America/Sao_Paulo] PHP Warning:  Undefined array key "descricao" in C:\xampp\htdocs\emprestimos\investidor.php on line 497
+[13-May-2025 16:53:06 America/Sao_Paulo] PHP Warning:  Undefined array key "descricao" in C:\xampp\htdocs\emprestimos\investidor.php on line 497
+[13-May-2025 16:58:02 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 16:58:02","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"l59gnf5suriekspukchh6di2ul","csrf_token":64}
+[13-May-2025 16:58:03 America/Sao_Paulo] Total de empréstimos ativos (IDs): 41, 42
+[13-May-2025 16:58:03 America/Sao_Paulo] Total de empréstimos ativos (contagem): 2
+[13-May-2025 16:58:03 America/Sao_Paulo] Total de parcelas com status 'atrasado': 0
+[13-May-2025 16:58:03 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[13-May-2025 16:58:03 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-12'))
+[13-May-2025 16:59:13 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 31
+[13-May-2025 16:59:13 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 32
+[13-May-2025 16:59:13 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 33
+[13-May-2025 17:00:08 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-13 17:00:08","email":"investidor@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"e3q0pdvu2fd28ii1rdicise121","csrf_token":64}

@@ -2,14 +2,11 @@
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/autenticacao.php';
 require_once __DIR__ . '/../includes/conexao.php';
-require_once __DIR__ . '/../includes/head.php';
 
-// Verifica se o usuário tem permissão de administrador ou superadmin
-$nivel_usuario = $_SESSION['nivel_autoridade'] ?? '';
-if ($nivel_usuario !== 'administrador' && $nivel_usuario !== 'superadmin') {
-    echo '<div class="container py-4"><div class="alert alert-danger">Você não tem permissão para acessar esta página.</div></div>';
-    exit;
-}
+// Verificar permissões administrativas
+apenasAdmin();
+
+require_once __DIR__ . '/../includes/head.php';
 
 // Busca todos os usuários
 $sql = "SELECT id, nome, email, tipo, nivel_autoridade FROM usuarios ORDER BY nome ASC";

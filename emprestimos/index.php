@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/autenticacao.php';
 require_once __DIR__ . '/../includes/conexao.php';
+
+// Verificar permissões administrativas
+apenasAdmin();
+
 require_once __DIR__ . '/../includes/head.php';
 require_once __DIR__ . '/../includes/queries.php';
 
@@ -76,6 +80,9 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                         <h5>Resumo do Empréstimo:</h5>
                         <ul class="list-unstyled">
                             <li><strong>Cliente:</strong> <?= htmlspecialchars($emprestimo_novo['cliente_nome']) ?></li>
+                            <?php if (!empty($emprestimo_novo['investidor_nome'])): ?>
+                            <li><strong>Investidor:</strong> <?= htmlspecialchars($emprestimo_novo['investidor_nome']) ?></li>
+                            <?php endif; ?>
                             <li><strong>Valor:</strong> R$ <?= number_format($emprestimo_novo['valor_emprestado'], 2, ',', '.') ?></li>
                             <li><strong>Parcelas:</strong> <?= $emprestimo_novo['parcelas'] ?>x de R$ <?= number_format($emprestimo_novo['valor_parcela'], 2, ',', '.') ?></li>
                             <?php if ($emprestimo_novo['juros_percentual'] > 0): ?>
@@ -271,6 +278,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
       <thead class="table-light">
         <tr>
                             <th style="width: 25%">Cliente</th>
+                            <th style="width: 15%">Investidor</th>
                             <th style="width: 15%">Tipo</th>
                             <th style="width: 15%">Valor</th>
                             <th style="width: 15%">Parcelas</th>
@@ -346,12 +354,19 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                             </small>
                                         </div>
                                     </div>
-            </td>
+                                </td>
+                                <td>
+                                    <?php if (!empty($e['investidor_nome'])): ?>
+                                    <span class="text-muted"><?= htmlspecialchars($e['investidor_nome']) ?></span>
+                                    <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <span class="badge text-bg-info">
                                         <?= ucfirst(str_replace('_', ' ', $e['tipo_de_cobranca'])) ?>
               </span>
-            </td>
+                                </td>
                                 <td>
                                     <div class="fw-bold">R$ <?= number_format($e['valor_emprestado'], 2, ',', '.') ?></div>
                                     <?php if ($e['juros_percentual'] > 0): ?>

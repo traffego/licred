@@ -1,0 +1,30 @@
+# Força todos os arquivos de texto a usar LF como final de linha
+* text=auto eol=lf
+
+# PHP, HTML, JS, CSS sempre com LF
+*.php text eol=lf
+*.html text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.xml text eol=lf
+*.sql text eol=lf
+
+# Arquivos que não devem ser convertidos (binários)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.exe binary
+
+# Evita alterações acidentais em arquivos do Git
+.gitattributes text eol=lf
+.gitignore text eol=lf

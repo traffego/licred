@@ -56,6 +56,7 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
     $sql = "SELECT 
                 e.id,
                 e.cliente_id,
+                e.investidor_id,
                 e.tipo_de_cobranca,
                 e.valor_emprestado,
                 e.parcelas,
@@ -66,9 +67,11 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
                 e.data_criacao,
                 e.data_atualizacao,
                 e.status,
-                c.nome AS cliente_nome 
+                c.nome AS cliente_nome,
+                u.nome AS investidor_nome
             FROM emprestimos e 
             JOIN clientes c ON e.cliente_id = c.id
+            LEFT JOIN usuarios u ON e.investidor_id = u.id
             WHERE e.status != 'inativo' OR e.status IS NULL
             ORDER BY e.id DESC";
             
@@ -108,7 +111,7 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
         $emprestimo['total_previsto'] = $total_previsto;
         $emprestimo['total_pago'] = $total_pago;
         $emprestimo['parcelas_pagas'] = $parcelas_pagas;
-
+        
         $lista[] = $emprestimo;
     }
 
@@ -168,9 +171,11 @@ function buscarTodosClientes(mysqli $conn): array {
 function buscarEmprestimoPorId(mysqli $conn, int $id) {
     $sql = "SELECT 
                 e.*,
-                c.nome as cliente_nome 
+                c.nome as cliente_nome,
+                u.nome as investidor_nome
             FROM emprestimos e 
             INNER JOIN clientes c ON e.cliente_id = c.id 
+            LEFT JOIN usuarios u ON e.investidor_id = u.id
             WHERE e.id = ?";
     
     $stmt = $conn->prepare($sql);

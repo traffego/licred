@@ -379,6 +379,22 @@ require_once '../includes/head.php';
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">
+                        <i class="bi bi-cash-coin text-info"></i> Solicitações de Saque
+                    </h5>
+                    <p class="card-text">Gerencie as solicitações de saque dos investidores.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="saques.php" class="btn btn-info text-white w-100">
+                        <i class="bi bi-arrow-right-circle"></i> Gerenciar Saques
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
                         <i class="bi bi-envelope text-warning"></i> Templates de Mensagens
                     </h5>
                     <p class="card-text">Configure modelos de mensagens para envio de cobranças e notificações.</p>

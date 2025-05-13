@@ -106,7 +106,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log("LOGIN BEM-SUCEDIDO: " . json_encode($log_info, JSON_UNESCAPED_UNICODE));
 
         $stmt->close();
-        header("Location: dashboard.php");
+        
+        // Redirecionar com base no nível de autoridade
+        require_once __DIR__ . '/includes/autenticacao.php';
+        redirecionarPorNivel();
         exit();
 
     } catch (Exception $e) {

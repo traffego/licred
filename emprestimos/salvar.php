@@ -10,6 +10,12 @@ if (!$cliente_id) {
     die("Cliente inválido.");
 }
 
+// Valida investidor_id
+$investidor_id = filter_input(INPUT_POST, 'investidor_id', FILTER_VALIDATE_INT);
+if (!$investidor_id) {
+    die("Investidor inválido.");
+}
+
 // Valida tipo de cobrança
 $tipo_cobranca = $_POST['tipo_cobranca'] ?? '';
 if (!in_array($tipo_cobranca, ['parcelada_comum', 'reparcelada_com_juros'])) {
@@ -100,9 +106,23 @@ $configuracao = [
     'valor_parcela_padrao' => $valor_parcela // Adiciona o valor padrão da parcela na configuração
 ];
 
-// Prepara a query de inserção do empréstimo
+// Primeiro, verificar se a tabela emprestimos tem a coluna investidor_id
+$result = $conn->query("SHOW COLUMNS FROM emprestimos LIKE 'investidor_id'");
+$column_exists = ($result && $result->num_rows > 0);
+
+// Se a coluna não existir, adicioná-la
+if (!$column_exists) {
+    $sql_alter = "ALTER TABLE emprestimos ADD COLUMN investidor_id INT DEFAULT NULL AFTER cliente_id, 
+                 ADD FOREIGN KEY (investidor_id) REFERENCES usuarios(id)";
+    if (!$conn->query($sql_alter)) {
+        die("Erro ao adicionar coluna investidor_id: " . $conn->error);
+    }
+}
+
+// Prepara a query de inserção do empréstimo (agora com investidor_id)
 $sql = "INSERT INTO emprestimos (
     cliente_id,
+    investidor_id,
     tipo_de_cobranca,
     valor_emprestado,
     parcelas,
@@ -110,7 +130,7 @@ $sql = "INSERT INTO emprestimos (
     juros_percentual,
     data_inicio,
     configuracao
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
 if (!$stmt) {
@@ -120,8 +140,9 @@ if (!$stmt) {
 $configuracao_json = json_encode($configuracao);
 
 $stmt->bind_param(
-    "issiidss",
+    "iissiidss",
     $cliente_id,
+    $investidor_id,
     $tipo_cobranca,
     $valor_emprestado,
     $parcelas,
@@ -135,12 +156,74 @@ $stmt->bind_param(
 $conn->begin_transaction();
 
 try {
+    // Verifica se o investidor tem uma conta
+    $stmt_conta = $conn->prepare("SELECT id FROM contas WHERE usuario_id = ? AND status = 'ativo' LIMIT 1");
+    $stmt_conta->bind_param("i", $investidor_id);
+    $stmt_conta->execute();
+    $result_conta = $stmt_conta->get_result();
+    
+    // Se não existir conta para o investidor, mostrar erro
+    if ($result_conta->num_rows === 0) {
+        throw new Exception("O investidor selecionado não possui uma conta ativa. Por favor, solicite ao administrador que crie uma conta para este investidor antes de registrar empréstimos.");
+    }
+    
+    $conta = $result_conta->fetch_assoc();
+    $conta_id = $conta['id'];
+    
+    // Verifica se a conta tem saldo suficiente
+    $stmt_saldo = $conn->prepare("
+        SELECT 
+            c.saldo_inicial + COALESCE(SUM(CASE WHEN mc.tipo = 'entrada' THEN mc.valor ELSE -mc.valor END), 0) as saldo_atual
+        FROM contas c
+        LEFT JOIN movimentacoes_contas mc ON c.id = mc.conta_id
+        WHERE c.id = ?
+        GROUP BY c.id
+    ");
+    $stmt_saldo->bind_param("i", $conta_id);
+    $stmt_saldo->execute();
+    $result_saldo = $stmt_saldo->get_result();
+    $saldo_info = $result_saldo->fetch_assoc();
+    
+    $saldo_atual = $saldo_info ? $saldo_info['saldo_atual'] : 0;
+    
+    // Se o saldo for insuficiente, redirecionar para confirmação do administrador
+    if ($saldo_atual < $valor_emprestado) {
+        // Armazenar os dados do empréstimo em variáveis de sessão
+        $_SESSION['emprestimo_dados'] = [
+            'cliente_id' => $cliente_id,
+            'investidor_id' => $investidor_id,
+            'tipo_cobranca' => $tipo_cobranca,
+            'valor_emprestado' => $valor_emprestado,
+            'parcelas' => $parcelas,
+            'valor_parcela' => $valor_parcela,
+            'juros_percentual' => $juros_percentual,
+            'data_inicio' => $data_inicio,
+            'configuracao' => $configuracao,
+            'conta_id' => $conta_id,
+            'saldo_atual' => $saldo_atual
+        ];
+        
+        // Redirecionar para a página de confirmação
+        header("Location: confirmar_saldo_negativo.php");
+        exit;
+    }
+    
     // Insere o empréstimo
     if (!$stmt->execute()) {
         throw new Exception("Erro ao inserir empréstimo: " . $stmt->error);
     }
     
     $emprestimo_id = $conn->insert_id;
+    
+    // Registra a movimentação de saída na conta do investidor
+    $sql_movimentacao = "INSERT INTO movimentacoes_contas (conta_id, tipo, valor, descricao, data_movimentacao) 
+                        VALUES (?, 'saida', ?, CONCAT('Empréstimo #', ?), NOW())";
+    $stmt_movimentacao = $conn->prepare($sql_movimentacao);
+    $stmt_movimentacao->bind_param("idi", $conta_id, $valor_emprestado, $emprestimo_id);
+    
+    if (!$stmt_movimentacao->execute()) {
+        throw new Exception("Erro ao registrar movimentação: " . $stmt_movimentacao->error);
+    }
     
     // Gerar as parcelas no backend
     $parcelas_array = gerarParcelas(
