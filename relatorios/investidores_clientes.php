@@ -87,7 +87,7 @@ $sql = "SELECT
         FROM 
             usuarios u
             LEFT JOIN clientes c ON u.id = c.indicacao
-            LEFT JOIN emprestimos e ON c.id = e.cliente_id
+            LEFT JOIN emprestimos e ON c.id = e.cliente_id AND c.indicacao = u.id
         WHERE 
             u.tipo = 'investidor'";
 
@@ -152,6 +152,7 @@ if ($filtro_investidor > 0) {
                          FROM parcelas p
                          JOIN emprestimos e2 ON p.emprestimo_id = e2.id
                          WHERE e2.cliente_id = c.id
+                         AND c.indicacao = ?
                          AND p.data_pagamento BETWEEN ? AND ?
                      ) AS valor_pago,
                      (
@@ -159,6 +160,7 @@ if ($filtro_investidor > 0) {
                          FROM parcelas p
                          JOIN emprestimos e2 ON p.emprestimo_id = e2.id
                          WHERE e2.cliente_id = c.id
+                         AND c.indicacao = ?
                          AND p.status IN ('pendente', 'atrasado', 'parcial')
                      ) AS valor_pendente,
                      (
@@ -166,6 +168,7 @@ if ($filtro_investidor > 0) {
                          FROM parcelas p
                          JOIN emprestimos e2 ON p.emprestimo_id = e2.id
                          WHERE e2.cliente_id = c.id
+                         AND c.indicacao = ?
                          AND p.status IN ('pendente', 'atrasado')
                          AND p.vencimento < CURRENT_DATE()
                      ) AS parcelas_atrasadas
@@ -180,7 +183,7 @@ if ($filtro_investidor > 0) {
                      c.nome ASC";
     
     $stmt_clientes = $conn->prepare($sql_clientes);
-    $stmt_clientes->bind_param("ssi", $data_inicio, $data_fim, $filtro_investidor);
+    $stmt_clientes->bind_param("isiii", $filtro_investidor, $data_inicio, $data_fim, $filtro_investidor, $filtro_investidor, $filtro_investidor);
     $stmt_clientes->execute();
     $result_clientes = $stmt_clientes->get_result();
     

@@ -1,5 +1,6 @@
 # Força todos os arquivos de texto a usar LF como final de linha
 * text=auto eol=lf
+* text eol=lf
 
 # PHP, HTML, JS, CSS sempre com LF
 *.php text eol=lf

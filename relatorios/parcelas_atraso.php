@@ -11,14 +11,18 @@ if ($nivel_usuario !== 'administrador' && $nivel_usuario !== 'superadmin') {
     exit;
 }
 
+// Data de ontem para verificar parcelas atrasadas
+$ontem = date('Y-m-d', strtotime('-1 day'));
+
 // Consulta para buscar parcelas em atraso
 $sql = "SELECT 
             c.nome AS nome_cliente,
             c.telefone AS telefone_cliente,
             e.id AS id_emprestimo,
+            p.id AS parcela_id,
             p.numero AS numero_parcela,
             p.valor AS valor_parcela,
-            p.valor_pago AS valor_pago,
+            IFNULL(p.valor_pago, 0) AS valor_pago,
             p.status,
             p.vencimento,
             DATEDIFF(CURRENT_DATE(), p.vencimento) AS dias_atraso
@@ -27,12 +31,15 @@ $sql = "SELECT
             INNER JOIN emprestimos e ON p.emprestimo_id = e.id
             INNER JOIN clientes c ON e.cliente_id = c.id
         WHERE 
-            p.status IN ('pendente', 'atrasado')
-            AND p.vencimento < CURRENT_DATE()
+            (p.status = 'atrasado' OR (p.status IN ('pendente', 'parcial') AND p.vencimento < ?))
+            AND (e.status = 'ativo' OR e.status IS NULL)
         ORDER BY 
             dias_atraso DESC, c.nome ASC";
 
-$result = $conn->query($sql);
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $ontem);
+$stmt->execute();
+$result = $stmt->get_result();
 $parcelas_atraso = [];
 
 if ($result && $result->num_rows > 0) {
@@ -45,15 +52,26 @@ if ($result && $result->num_rows > 0) {
 $total_pendente = 0;
 $total_clientes_atraso = 0;
 $clientes_unicos = [];
+$emprestimos_unicos = [];
 
 foreach ($parcelas_atraso as $parcela) {
-    $total_pendente += ($parcela['valor_parcela'] - $parcela['valor_pago']);
+    // Calcular valor pendente considerando valor_pago
+    $valor_pendente = floatval($parcela['valor_parcela']) - floatval($parcela['valor_pago']);
+    $total_pendente += $valor_pendente;
     
+    // Contar clientes únicos
     if (!in_array($parcela['nome_cliente'], $clientes_unicos)) {
         $clientes_unicos[] = $parcela['nome_cliente'];
         $total_clientes_atraso++;
     }
+    
+    // Contar empréstimos únicos
+    if (!in_array($parcela['id_emprestimo'], $emprestimos_unicos)) {
+        $emprestimos_unicos[] = $parcela['id_emprestimo'];
+    }
 }
+
+$total_emprestimos_atraso = count($emprestimos_unicos);
 ?>
 
 <body>
@@ -80,7 +98,7 @@ foreach ($parcelas_atraso as $parcela) {
         
         <!-- Resumo -->
         <div class="row mb-4">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card bg-danger text-white">
                     <div class="card-body">
                         <h5 class="card-title">Total Pendente</h5>
@@ -88,7 +106,7 @@ foreach ($parcelas_atraso as $parcela) {
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card bg-warning">
                     <div class="card-body">
                         <h5 class="card-title">Parcelas em Atraso</h5>
@@ -96,11 +114,19 @@ foreach ($parcelas_atraso as $parcela) {
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card bg-info text-white">
                     <div class="card-body">
                         <h5 class="card-title">Clientes em Atraso</h5>
                         <h3 class="mb-0"><?= $total_clientes_atraso ?></h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Empréstimos Afetados</h5>
+                        <h3 class="mb-0"><?= $total_emprestimos_atraso ?></h3>
                     </div>
                 </div>
             </div>
@@ -129,7 +155,16 @@ foreach ($parcelas_atraso as $parcela) {
                             </thead>
                             <tbody>
                                 <?php foreach ($parcelas_atraso as $parcela): 
-                                    $valor_pendente = $parcela['valor_parcela'] - $parcela['valor_pago'];
+                                    $valor_pendente = floatval($parcela['valor_parcela']) - floatval($parcela['valor_pago']);
+                                    
+                                    // Determinar a classe de cor adequada para o status
+                                    if ($parcela['status'] === 'atrasado') {
+                                        $status_class = 'danger';
+                                    } elseif ($parcela['status'] === 'parcial') {
+                                        $status_class = 'info';
+                                    } else {
+                                        $status_class = 'secondary';
+                                    }
                                 ?>
                                 <tr>
                                     <td><?= htmlspecialchars($parcela['nome_cliente']) ?></td>
@@ -140,7 +175,7 @@ foreach ($parcelas_atraso as $parcela) {
                                     <td>R$ <?= number_format($parcela['valor_pago'], 2, ',', '.') ?></td>
                                     <td>R$ <?= number_format($valor_pendente, 2, ',', '.') ?></td>
                                     <td>
-                                        <span class="badge bg-<?= $parcela['status'] == 'atrasado' ? 'danger' : 'warning' ?>">
+                                        <span class="badge bg-<?= $status_class ?>">
                                             <?= ucfirst($parcela['status']) ?>
                                         </span>
                                     </td>

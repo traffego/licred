@@ -121,10 +121,12 @@ if (isset($_POST['salvar'])) {
 
 // Consulta para todas as contas
 $sql = "SELECT c.*, u.nome as usuario_nome, 
-        (SELECT SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END) FROM movimentacoes_contas WHERE conta_id = c.id) + c.saldo_inicial as saldo_atual,
+        COALESCE(c.saldo_inicial + SUM(CASE WHEN mc.tipo = 'entrada' THEN mc.valor ELSE -mc.valor END), c.saldo_inicial) as saldo_atual,
         COALESCE(c.comissao, 0) as comissao
        FROM contas c
        LEFT JOIN usuarios u ON c.usuario_id = u.id
+       LEFT JOIN movimentacoes_contas mc ON c.id = mc.conta_id
+       GROUP BY c.id, c.nome, c.descricao, c.status, c.saldo_inicial, c.comissao, c.usuario_id, c.criado_em, c.atualizado_em, u.nome
        ORDER BY c.status DESC, c.nome ASC";
 
 $result = $conn->query($sql);
@@ -132,10 +134,6 @@ $contas = [];
 
 if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        // Se saldo_atual for NULL (nenhuma movimentação), usar saldo_inicial
-        if ($row['saldo_atual'] === null) {
-            $row['saldo_atual'] = $row['saldo_inicial'];
-        }
         $contas[] = $row;
     }
 }
@@ -292,32 +290,31 @@ usort($investidores, function($a, $b) {
                             </div>
                         </div>
                         <div class="card-footer bg-transparent">
-                            <div class="d-flex justify-content-between">
-                                <a href="movimentacoes.php?conta_id=<?= $conta['id'] ?>" 
-                                   class="btn btn-info text-white" 
-                                   title="Movimentações">
-                                    <i class="bi bi-cash-coin me-1"></i>Movimentações
-                                </a>
-                                <div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex gap-2 flex-grow-1">
+                                    <a href="movimentacoes.php?conta_id=<?= $conta['id'] ?>" 
+                                       class="btn btn-primary flex-grow-1" 
+                                       title="Ver movimentações da conta">
+                                        <i class="bi bi-cash-coin me-2"></i>Movimentações
+                                    </a>
+                                    
+                                    <a href="editar_conta.php?id=<?= $conta['id'] ?>" 
+                                       class="btn btn-warning" 
+                                       title="Editar detalhes da conta">
+                                        <i class="bi bi-pencil-square me-2"></i>Detalhes
+                                    </a>
+                                    
+                                    <?php if (!$isAdminConta): ?>
                                     <button type="button" 
-                                            class="btn btn-sm btn-primary editar-conta" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#contaModal" 
-                                            data-id="<?= $conta['id'] ?>"
-                                            data-usuario-id="<?= $conta['usuario_id'] ?>"
-                                            data-descricao="<?= htmlspecialchars($conta['descricao']) ?>"
-                                            data-comissao="<?= $conta['comissao'] ?>"
-                                            data-status="<?= $conta['status'] ?>">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button type="button" 
-                                            class="btn btn-sm btn-danger excluir-conta"
+                                            class="btn btn-danger excluir-conta"
                                             data-bs-toggle="modal"
                                             data-bs-target="#confirmExcluirModal"
                                             data-id="<?= $conta['id'] ?>"
-                                            data-nome="<?= htmlspecialchars($conta['nome']) ?>">
+                                            data-nome="<?= htmlspecialchars($conta['nome']) ?>"
+                                            title="Excluir conta">
                                         <i class="bi bi-trash"></i>
                                     </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>

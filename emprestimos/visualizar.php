@@ -246,39 +246,13 @@ foreach ($parcelas as $p) {
                 </div>
             </div>
         </div>
-        
-        <!-- Card Investidor -->
-        <div class="col-md-3">
-            <div class="card h-100">
-                <div class="card-header investidor-header py-2 text-center" style="background-color: #234878; color: white;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Investidor</h5>
-                    </div>
-                </div>
-                <div class="card-body py-2 d-flex flex-column justify-content-center">
-                    <?php if (!empty($emprestimo['investidor_nome'])): ?>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-person-badge me-2" style="font-size: 2rem; color: #234878;"></i>
-                        <div>
-                            <h6 class="mb-0 fs-6"><?= htmlspecialchars($emprestimo['investidor_nome']) ?></h6>
-                            <small class="text-muted">Fonte do capital</small>
-                        </div>
-                    </div>
-                    <?php else: ?>
-                    <div class="alert alert-warning py-2 mb-0">
-                        <small>Nenhum investidor vinculado</small>
-                    </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
 
-        <!-- Card Valores -->
+        <!-- Card Valores e Investidor -->
         <div class="col-md-3">
             <div class="card h-100">
                 <div class="card-header valores-header py-2 text-center">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Valores</h5>
+                        <h5 class="card-title mb-0">Valores e Investidor</h5>
                     </div>
                 </div>
                 <div class="card-body py-2 d-flex flex-column justify-content-center">
@@ -286,23 +260,23 @@ foreach ($parcelas as $p) {
                         <label class="text-muted small">Capital:</label>
                         <h6 class="mb-0 fs-6">R$ <?= number_format($emprestimo['valor_emprestado'], 2, ',', '.') ?></h6>
                     </div>
-                    <div class="border-top pt-2">
-                        <?php if ($emprestimo['juros_percentual'] > 0): ?>
-                        <div class="mb-2">
-                            <label class="text-muted small">Juros:</label>
-                            <h6 class="mb-0 fs-6"><?= number_format($emprestimo['juros_percentual'], 2, ',', '') ?>%</h6>
-                        </div>
+                    <?php if ($emprestimo['juros_percentual'] > 0): ?>
+                    <div class="mb-2">
+                        <label class="text-muted small">Juros:</label>
+                        <h6 class="mb-0 fs-6"><?= number_format($emprestimo['juros_percentual'], 2, ',', '') ?>%</h6>
+                    </div>
+                    <?php endif; ?>
+                    <div class="mb-2">
+                        <label class="text-muted small">Total:</label>
+                        <h6 class="mb-0 fs-6">R$ <?= number_format($total_previsto, 2, ',', '.') ?></h6>
+                    </div>
+                    <div class="border-top pt-2 mt-2">
+                        <label class="text-muted small">Investidor:</label>
+                        <?php if (!empty($emprestimo['investidor_nome'])): ?>
+                            <h6 class="mb-0 fs-6"><?= htmlspecialchars($emprestimo['investidor_nome']) ?></h6>
+                        <?php else: ?>
+                            <h6 class="mb-0 fs-6 text-muted">Não definido</h6>
                         <?php endif; ?>
-                        <?php if ($configuracao['usar_tlc']): ?>
-                        <div class="mb-2">
-                            <label class="text-muted small">TLC:</label>
-                            <h6 class="mb-0 fs-6">R$ <?= number_format($configuracao['tlc_valor'], 2, ',', '.') ?></h6>
-                        </div>
-                        <?php endif; ?>
-                        <div>
-                            <label class="text-muted small">Total:</label>
-                            <h6 class="mb-0 fs-6">R$ <?= number_format($total_previsto, 2, ',', '.') ?></h6>
-                        </div>
                     </div>
                 </div>
             </div>

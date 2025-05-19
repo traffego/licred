@@ -406,6 +406,22 @@ require_once '../includes/head.php';
                 </div>
             </div>
         </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-danger">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-trash3 text-danger"></i> Limpar Sistema
+                    </h5>
+                    <p class="card-text">Ferramenta para excluir todos os dados do sistema: clientes, empréstimos, parcelas e movimentações.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="limpar_sistema.php" class="btn btn-outline-danger w-100">
+                        <i class="bi bi-exclamation-triangle"></i> Limpar Sistema
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Configurações Gerais -->

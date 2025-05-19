@@ -116,16 +116,12 @@ $is_investidor = isset($_SESSION['nivel_autoridade']) && $_SESSION['nivel_autori
                 </li>
 
                 <!-- Relatórios (Admin) -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['relatorios/diario.php', 'relatorios/mensal.php']) ? 'active' : '' ?>" 
-                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <li class="nav-item">
+                    <a class="nav-link <?= strpos($pagina_atual, 'relatorios/') !== false ? 'active' : '' ?>" 
+                       href="<?= BASE_URL ?>relatorios/">
                             <i class="bi bi-graph-up me-1"></i>
                             Relatórios
                     </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>relatorios/diario.php"><i class="bi bi-calendar-day me-2"></i>Diário</a></li>
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>relatorios/mensal.php"><i class="bi bi-calendar-month me-2"></i>Mensal</a></li>
-                    </ul>
                 </li>
 
                 
@@ -140,21 +136,13 @@ $is_investidor = isset($_SESSION['nivel_autoridade']) && $_SESSION['nivel_autori
                 
                 <!-- Contas (Admin) -->
                 <li class="nav-item">
-                    <a class="nav-link <?= $pagina_atual === 'configuracoes/contas.php' ? 'active' : '' ?>" 
+                    <a class="nav-link <?= $pagina_atual === 'configuracoes/contas.php' ? 'active' : '' ?>"
                        href="<?= BASE_URL ?>configuracoes/contas.php">
-                            <i class="bi bi-wallet2 me-1"></i>
-                            Contas
+                        <i class="bi bi-wallet2 me-1"></i>
+                        Contas
                     </a>
                 </li>
 
-                <!-- Solicitações de Saque (Admin) -->
-                <li class="nav-item">
-                    <a class="nav-link <?= $pagina_atual === 'configuracoes/saques.php' ? 'active' : '' ?>" 
-                       href="<?= BASE_URL ?>configuracoes/saques.php">
-                            <i class="bi bi-cash-coin me-1"></i>
-                            Solicitações de Saque
-                    </a>
-                </li>
                 <?php else: ?>
                 <!-- Menu do Investidor -->
                 <li class="nav-item">

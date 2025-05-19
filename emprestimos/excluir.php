@@ -65,15 +65,45 @@ if ($confirmado == 1) {
             header("Location: index.php?sucesso=1&msg=" . urlencode("Empréstimo inativado com sucesso!"));
             exit;
         } else {
-            // Exclui as parcelas primeiro
-            $stmt = $conn->prepare("DELETE FROM parcelas WHERE emprestimo_id = ?");
+            // Processo de exclusão total - removendo em ordem para respeitar restrições de chave estrangeira
+            
+            // 1. Remover registros da tabela retorno_capital
+            $sql = "DELETE FROM retorno_capital WHERE emprestimo_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $emprestimo_id);
+            $stmt->execute();
+            
+            // 2. Remover registros de controle_comissoes relacionados às parcelas deste empréstimo
+            $sql = "DELETE cc FROM controle_comissoes cc 
+                   INNER JOIN parcelas p ON cc.parcela_id = p.id 
+                   WHERE p.emprestimo_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $emprestimo_id);
+            $stmt->execute();
+            
+            // 3. Remover registros de controle_comissoes ligados diretamente ao empréstimo (se houver)
+            $sql = "DELETE FROM controle_comissoes WHERE emprestimo_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $emprestimo_id);
+            $stmt->execute();
+            
+            // 4. Remover parcelas do empréstimo
+            $sql = "DELETE FROM parcelas WHERE emprestimo_id = ?";
+            $stmt = $conn->prepare($sql);
             $stmt->bind_param("i", $emprestimo_id);
             
             if (!$stmt->execute()) {
                 throw new Exception("Erro ao excluir as parcelas: " . $stmt->error);
             }
             
-            // Depois exclui o empréstimo
+            // 5. Remover movimentações relacionadas a este empréstimo
+            $sql = "DELETE FROM movimentacoes_contas WHERE descricao LIKE ?";
+            $stmt = $conn->prepare($sql);
+            $descricao_like = "Retorno de capital - Empréstimo #$emprestimo_id%";
+            $stmt->bind_param("s", $descricao_like);
+            $stmt->execute();
+            
+            // 6. Finalmente, remover o empréstimo
             $stmt = $conn->prepare("DELETE FROM emprestimos WHERE id = ?");
             $stmt->bind_param("i", $emprestimo_id);
             

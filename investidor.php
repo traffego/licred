@@ -1,5 +1,5 @@
 <?php
-// Iniciar buffer de saída para evitar o erro "headers already sent"
+// Iniciar buffer de saída para evitar erros de "headers already sent"
 ob_start();
 
 require_once __DIR__ . '/config.php';
@@ -41,12 +41,13 @@ $usuario = $result_usuario->fetch_assoc();
 $sql_contas = "SELECT 
                 c.id, 
                 c.nome, 
+                c.descricao,
                 c.comissao,
                 c.saldo_inicial + COALESCE(SUM(CASE WHEN mc.tipo = 'entrada' THEN mc.valor ELSE -mc.valor END), 0) as saldo_atual 
                FROM contas c 
                LEFT JOIN movimentacoes_contas mc ON c.id = mc.conta_id 
                WHERE c.usuario_id = ? AND c.status = 'ativo' 
-               GROUP BY c.id";
+               GROUP BY c.id, c.nome, c.descricao, c.comissao";
                
 $stmt_contas = $conn->prepare($sql_contas);
 $stmt_contas->bind_param("i", $usuario_id);
@@ -58,6 +59,35 @@ $total_saldo = 0;
 if ($result_contas && $result_contas->num_rows > 0) {
     while ($conta = $result_contas->fetch_assoc()) {
         $contas[] = $conta;
+        $total_saldo += floatval($conta['saldo_atual']);
+    }
+}
+
+// Atualizar o saldo da conta após todas as operações (adicionar no início do arquivo, logo após obter os dados das contas)
+if (!empty($contas)) {
+    // Recalcular o saldo atual para refletir todas as movimentações, incluindo retornos recentes
+    $stmt_atualizar_saldo = $conn->prepare("SELECT 
+                                           c.id, 
+                                           c.saldo_inicial + COALESCE(SUM(CASE WHEN mc.tipo = 'entrada' THEN mc.valor ELSE -mc.valor END), 0) as saldo_atual 
+                                          FROM contas c 
+                                          LEFT JOIN movimentacoes_contas mc ON c.id = mc.conta_id 
+                                          WHERE c.id = ? 
+                                          GROUP BY c.id, c.saldo_inicial");
+    
+    foreach ($contas as $key => $conta) {
+        $stmt_atualizar_saldo->bind_param("i", $conta['id']);
+        $stmt_atualizar_saldo->execute();
+        $result_saldo = $stmt_atualizar_saldo->get_result();
+        
+        if ($result_saldo && $result_saldo->num_rows > 0) {
+            $saldo = $result_saldo->fetch_assoc();
+            $contas[$key]['saldo_atual'] = $saldo['saldo_atual'];
+        }
+    }
+    
+    // Recalcular o total do saldo
+    $total_saldo = 0;
+    foreach ($contas as $conta) {
         $total_saldo += floatval($conta['saldo_atual']);
     }
 }
@@ -95,21 +125,39 @@ $total_emprestado = 0;
 $total_recebido = 0;
 $total_parcelas_pagas = 0;
 $comissoes_calculadas = 0;
+$lucro_total_previsto = 0;
 
 if ($result_emprestimos && $result_emprestimos->num_rows > 0) {
     while ($emprestimo = $result_emprestimos->fetch_assoc()) {
+        // Calcular lucro total previsto para este empréstimo
+        $valor_emprestado = floatval($emprestimo['valor_emprestado']);
+        $valor_parcela = floatval($emprestimo['valor_parcela']);
+        $total_parcelas = intval($emprestimo['total_parcelas']);
+        
+        // Valor total previsto a receber
+        $valor_total_previsto = $valor_parcela * $total_parcelas;
+        
+        // Lucro previsto para este empréstimo
+        $lucro_previsto = $valor_total_previsto - $valor_emprestado;
+        
+        // Adicionar ao lucro total previsto
+        $lucro_total_previsto += $lucro_previsto;
+        
+        // Atualizar o empréstimo com o lucro previsto
+        $emprestimo['lucro_previsto'] = $lucro_previsto;
+        
         $emprestimos[] = $emprestimo;
-        $total_emprestado += floatval($emprestimo['valor_emprestado']);
+        $total_emprestado += $valor_emprestado;
         $total_recebido += floatval($emprestimo['total_recebido']);
         $total_parcelas_pagas += intval($emprestimo['parcelas_pagas']);
+    }
+    
+    // Calcular comissão total prevista (se houver conta com comissão configurada)
+    if (!empty($contas) && floatval($contas[0]['comissao']) > 0) {
+        $percentual_comissao = floatval($contas[0]['comissao']);
         
-        // Calcular comissão baseada nas parcelas pagas (se houver conta com comissão configurada)
-        if (!empty($contas) && floatval($contas[0]['comissao']) > 0) {
-            $percentual_comissao = floatval($contas[0]['comissao']);
-            $valor_parcelas_pagas = floatval($emprestimo['total_recebido']);
-            $comissao_calculada = $valor_parcelas_pagas * ($percentual_comissao / 100);
-            $comissoes_calculadas += $comissao_calculada;
-        }
+        // Calcular comissão sobre o lucro total previsto
+        $comissoes_calculadas = $lucro_total_previsto * ($percentual_comissao / 100);
     }
 }
 
@@ -146,124 +194,11 @@ if ($result_movimentacoes && $result_movimentacoes->num_rows > 0) {
 
 // Processar aporte (adição de saldo)
 if (isset($_POST['realizar_aporte'])) {
-    $conta_id = intval($_POST['conta_id']);
-    $valor = floatval(str_replace(',', '.', $_POST['valor_aporte']));
-    $descricao = trim($_POST['descricao']);
-    
-    // Verificar se o investidor possui apenas uma conta ativa e se é a conta informada
-    $sql_verificar_conta = "SELECT id FROM contas WHERE id = ? AND usuario_id = ? AND status = 'ativo' LIMIT 1";
-    $stmt_verificar = $conn->prepare($sql_verificar_conta);
-    $stmt_verificar->bind_param("ii", $conta_id, $usuario_id);
-    $stmt_verificar->execute();
-    $result_verificar = $stmt_verificar->get_result();
-    
-    if ($result_verificar && $result_verificar->num_rows > 0) {
-        // Conta pertence ao usuário e está ativa, registrar o aporte
-        $sql_aporte = "INSERT INTO movimentacoes_contas (conta_id, tipo, valor, descricao, data_movimentacao) 
-                      VALUES (?, 'entrada', ?, ?, NOW())";
-        $stmt_aporte = $conn->prepare($sql_aporte);
-        $stmt_aporte->bind_param("ids", $conta_id, $valor, $descricao);
-        
-        if ($stmt_aporte->execute()) {
-            // Aporte registrado com sucesso
-            $mensagem = "Aporte de R$ " . number_format($valor, 2, ',', '.') . " realizado com sucesso!";
-            $tipo_alerta = "success";
-            
-            // Redirecionar para evitar reenvio do formulário
-            header("Location: investidor.php?sucesso=1&msg=" . urlencode($mensagem));
-            exit;
-        } else {
-            $mensagem = "Erro ao registrar aporte: " . $conn->error;
-            $tipo_alerta = "danger";
-        }
-    } else {
-        $mensagem = "Conta inválida ou não pertence a você.";
-        $tipo_alerta = "danger";
-    }
-}
-
-// Processar solicitação de saque
-if (isset($_POST['solicitar_saque'])) {
-    $conta_id = intval($_POST['conta_id']);
-    $valor = floatval(str_replace(',', '.', $_POST['valor_saque']));
-    $descricao = trim($_POST['descricao_saque']);
-    
-    // Verificar se o investidor possui apenas uma conta ativa e se é a conta informada
-    $sql_verificar_conta = "SELECT id, saldo_inicial + COALESCE((SELECT SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END) FROM movimentacoes_contas WHERE conta_id = contas.id), 0) as saldo_atual FROM contas WHERE id = ? AND usuario_id = ? AND status = 'ativo' LIMIT 1";
-    $stmt_verificar = $conn->prepare($sql_verificar_conta);
-    $stmt_verificar->bind_param("ii", $conta_id, $usuario_id);
-    $stmt_verificar->execute();
-    $result_verificar = $stmt_verificar->get_result();
-    
-    if ($result_verificar && $result_verificar->num_rows > 0) {
-        $conta_info = $result_verificar->fetch_assoc();
-        $saldo_atual = floatval($conta_info['saldo_atual']);
-        
-        // Verificar se há saldo suficiente
-        if ($valor <= 0) {
-            $mensagem = "O valor do saque deve ser maior que zero.";
-            $tipo_alerta = "danger";
-        } elseif ($valor > $saldo_atual) {
-            $mensagem = "Saldo insuficiente para realizar o saque.";
-            $tipo_alerta = "danger";
-        } else {
-            // Verificar se a tabela solicitacoes_saque existe
-            $table_exists = $conn->query("SHOW TABLES LIKE 'solicitacoes_saque'");
-            if ($table_exists->num_rows == 0) {
-                // Criar a tabela se não existir
-                $sql_create_table = "CREATE TABLE IF NOT EXISTS solicitacoes_saque (
-                    id INT AUTO_INCREMENT PRIMARY KEY, 
-                    usuario_id INT NOT NULL, 
-                    conta_id INT NOT NULL, 
-                    valor DECIMAL(10,2) NOT NULL, 
-                    status ENUM('pendente', 'aprovado', 'rejeitado') DEFAULT 'pendente', 
-                    descricao TEXT, 
-                    data_solicitacao DATETIME DEFAULT CURRENT_TIMESTAMP, 
-                    data_processamento DATETIME NULL, 
-                    observacao_admin TEXT
-                )";
-                $conn->query($sql_create_table);
-            }
-            
-            // Registrar a solicitação de saque
-            $sql_saque = "INSERT INTO solicitacoes_saque (usuario_id, conta_id, valor, descricao) 
-                         VALUES (?, ?, ?, ?)";
-            $stmt_saque = $conn->prepare($sql_saque);
-            $stmt_saque->bind_param("iids", $usuario_id, $conta_id, $valor, $descricao);
-            
-            if ($stmt_saque->execute()) {
-                // Solicitação registrada com sucesso
-                $mensagem = "Solicitação de saque de R$ " . number_format($valor, 2, ',', '.') . " enviada com sucesso! Aguarde a aprovação do administrador.";
-                $tipo_alerta = "success";
-                
-                // Redirecionar para evitar reenvio do formulário
-                header("Location: investidor.php?sucesso=1&msg=" . urlencode($mensagem));
-                exit;
-            } else {
-                $mensagem = "Erro ao registrar solicitação de saque: " . $conn->error;
-                $tipo_alerta = "danger";
-            }
-        }
-    } else {
-        $mensagem = "Conta inválida ou não pertence a você.";
-        $tipo_alerta = "danger";
-    }
-}
-
-// Buscar solicitações de saque pendentes do investidor
-$sql_saques_pendentes = "SELECT * FROM solicitacoes_saque WHERE usuario_id = ? AND status = 'pendente' ORDER BY data_solicitacao DESC";
-$stmt_saques = $conn->prepare($sql_saques_pendentes);
-if ($stmt_saques) {
-    $stmt_saques->bind_param("i", $usuario_id);
-    $stmt_saques->execute();
-    $result_saques = $stmt_saques->get_result();
-    $saques_pendentes = [];
-
-    if ($result_saques && $result_saques->num_rows > 0) {
-        while ($saque = $result_saques->fetch_assoc()) {
-            $saques_pendentes[] = $saque;
-        }
-    }
+    // Redirecionar para a página principal com mensagem informativa
+    $mensagem = "Apenas administradores podem realizar aportes. Entre em contato com o administrador.";
+    $tipo_alerta = "warning";
+    header("Location: investidor.php?alerta=1&tipo=" . $tipo_alerta . "&msg=" . urlencode($mensagem));
+    exit;
 }
 
 // Verificar e creditar automaticamente comissões de parcelas pagas recentemente
@@ -277,14 +212,27 @@ if ($creditar_comissoes && !empty($contas) && floatval($contas[0]['comissao']) >
             parcela_id INT NOT NULL,
             usuario_id INT NOT NULL,
             conta_id INT NOT NULL,
+            emprestimo_id INT NOT NULL,
             valor_comissao DECIMAL(10,2) NOT NULL,
+            processado TINYINT(1) DEFAULT 0,
             data_processamento DATETIME DEFAULT CURRENT_TIMESTAMP,
             UNIQUE KEY (parcela_id, usuario_id)
         )";
         $conn->query($sql_criar_tabela);
+    } else {
+        // Adicionar coluna emprestimo_id e processado se não existirem
+        $result = $conn->query("SHOW COLUMNS FROM controle_comissoes LIKE 'emprestimo_id'");
+        if ($result->num_rows === 0) {
+            $conn->query("ALTER TABLE controle_comissoes ADD COLUMN emprestimo_id INT NOT NULL AFTER conta_id");
+        }
+        
+        $result = $conn->query("SHOW COLUMNS FROM controle_comissoes LIKE 'processado'");
+        if ($result->num_rows === 0) {
+            $conn->query("ALTER TABLE controle_comissoes ADD COLUMN processado TINYINT(1) DEFAULT 0 AFTER valor_comissao");
+        }
     }
     
-    // Buscar parcelas pagas que ainda não tiveram comissão creditada
+    // Buscar parcelas pagas que ainda não tiveram comissão registrada
     $sql_parcelas = "SELECT 
                         p.id as parcela_id,
                         p.emprestimo_id,
@@ -323,35 +271,40 @@ if ($creditar_comissoes && !empty($contas) && floatval($contas[0]['comissao']) >
             while ($parcela = $result_parcelas->fetch_assoc()) {
                 $percentual_comissao = floatval($contas[0]['comissao']);
                 $valor_pago = floatval($parcela['valor_pago']);
-                $valor_comissao = $valor_pago * ($percentual_comissao / 100);
+                $emprestimo_id = $parcela['emprestimo_id'];
                 
-                // Registrar na tabela de controle
+                // Obter informações do empréstimo para calcular o lucro corretamente
+                $stmt_emprestimo = $conn->prepare("SELECT valor_emprestado, parcelas, valor_parcela FROM emprestimos WHERE id = ?");
+                $stmt_emprestimo->bind_param("i", $emprestimo_id);
+                $stmt_emprestimo->execute();
+                $result_emp = $stmt_emprestimo->get_result();
+                $emprestimo_info = $result_emp->fetch_assoc();
+                
+                // Calcular o valor principal de cada parcela (sem juros)
+                $valor_principal_parcela = floatval($emprestimo_info['valor_emprestado']) / intval($emprestimo_info['parcelas']);
+                
+                // Valor total com juros da parcela
+                $valor_parcela_com_juros = floatval($emprestimo_info['valor_parcela']);
+                
+                // Calcular o lucro real (valor pago - valor principal da parcela)
+                $lucro = max(0, $valor_pago - $valor_principal_parcela);
+                
+                // Calcular comissão sobre o lucro
+                $valor_comissao = $lucro * ($percentual_comissao / 100);
+                
+                // Registrar na tabela de controle (sem processar agora)
                 $stmt_controle = $conn->prepare("INSERT INTO controle_comissoes 
-                                               (parcela_id, usuario_id, conta_id, valor_comissao) 
-                                               VALUES (?, ?, ?, ?)");
-                $stmt_controle->bind_param("iiid", 
+                                               (parcela_id, usuario_id, conta_id, emprestimo_id, valor_comissao, processado) 
+                                               VALUES (?, ?, ?, ?, ?, 0)");
+                $stmt_controle->bind_param("iiiid", 
                                           $parcela['parcela_id'], 
                                           $usuario_id, 
-                                          $contas[0]['id'], 
+                                          $contas[0]['id'],
+                                          $emprestimo_id,
                                           $valor_comissao);
                 
                 if (!$stmt_controle->execute()) {
                     throw new Exception("Erro ao registrar controle de comissão: " . $conn->error);
-                }
-                
-                // Adicionar valor como entrada na conta
-                $descricao = "Comissão - Parcela #{$parcela['numero']} do empréstimo #{$parcela['emprestimo_id']} ({$percentual_comissao}%)";
-                
-                $stmt_movimentacao = $conn->prepare("INSERT INTO movimentacoes_contas 
-                                                   (conta_id, tipo, valor, descricao, data_movimentacao) 
-                                                   VALUES (?, 'entrada', ?, ?, NOW())");
-                $stmt_movimentacao->bind_param("ids", 
-                                              $contas[0]['id'], 
-                                              $valor_comissao, 
-                                              $descricao);
-                
-                if (!$stmt_movimentacao->execute()) {
-                    throw new Exception("Erro ao adicionar comissão na conta: " . $conn->error);
                 }
                 
                 $nova_comissao_total += $valor_comissao;
@@ -361,8 +314,8 @@ if ($creditar_comissoes && !empty($contas) && floatval($contas[0]['comissao']) >
             $conn->commit();
             
             if ($parcelas_processadas > 0) {
-                $mensagem_comissao = "Foram creditadas comissões de R$ " . number_format($nova_comissao_total, 2, ',', '.') . 
-                                   " referentes a {$parcelas_processadas} parcelas pagas recentemente.";
+                $mensagem_comissao = "Foram registradas comissões de R$ " . number_format($nova_comissao_total, 2, ',', '.') . 
+                                   " referentes a {$parcelas_processadas} parcelas pagas recentemente. As comissões serão creditadas quando o empréstimo for quitado.";
                 
                 if (!isset($mensagem)) {
                     $mensagem = $mensagem_comissao;
@@ -378,8 +331,293 @@ if ($creditar_comissoes && !empty($contas) && floatval($contas[0]['comissao']) >
     }
 }
 
-// Processar mensagens vindas por GET
-if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
+// Verificar empréstimos recém-quitados para retornar o capital ao investidor e processar comissões acumuladas
+if (!empty($contas)) {
+    // Buscar empréstimos que foram totalmente quitados mas ainda não retornaram o capital
+    $sql_emprestimos_quitados = "SELECT 
+                                    e.id,
+                                    e.cliente_id,
+                                    e.valor_emprestado,
+                                    c.nome as cliente_nome,
+                                    e.parcelas as total_parcelas,
+                                    COUNT(p.id) as parcelas_existentes,
+                                    COUNT(CASE WHEN p.status = 'pago' THEN 1 END) as parcelas_pagas
+                                 FROM 
+                                    emprestimos e
+                                 INNER JOIN
+                                    clientes c ON e.cliente_id = c.id
+                                 LEFT JOIN
+                                    parcelas p ON e.id = p.emprestimo_id
+                                 LEFT JOIN
+                                    retorno_capital rc ON e.id = rc.emprestimo_id
+                                 WHERE 
+                                    e.investidor_id = ?
+                                    AND rc.id IS NULL
+                                 GROUP BY
+                                    e.id
+                                 HAVING
+                                    parcelas_existentes = total_parcelas
+                                    AND parcelas_pagas = total_parcelas";
+                                    
+    // Verificar se a tabela de retorno de capital existe
+    $verifica_tabela = $conn->query("SHOW TABLES LIKE 'retorno_capital'");
+    if ($verifica_tabela->num_rows === 0) {
+        $sql_criar_tabela = "CREATE TABLE IF NOT EXISTS retorno_capital (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            emprestimo_id INT NOT NULL,
+            usuario_id INT NOT NULL,
+            conta_id INT NOT NULL,
+            valor_retornado DECIMAL(10,2) NOT NULL,
+            data_processamento DATETIME DEFAULT CURRENT_TIMESTAMP,
+            observacao TEXT NULL,
+            UNIQUE KEY (emprestimo_id),
+            FOREIGN KEY (emprestimo_id) REFERENCES emprestimos(id),
+            FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+            FOREIGN KEY (conta_id) REFERENCES contas(id)
+        )";
+        $conn->query($sql_criar_tabela);
+    }
+    
+    // Processar empréstimos quitados
+    $stmt_quitados = $conn->prepare($sql_emprestimos_quitados);
+    $stmt_quitados->bind_param("i", $usuario_id);
+    $stmt_quitados->execute();
+    $result_quitados = $stmt_quitados->get_result();
+    
+    if ($result_quitados && $result_quitados->num_rows > 0) {
+        $conn->begin_transaction();
+        
+        try {
+            $total_capital_retornado = 0;
+            $emprestimos_processados = 0;
+            $total_comissoes_processadas = 0;
+            
+            while ($emp_quitado = $result_quitados->fetch_assoc()) {
+                $valor_capital = floatval($emp_quitado['valor_emprestado']);
+                $quitado_id = $emp_quitado['id'];
+                
+                // Registrar na tabela de controle de retorno de capital
+                $stmt_retorno = $conn->prepare("INSERT INTO retorno_capital 
+                                              (emprestimo_id, usuario_id, conta_id, valor_retornado) 
+                                              VALUES (?, ?, ?, ?)");
+                $stmt_retorno->bind_param("iiid", 
+                                         $quitado_id, 
+                                         $usuario_id, 
+                                         $contas[0]['id'], 
+                                         $valor_capital);
+                
+                if (!$stmt_retorno->execute()) {
+                    throw new Exception("Erro ao registrar retorno de capital: " . $conn->error);
+                }
+                
+                // Adicionar valor do capital como entrada na conta
+                $descricao = "Retorno de capital - Empréstimo #{$quitado_id} para {$emp_quitado['cliente_nome']} (quitado)";
+                
+                $stmt_movimentacao = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                                   (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                                   VALUES (?, 'entrada', ?, ?, NOW())");
+                $stmt_movimentacao->bind_param("ids", 
+                                              $contas[0]['id'], 
+                                              $valor_capital, 
+                                              $descricao);
+                
+                if (!$stmt_movimentacao->execute()) {
+                    throw new Exception("Erro ao adicionar retorno de capital na conta: " . $conn->error);
+                }
+                
+                // Processar todas as comissões acumuladas deste empréstimo que ainda não foram creditadas
+                $sql_comissoes_pendentes = "SELECT SUM(valor_comissao) as total_comissao 
+                                           FROM controle_comissoes 
+                                           WHERE emprestimo_id = ? 
+                                             AND usuario_id = ? 
+                                             AND processado = 0";
+                $stmt_comissoes = $conn->prepare($sql_comissoes_pendentes);
+                $stmt_comissoes->bind_param("ii", $quitado_id, $usuario_id);
+                $stmt_comissoes->execute();
+                $result_comissoes = $stmt_comissoes->get_result();
+                $comissao_row = $result_comissoes->fetch_assoc();
+                $total_comissao = floatval($comissao_row['total_comissao']);
+                
+                if ($total_comissao > 0) {
+                    // Adicionar valor da comissão total como entrada na conta
+                    $descricao_comissao = "Comissão total - Empréstimo #{$quitado_id} para {$emp_quitado['cliente_nome']} (quitado)";
+                    
+                    $stmt_mov_comissao = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                                      (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                                      VALUES (?, 'entrada', ?, ?, NOW())");
+                    $stmt_mov_comissao->bind_param("ids", 
+                                                 $contas[0]['id'], 
+                                                 $total_comissao, 
+                                                 $descricao_comissao);
+                    
+                    if (!$stmt_mov_comissao->execute()) {
+                        throw new Exception("Erro ao adicionar comissão total na conta: " . $conn->error);
+                    }
+                    
+                    // Marcar todas as comissões deste empréstimo como processadas
+                    $stmt_atualizar = $conn->prepare("UPDATE controle_comissoes 
+                                                    SET processado = 1 
+                                                    WHERE emprestimo_id = ? 
+                                                      AND usuario_id = ? 
+                                                      AND processado = 0");
+                    $stmt_atualizar->bind_param("ii", $quitado_id, $usuario_id);
+                    $stmt_atualizar->execute();
+                }
+                
+                // Recarregar os dados da conta para atualizar o saldo exibido com o retorno de capital e comissões
+                if (isset($contas[0])) {
+                    $stmt_recarregar = $conn->prepare("SELECT 
+                                                      c.id, 
+                                                      c.saldo_inicial + COALESCE(SUM(CASE WHEN mc.tipo = 'entrada' THEN mc.valor ELSE -mc.valor END), 0) as saldo_atual 
+                                                     FROM contas c 
+                                                     LEFT JOIN movimentacoes_contas mc ON c.id = mc.conta_id 
+                                                     WHERE c.id = ? 
+                                                     GROUP BY c.id, c.saldo_inicial");
+                    $stmt_recarregar->bind_param("i", $contas[0]['id']);
+                    $stmt_recarregar->execute();
+                    $result_recarregar = $stmt_recarregar->get_result();
+                    
+                    if ($result_recarregar && $result_recarregar->num_rows > 0) {
+                        $saldo_atualizado = $result_recarregar->fetch_assoc();
+                        $contas[0]['saldo_atual'] = $saldo_atualizado['saldo_atual'];
+                    }
+                }
+                
+                $total_capital_retornado += $valor_capital;
+                $total_comissoes_processadas += $total_comissao;
+                $emprestimos_processados++;
+            }
+            
+            $conn->commit();
+            
+            if ($emprestimos_processados > 0) {
+                $mensagem_capital = "Seu capital de R$ " . number_format($total_capital_retornado, 2, ',', '.') . 
+                                   " foi retornado de {$emprestimos_processados} empréstimo(s) quitado(s).";
+                
+                if ($total_comissoes_processadas > 0) {
+                    $mensagem_capital .= " Também foram creditadas comissões totais de R$ " . 
+                                       number_format($total_comissoes_processadas, 2, ',', '.');
+                }
+                
+                if (!isset($mensagem)) {
+                    $mensagem = $mensagem_capital;
+                    $tipo_alerta = "success";
+                } else {
+                    $mensagem .= "<br>" . $mensagem_capital;
+                }
+            }
+            
+        } catch (Exception $e) {
+            $conn->rollback();
+            error_log("Erro ao processar retorno de capital: " . $e->getMessage());
+        }
+    }
+}
+
+// Verificar empréstimos ativos e adicionar movimentação de saída de capital se ainda não existir
+if (!empty($contas)) {
+    // Buscar empréstimos ativos que ainda não têm registro de saída de capital
+    $sql_verificar_emprestimos = "SELECT 
+                                    e.id,
+                                    e.cliente_id,
+                                    e.valor_emprestado,
+                                    c.nome as cliente_nome,
+                                    e.data_inicio
+                                 FROM 
+                                    emprestimos e
+                                 INNER JOIN
+                                    clientes c ON e.cliente_id = c.id
+                                 WHERE 
+                                    e.investidor_id = ?
+                                    AND e.status = 'ativo'
+                                    AND NOT EXISTS (
+                                        SELECT 1 
+                                        FROM movimentacoes_contas mc 
+                                        WHERE mc.descricao LIKE CONCAT('Empréstimo #', e.id, '%')
+                                        AND mc.tipo = 'saida'
+                                    )";
+    
+    $stmt_verificar = $conn->prepare($sql_verificar_emprestimos);
+    $stmt_verificar->bind_param("i", $usuario_id);
+    $stmt_verificar->execute();
+    $result_verificar = $stmt_verificar->get_result();
+    
+    if ($result_verificar && $result_verificar->num_rows > 0) {
+        $conn->begin_transaction();
+        
+        try {
+            $total_capital_emprestado = 0;
+            $emprestimos_novos = 0;
+            
+            while ($emp_ativo = $result_verificar->fetch_assoc()) {
+                $valor_capital = floatval($emp_ativo['valor_emprestado']);
+                $emprestimo_id = $emp_ativo['id'];
+                
+                // Adicionar valor do capital como saída na conta
+                $descricao = "Empréstimo #{$emprestimo_id} para {$emp_ativo['cliente_nome']} em " . date('d/m/Y', strtotime($emp_ativo['data_inicio']));
+                
+                $stmt_movimentacao = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                                   (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                                   VALUES (?, 'saida', ?, ?, ?)");
+                $stmt_movimentacao->bind_param("idss", 
+                                              $contas[0]['id'], 
+                                              $valor_capital, 
+                                              $descricao,
+                                              $emp_ativo['data_inicio']);
+                
+                if (!$stmt_movimentacao->execute()) {
+                    throw new Exception("Erro ao adicionar registro de empréstimo na conta: " . $conn->error);
+                }
+                
+                $total_capital_emprestado += $valor_capital;
+                $emprestimos_novos++;
+            }
+            
+            $conn->commit();
+            
+            if ($emprestimos_novos > 0) {
+                $mensagem_emprestimos = "Foram registrados {$emprestimos_novos} novos empréstimos com saída total de capital de R$ " . 
+                                       number_format($total_capital_emprestado, 2, ',', '.');
+                
+                if (!isset($mensagem)) {
+                    $mensagem = $mensagem_emprestimos;
+                    $tipo_alerta = "info";
+                } else {
+                    $mensagem .= "<br>" . $mensagem_emprestimos;
+                }
+                
+                // Recarregar dados da conta para atualizar o saldo exibido
+                if (isset($contas[0])) {
+                    $stmt_recarregar = $conn->prepare("SELECT 
+                                                      c.id, 
+                                                      c.saldo_inicial + COALESCE(SUM(CASE WHEN mc.tipo = 'entrada' THEN mc.valor ELSE -mc.valor END), 0) as saldo_atual 
+                                                     FROM contas c 
+                                                     LEFT JOIN movimentacoes_contas mc ON c.id = mc.conta_id 
+                                                     WHERE c.id = ? 
+                                                     GROUP BY c.id, c.saldo_inicial");
+                    $stmt_recarregar->bind_param("i", $contas[0]['id']);
+                    $stmt_recarregar->execute();
+                    $result_recarregar = $stmt_recarregar->get_result();
+                    
+                    if ($result_recarregar && $result_recarregar->num_rows > 0) {
+                        $saldo_atualizado = $result_recarregar->fetch_assoc();
+                        $contas[0]['saldo_atual'] = $saldo_atualizado['saldo_atual'];
+                    }
+                }
+            }
+            
+        } catch (Exception $e) {
+            $conn->rollback();
+            error_log("Erro ao registrar saídas de capital: " . $e->getMessage());
+        }
+    }
+}
+
+// Exibir mensagem de alerta se enviada via GET
+if (isset($_GET['alerta']) && isset($_GET['msg']) && isset($_GET['tipo'])) {
+    $mensagem = $_GET['msg'];
+    $tipo_alerta = $_GET['tipo'];
+} else if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
     $mensagem = $_GET['msg'];
     $tipo_alerta = ($_GET['sucesso'] == '1') ? "success" : "danger";
 }
@@ -390,11 +628,6 @@ if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Dashboard do Investidor</h2>
-        <?php if (count($contas) > 0): ?>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#aporteModal">
-                <i class="bi bi-plus-circle"></i> Realizar Aporte
-            </button>
-        <?php endif; ?>
     </div>
 
     <?php if (isset($mensagem)): ?>
@@ -473,18 +706,6 @@ if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
                                     <small class="text-muted d-block text-end">(Administrador: <?= number_format(100 - $conta['comissao'], 2, ',', '.') ?>%)</small>
                                 </div>
                                 
-                                <div class="d-flex gap-2 mt-4">
-                                    <button type="button" class="btn btn-primary flex-fill" 
-                                            data-bs-toggle="modal" data-bs-target="#aporteModal">
-                                        <i class="bi bi-plus-circle me-1"></i>Realizar Aporte
-                                    </button>
-                                    <button type="button" class="btn btn-success flex-fill" 
-                                            data-bs-toggle="modal" data-bs-target="#saqueModal"
-                                            <?= $conta['saldo_atual'] <= 0 ? 'disabled' : '' ?>>
-                                        <i class="bi bi-cash-coin me-1"></i>Solicitar Saque
-                                    </button>
-                                </div>
-                                
                                 <div class="mt-2">
                                     <a href="configuracoes/movimentacoes.php?conta_id=<?= $conta['id'] ?>" class="btn btn-outline-info w-100">
                                         <i class="bi bi-list-ul me-1"></i>Movimentações
@@ -553,15 +774,15 @@ if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
             <?php else: ?>
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                     <?php foreach ($emprestimos as $emp): 
-                        // Calcular valores usando as chaves disponíveis
+                        // Calcular comissão sobre o lucro previsto
                         $percentual_comissao = !empty($contas) ? floatval($contas[0]['comissao']) : 0;
-                        $valor_recebido = floatval($emp['total_recebido']);
-                        $comissao = $valor_recebido * ($percentual_comissao / 100);
+                        $lucro_previsto = floatval($emp['lucro_previsto']);
+                        $comissao = $lucro_previsto * ($percentual_comissao / 100);
                         
-                        // Calcular progresso de pagamento
+                        // Calcular progresso
                         $parcelas_pagas = intval($emp['parcelas_pagas']);
                         $total_parcelas = intval($emp['total_parcelas']);
-                        $percentual_pago = ($parcelas_pagas / $total_parcelas) * 100;
+                        $progresso = $total_parcelas > 0 ? ($parcelas_pagas / $total_parcelas) * 100 : 0;
                     ?>
                         <div class="col">
                             <div class="card h-100 shadow-sm">
@@ -589,10 +810,10 @@ if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
                                     <div class="mb-3 pt-2 border-top">
                                         <div class="d-flex justify-content-between mb-1">
                                             <span class="text-muted">Valor recebido:</span>
-                                            <span class="text-info fw-bold">R$ <?= number_format($valor_recebido, 2, ',', '.') ?></span>
+                                            <span class="text-info fw-bold">R$ <?= number_format($emp['total_recebido'], 2, ',', '.') ?></span>
                                         </div>
                                         <div class="d-flex justify-content-between">
-                                            <span class="text-muted">Sua comissão:</span>
+                                            <span class="text-muted">Sua comissão (prevista):</span>
                                             <span class="text-warning fw-bold">R$ <?= number_format($comissao, 2, ',', '.') ?></span>
                                         </div>
                                     </div>
@@ -602,15 +823,15 @@ if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
                                         <span class="text-muted small">Progresso de pagamento:</span>
                                         <div class="progress mt-1" style="height: 8px;">
                                             <div class="progress-bar bg-success" role="progressbar" 
-                                                style="width: <?= $percentual_pago ?>%;" 
-                                                aria-valuenow="<?= $percentual_pago ?>" 
+                                                style="width: <?= $progresso ?>%;" 
+                                                aria-valuenow="<?= $progresso ?>" 
                                                 aria-valuemin="0" 
                                                 aria-valuemax="100">
                                             </div>
                                         </div>
                                         <div class="d-flex justify-content-between mt-1">
                                             <span class="text-muted small"><?= $parcelas_pagas ?> pagas</span>
-                                            <span class="text-muted small"><?= number_format($percentual_pago, 0) ?>%</span>
+                                            <span class="text-muted small"><?= number_format($progresso, 0) ?>%</span>
                                         </div>
                                     </div>
                                 </div>
@@ -621,89 +842,6 @@ if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
             <?php endif; ?>
         </div>
     </div>
-
-    <!-- Últimas Movimentações -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-            <h5 class="card-title mb-0"><i class="bi bi-activity me-2"></i>Últimas Movimentações</h5>
-        </div>
-        <div class="card-body">
-            <?php if (empty($movimentacoes)): ?>
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>Nenhuma movimentação encontrada.
-                </div>
-            <?php else: ?>
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Data</th>
-                                <th>Conta</th>
-                                <th>Tipo</th>
-                                <th>Valor</th>
-                                <th>Descrição</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($movimentacoes as $mov): ?>
-                                <tr>
-                                    <td><?= date('d/m/Y H:i', strtotime($mov['data_movimentacao'])) ?></td>
-                                    <td><?= htmlspecialchars($mov['conta_nome']) ?></td>
-                                    <td>
-                                        <span class="badge <?= $mov['tipo'] === 'entrada' ? 'bg-success' : 'bg-danger' ?>">
-                                            <?= $mov['tipo'] === 'entrada' ? 'Entrada' : 'Saída' ?>
-                                        </span>
-                                    </td>
-                                    <td>R$ <?= number_format($mov['valor'], 2, ',', '.') ?></td>
-                                    <td><?= htmlspecialchars($mov['descricao']) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <!-- Solicitações de Saque Pendentes -->
-    <?php if (!empty($saques_pendentes)): ?>
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-            <h5 class="card-title mb-0"><i class="bi bi-hourglass-split me-2"></i>Solicitações de Saque Pendentes</h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Data Solicitação</th>
-                            <th>Valor</th>
-                            <th>Status</th>
-                            <th>Descrição</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($saques_pendentes as $saque): ?>
-                            <tr>
-                                <td><?= date('d/m/Y H:i', strtotime($saque['data_solicitacao'])) ?></td>
-                                <td>R$ <?= number_format($saque['valor'], 2, ',', '.') ?></td>
-                                <td>
-                                    <span class="badge bg-warning">Pendente</span>
-                                </td>
-                                <td><?= htmlspecialchars($saque['descricao'] ?: 'Sem descrição') ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            <div class="alert alert-info small mt-3 mb-0">
-                <i class="bi bi-info-circle me-2"></i>
-                As solicitações de saque são analisadas pelo administrador em até 2 dias úteis. 
-                Ao ser aprovada, o valor será transferido para sua conta bancária cadastrada.
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
 
     <!-- Detalhes de Empréstimos -->
     <?php if (count($emprestimos) > 0): ?>
@@ -726,10 +864,10 @@ if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
                     </thead>
                     <tbody>
                         <?php foreach ($emprestimos as $emp): 
-                            // Calcular comissão
+                            // Calcular comissão sobre o lucro previsto
                             $percentual_comissao = !empty($contas) ? floatval($contas[0]['comissao']) : 0;
-                            $valor_recebido = floatval($emp['total_recebido']);
-                            $comissao = $valor_recebido * ($percentual_comissao / 100);
+                            $lucro_previsto = floatval($emp['lucro_previsto']);
+                            $comissao = $lucro_previsto * ($percentual_comissao / 100);
                             
                             // Calcular progresso
                             $parcelas_pagas = intval($emp['parcelas_pagas']);
@@ -746,8 +884,8 @@ if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
                                          aria-valuenow="<?= $progresso ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                             </td>
-                            <td>R$ <?= number_format($valor_recebido, 2, ',', '.') ?></td>
-                            <td>R$ <?= number_format($comissao, 2, ',', '.') ?></td>
+                            <td>R$ <?= number_format($emp['total_recebido'], 2, ',', '.') ?></td>
+                            <td>R$ <?= number_format($comissao, 2, ',', '.') ?> <small class="text-muted">(prevista)</small></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -767,16 +905,29 @@ if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
             <!-- Explicação do Cálculo de Comissões -->
             <div class="card bg-light mt-3">
                 <div class="card-body">
-                    <h6 class="card-title"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Como são calculadas as comissões</h6>
+                    <h6 class="card-title"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Como funciona o sistema de comissões e retorno de capital</h6>
                     <p class="card-text small">
                         As comissões são calculadas com base no percentual de <?= !empty($contas) ? number_format($contas[0]['comissao'], 2, ',', '.') : '0,00' ?>% 
-                        definido em sua conta de investimento. Esse percentual é aplicado sobre o valor total recebido de parcelas pagas.
+                        definido em sua conta de investimento. Esse percentual é aplicado sobre o lucro total previsto dos empréstimos.
                     </p>
-                    <ul class="mb-0 small">
-                        <li>Total recebido de parcelas: R$ <?= number_format($total_recebido, 2, ',', '.') ?></li>
-                        <li>Percentual de comissão: <?= !empty($contas) ? number_format($contas[0]['comissao'], 2, ',', '.') : '0,00' ?>%</li>
-                        <li>Comissão calculada: R$ <?= number_format($comissoes_calculadas, 2, ',', '.') ?></li>
-                    </ul>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="small fw-bold">Cálculo da Comissão</h6>
+                            <ul class="mb-0 small">
+                                <li><strong>Capital emprestado:</strong> R$ <?= number_format($total_emprestado, 2, ',', '.') ?></li>
+                                <li><strong>Lucro total previsto:</strong> R$ <?= number_format($lucro_total_previsto, 2, ',', '.') ?></li>
+                                <li><strong>Sua comissão prevista (<?= !empty($contas) ? number_format($contas[0]['comissao'], 2, ',', '.') : '0,00' ?>%):</strong> R$ <?= number_format($comissoes_calculadas, 2, ',', '.') ?></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="small fw-bold">Fluxo de Pagamentos</h6>
+                            <ol class="mb-0 small">
+                                <li>A comissão é calculada sobre o lucro total previsto do empréstimo</li>
+                                <li>O capital investido (valor principal) é devolvido ao seu saldo somente após a quitação total do empréstimo</li>
+                                <li>O sistema identifica automaticamente empréstimos quitados e credita o capital em sua conta</li>
+                            </ol>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -784,145 +935,12 @@ if (isset($_GET['sucesso']) && isset($_GET['msg'])) {
     <?php endif; ?>
 </div>
 
-<!-- Modal para Realizar Aporte -->
-<div class="modal fade" id="aporteModal" tabindex="-1" aria-labelledby="aporteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="aporteModalLabel">Realizar Aporte</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post">
-                <div class="modal-body">
-                    <?php if (count($contas) > 0): ?>
-                        <input type="hidden" name="conta_id" value="<?= $contas[0]['id'] ?>">
-                        
-                        <div class="alert alert-info mb-3">
-                            <i class="bi bi-info-circle me-2"></i>
-                            O aporte será realizado na sua conta de investimento
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="valor_aporte" class="form-label">Valor do Aporte (R$)</label>
-                            <input type="text" class="form-control" id="valor_aporte" name="valor_aporte" required placeholder="0,00">
-                        </div>
-                        <div class="mb-3">
-                            <label for="descricao" class="form-label">Descrição</label>
-                            <textarea class="form-control" id="descricao" name="descricao" rows="2" placeholder="Aporte de capital"></textarea>
-                        </div>
-                    <?php else: ?>
-                        <div class="alert alert-warning">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                            Você não possui uma conta ativa para realizar aportes. Entre em contato com o administrador.
-                        </div>
-                    <?php endif; ?>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <?php if (count($contas) > 0): ?>
-                        <button type="submit" name="realizar_aporte" class="btn btn-primary">Realizar Aporte</button>
-                    <?php endif; ?>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para Solicitar Saque -->
-<div class="modal fade" id="saqueModal" tabindex="-1" aria-labelledby="saqueModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="saqueModalLabel">Solicitar Saque</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post">
-                <div class="modal-body">
-                    <?php if (count($contas) > 0): ?>
-                        <input type="hidden" name="conta_id" value="<?= $contas[0]['id'] ?>">
-                        
-                        <div class="alert alert-info mb-3">
-                            <i class="bi bi-info-circle me-2"></i>
-                            <p class="mb-0">O saque será solicitado da sua conta de investimento.</p>
-                            <p class="mb-0"><strong>Saldo Atual:</strong> R$ <?= number_format($contas[0]['saldo_atual'], 2, ',', '.') ?></p>
-                        </div>
-
-                        <?php if (!empty($saques_pendentes)): ?>
-                            <div class="alert alert-warning mb-3">
-                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                Você já possui <?= count($saques_pendentes) ?> solicitação(ões) de saque pendente(s). 
-                                Novas solicitações serão analisadas na ordem em que foram recebidas.
-                            </div>
-                        <?php endif; ?>
-                        
-                        <div class="mb-3">
-                            <label for="valor_saque" class="form-label">Valor do Saque (R$)</label>
-                            <input type="text" class="form-control" id="valor_saque" name="valor_saque" required placeholder="0,00">
-                            <div class="form-text">O valor máximo disponível para saque é de R$ <?= number_format($contas[0]['saldo_atual'], 2, ',', '.') ?></div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="descricao_saque" class="form-label">Motivo do Saque (opcional)</label>
-                            <textarea class="form-control" id="descricao_saque" name="descricao_saque" rows="2" placeholder="Informe o motivo do saque (opcional)"></textarea>
-                        </div>
-                    <?php else: ?>
-                        <div class="alert alert-warning">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                            Você não possui uma conta ativa para solicitar saques. Entre em contato com o administrador.
-                        </div>
-                    <?php endif; ?>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <?php if (count($contas) > 0): ?>
-                        <button type="submit" name="solicitar_saque" class="btn btn-success">Solicitar Saque</button>
-                    <?php endif; ?>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Formatação para campo monetário (aporte)
-    document.getElementById('valor_aporte').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value === '') {
-            e.target.value = '';
-            return;
-        }
-        value = (parseFloat(value) / 100).toFixed(2).replace('.', ',');
-        e.target.value = value;
-    });
-    
-    // Formatação para campo monetário (saque)
-    document.getElementById('valor_saque').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value === '') {
-            e.target.value = '';
-            return;
-        }
-        value = (parseFloat(value) / 100).toFixed(2).replace('.', ',');
-        e.target.value = value;
-        
-        // Verificar se o valor é maior que o saldo
-        const saldoAtual = <?= !empty($contas) ? $contas[0]['saldo_atual'] : 0 ?>;
-        const valorSaque = parseFloat(value.replace(',', '.'));
-        
-        if (valorSaque > saldoAtual) {
-            this.classList.add('is-invalid');
-            if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('invalid-feedback')) {
-                const feedback = document.createElement('div');
-                feedback.classList.add('invalid-feedback');
-                feedback.textContent = 'O valor do saque não pode ser maior que o saldo disponível';
-                this.parentNode.appendChild(feedback);
-            }
-        } else {
-            this.classList.remove('is-invalid');
-            if (this.nextElementSibling && this.nextElementSibling.classList.contains('invalid-feedback')) {
-                this.nextElementSibling.remove();
-            }
-        }
+    // Inicializar tooltips do Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
     });
 });
 </script>

@@ -99,7 +99,22 @@ try {
         // Calcula o valor da comissão
         $percentual_comissao = floatval($parcela['percentual_comissao']);
         $valor_parcela = floatval($parcela['valor_pago']);
-        $valor_comissao = $valor_parcela * ($percentual_comissao / 100);
+        
+        // Buscar o valor original do empréstimo e o número total de parcelas
+        $stmt_emprestimo = $conn->prepare("SELECT valor_emprestado, parcelas FROM emprestimos WHERE id = ?");
+        $stmt_emprestimo->bind_param("i", $parcela['emprestimo_id']);
+        $stmt_emprestimo->execute();
+        $result_emprestimo = $stmt_emprestimo->get_result();
+        $emp_info = $result_emprestimo->fetch_assoc();
+        
+        // Calcular o valor do principal para esta parcela (valor emprestado dividido pelo número de parcelas)
+        $valor_principal_parcela = floatval($emp_info['valor_emprestado']) / floatval($emp_info['parcelas']);
+        
+        // Calcular o lucro (valor pago - valor do principal)
+        $lucro = max(0, $valor_parcela - $valor_principal_parcela);
+        
+        // Calcular comissão apenas sobre o lucro
+        $valor_comissao = $lucro * ($percentual_comissao / 100);
         
         // Registra a comissão na tabela de controle
         $stmt = $conn->prepare("INSERT INTO controle_comissoes 

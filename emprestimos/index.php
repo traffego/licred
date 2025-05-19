@@ -14,52 +14,106 @@ $emprestimos = buscarTodosEmprestimosComCliente($conn);
 // Calcula totais para os cards
 $total_emprestado = 0;
 $total_recebido = 0;
-$total_pendente = 0;
 
 // Usar a função corrigida para contar empréstimos ativos
 $emprestimos_ativos = contarEmprestimosAtivos($conn);
 
-// Calcula os demais valores
-$emprestimos_atrasados = 0;
-
 foreach ($emprestimos as $e) {
-    $total_emprestado += $e['valor_emprestado'];
-    $total_recebido += $e['total_pago'];
-
-    // Verifica o status baseado nas parcelas para contar emprestimos atrasados
-    $stmt = $conn->prepare("
-        SELECT status, vencimento 
-        FROM parcelas 
-        WHERE emprestimo_id = ?
-    ");
-    $stmt->bind_param("i", $e['id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $parcelas = $result->fetch_all(MYSQLI_ASSOC);
-    
-    $tem_atrasada = false;
-    
-    if (count($parcelas) > 0) {
-        foreach ($parcelas as $p) {
-            if ($p['status'] !== 'pago') {
-                // Verifica se está atrasada
-                $data_vencimento = new DateTime($p['vencimento']);
-                $hoje_menos_um = new DateTime();
-                $hoje_menos_um->modify('-1 day');
-                
-                if ($data_vencimento < $hoje_menos_um) {
-                    $tem_atrasada = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    if ($tem_atrasada && $e['status'] != 'inativo') {
-        $emprestimos_atrasados++;
+    $total_emprestado += floatval($e['valor_emprestado']);
+    if (isset($e['total_pago'])) {
+        $total_recebido += floatval($e['total_pago']);
     }
 }
-$total_pendente = $total_emprestado - $total_recebido;
+
+// Calculando o total pendente - somando todas as parcelas pendentes
+$sql_pendente = "SELECT 
+                    SUM(
+                        CASE 
+                            WHEN p.status = 'pendente' THEN p.valor 
+                            WHEN p.status = 'parcial' THEN (p.valor - IFNULL(p.valor_pago, 0))
+                            ELSE 0 
+                        END
+                    ) AS total 
+                FROM parcelas p
+                INNER JOIN emprestimos e ON p.emprestimo_id = e.id
+                WHERE p.status IN ('pendente', 'parcial') 
+                AND (e.status != 'inativo' OR e.status IS NULL)";
+$result_pendente = $conn->query($sql_pendente);
+if ($result_pendente && $row_pendente = $result_pendente->fetch_assoc()) {
+    $total_pendente = floatval($row_pendente['total'] ?? 0);
+} else {
+    $total_pendente = 0;
+}
+
+// Calculando o total a receber - somando todas as parcelas (pagas e não pagas) de empréstimos ativos
+$sql_a_receber = "SELECT 
+                    SUM(p.valor) AS total 
+                FROM parcelas p
+                INNER JOIN emprestimos e ON p.emprestimo_id = e.id
+                WHERE e.status = 'ativo'";
+$result_a_receber = $conn->query($sql_a_receber);
+if ($result_a_receber && $row_a_receber = $result_a_receber->fetch_assoc()) {
+    $total_a_receber = floatval($row_a_receber['total'] ?? 0);
+} else {
+    $total_a_receber = 0;
+}
+
+// Calculando o total que falta receber - somando todas as parcelas não pagas
+$sql_falta_receber = "SELECT 
+                    SUM(
+                        CASE 
+                            WHEN p.status = 'pendente' THEN p.valor 
+                            WHEN p.status = 'parcial' THEN (p.valor - IFNULL(p.valor_pago, 0))
+                            WHEN p.status = 'atrasado' THEN p.valor
+                            ELSE 0 
+                        END
+                    ) AS total 
+                FROM parcelas p
+                INNER JOIN emprestimos e ON p.emprestimo_id = e.id
+                WHERE p.status != 'pago'";
+$result_falta_receber = $conn->query($sql_falta_receber);
+if ($result_falta_receber && $row_falta_receber = $result_falta_receber->fetch_assoc()) {
+    $total_falta_receber = floatval($row_falta_receber['total'] ?? 0);
+} else {
+    $total_falta_receber = 0;
+}
+
+// Calculando total atrasado corretamente
+$ontem = date('Y-m-d', strtotime('-1 day'));
+
+// Consulta simplificada para parcelas atrasadas
+$sql_atrasado = "SELECT 
+                    SUM(
+                        CASE 
+                            WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                            ELSE valor 
+                        END
+                    ) AS total_valor,
+                    COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                    COUNT(id) AS total_parcelas
+                 FROM parcelas 
+                 WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < ?))";
+
+$stmt_atrasado = $conn->prepare($sql_atrasado);
+if (!$stmt_atrasado) {
+    $total_atrasado = 0;
+    $emprestimos_atrasados = 0;
+    $parcelas_atrasadas = 0;
+} else {
+    $stmt_atrasado->bind_param("s", $ontem);
+    $stmt_atrasado->execute();
+    $result_atrasado = $stmt_atrasado->get_result();
+    
+    if ($result_atrasado && $row_atrasado = $result_atrasado->fetch_assoc()) {
+        $total_atrasado = floatval($row_atrasado['total_valor'] ?? 0);
+        $emprestimos_atrasados = intval($row_atrasado['total_emprestimos'] ?? 0);
+        $parcelas_atrasadas = intval($row_atrasado['total_parcelas'] ?? 0);
+    } else {
+        $total_atrasado = 0;
+        $emprestimos_atrasados = 0;
+        $parcelas_atrasadas = 0;
+    }
+}
 
 // Busca o empréstimo recém criado se houver
 $emprestimo_novo = null;
@@ -121,6 +175,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                     <div class="card-body">
                         <h6 class="card-title">Total Emprestado</h6>
                         <h4 class="mb-0">R$ <?= number_format($total_emprestado, 2, ',', '.') ?></h4>
+                        <p class="mt-1 mb-0">A receber: R$ <?= number_format($total_a_receber, 2, ',', '.') ?></p>
                     </div>
                 </div>
             </div>
@@ -129,6 +184,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                     <div class="card-body">
                         <h6 class="card-title">Total Recebido</h6>
                         <h4 class="mb-0">R$ <?= number_format($total_recebido, 2, ',', '.') ?></h4>
+                        <p class="mt-1 mb-0">Falta receber: R$ <?= number_format($total_falta_receber, 2, ',', '.') ?></p>
                     </div>
                 </div>
             </div>
@@ -152,15 +208,15 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                 <div class="card bg-primary bg-opacity-75 text-white h-100">
                     <div class="card-body">
                         <h6 class="card-title">Ativos</h6>
-                        <h4 class="mb-0"><?= $emprestimos_ativos ?></h4>
+                        <h4 class="mb-0"><?= (int)$emprestimos_ativos ?></h4>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-md-4">
                 <div class="card bg-danger text-white h-100">
                     <div class="card-body">
-                        <h6 class="card-title">Atrasados</h6>
-                        <h4 class="mb-0"><?= $emprestimos_atrasados ?></h4>
+                        <h6 class="card-title">Parcelas Atrasadas</h6>
+                        <h4><?= $parcelas_atrasadas ?> parcelas | R$ <?= number_format($total_atrasado, 2, ',', '.') ?></h4>
                     </div>
                 </div>
             </div>
@@ -175,6 +231,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                     <div class="card-body">
                         <h6 class="card-title">Total Emprestado</h6>
                         <h4 class="mb-0">R$ <?= number_format($total_emprestado, 2, ',', '.') ?></h4>
+                        <p class="mt-1 mb-0">A receber: R$ <?= number_format($total_a_receber, 2, ',', '.') ?></p>
                     </div>
                 </div>
             </div>
@@ -183,6 +240,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                     <div class="card-body">
                         <h6 class="card-title">Total Recebido</h6>
                         <h4 class="mb-0">R$ <?= number_format($total_recebido, 2, ',', '.') ?></h4>
+                        <p class="mt-1 mb-0">Falta receber: R$ <?= number_format($total_falta_receber, 2, ',', '.') ?></p>
                     </div>
                 </div>
             </div>
@@ -206,7 +264,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                 <div class="card bg-primary bg-opacity-75 text-white h-100">
                     <div class="card-body">
                         <h6 class="card-title">Ativos</h6>
-                        <h4 class="mb-0"><?= $emprestimos_ativos ?></h4>
+                        <h4 class="mb-0"><?= (int)$emprestimos_ativos ?></h4>
                     </div>
                 </div>
             </div>
@@ -215,6 +273,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                     <div class="card-body">
                         <h6 class="card-title">Atrasados</h6>
                         <h4 class="mb-0"><?= $emprestimos_atrasados ?></h4>
+                        <small><?= $parcelas_atrasadas ?> parcelas | R$ <?= number_format($total_atrasado, 2, ',', '.') ?></small>
                     </div>
                 </div>
             </div>
@@ -273,21 +332,20 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
     <div class="card">
         <!-- Tabela para Desktop -->
         <div class="d-none d-md-block">
-  <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="tabela-emprestimos">
-      <thead class="table-light">
-        <tr>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="tabela-emprestimos">
+                    <thead class="table-light">
+                        <tr>
                             <th style="width: 25%">Cliente</th>
-                            <th style="width: 15%">Investidor</th>
                             <th style="width: 15%">Tipo</th>
                             <th style="width: 15%">Valor</th>
                             <th style="width: 15%">Parcelas</th>
                             <th style="width: 15%">Progresso</th>
                             <th style="width: 8%">Status</th>
                             <th style="width: 7%" class="text-end">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
+                        </tr>
+                    </thead>
+                    <tbody>
                         <?php foreach ($emprestimos as $e): 
                             // Busca as parcelas do empréstimo
                             $stmt = $conn->prepare("
@@ -343,8 +401,15 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                 'quitado' => 'text-bg-success',
                                 default => 'text-bg-secondary'
                             };
+                            
+                            // Define tipos de empréstimo
+                            $tipos = [
+                                'parcelada_comum' => 'Parcelamento Comum',
+                                'reparcelada_com_juros' => 'Reparcelado c/ Juros'
+                            ];
+                            $tipo = $e['tipo_de_cobranca'] ?? '';
                         ?>
-                            <tr>
+                            <tr class="clickable-row" data-href="visualizar.php?id=<?= htmlspecialchars($e['id']) ?>" style="cursor: pointer;">
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div>
@@ -356,32 +421,25 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                     </div>
                                 </td>
                                 <td>
-                                    <?php if (!empty($e['investidor_nome'])): ?>
-                                    <span class="text-muted"><?= htmlspecialchars($e['investidor_nome']) ?></span>
-                                    <?php else: ?>
-                                    <span class="text-muted">-</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
                                     <span class="badge text-bg-info">
-                                        <?= ucfirst(str_replace('_', ' ', $e['tipo_de_cobranca'])) ?>
-              </span>
+                                        <?= htmlspecialchars($tipos[$tipo] ?? 'Não definido') ?>
+                                    </span>
                                 </td>
                                 <td>
-                                    <div class="fw-bold">R$ <?= number_format($e['valor_emprestado'], 2, ',', '.') ?></div>
-                                    <?php if ($e['juros_percentual'] > 0): ?>
+                                    <div class="fw-bold">R$ <?= number_format((float)$e['valor_emprestado'], 2, ',', '.') ?></div>
+                                    <?php if (!empty($e['juros_percentual']) && $e['juros_percentual'] > 0): ?>
                                         <small class="text-muted">
                                             <?= $e['juros_percentual'] ?>% juros
                                         </small>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <div class="fw-bold"><?= $e['parcelas'] ?>x R$ <?= number_format($e['valor_parcela'], 2, ',', '.') ?></div>
+                                    <div class="fw-bold"><?= (int)$e['parcelas'] ?>x R$ <?= number_format((float)$e['valor_parcela'], 2, ',', '.') ?></div>
                                     <small class="text-muted">
                                         <?= $pagas ?> pagas (R$ <?= number_format($valor_total_pago, 2, ',', '.') ?>)
                                     </small>
                                 </td>
-                                <td style="width: 150px;">
+                                <td>
                                     <div class="progress" style="height: 6px;">
                                         <div class="progress-bar bg-success" role="progressbar" 
                                              style="width: <?= $progresso ?>%"
@@ -411,12 +469,12 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                         </a>
                                     </div>
                                 </td>
-          </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
-  </div>
-</div>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
         <!-- Cards para Mobile -->
         <div class="d-md-none">
@@ -476,6 +534,13 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                         'quitado' => 'text-bg-success',
                         default => 'text-bg-secondary'
                     };
+                    
+                    // Define tipos de empréstimo
+                    $tipos = [
+                        'parcelada_comum' => 'Parcelamento Comum',
+                        'reparcelada_com_juros' => 'Reparcelado c/ Juros'
+                    ];
+                    $tipo = $e['tipo_de_cobranca'] ?? '';
                 ?>
                     <div class="list-group-item p-3 mb-3 border rounded shadow-sm">
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -490,7 +555,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                 Início: <?= date('d/m/Y', strtotime($e['data_inicio'])) ?>
                             </small>
                             <span class="badge text-bg-info">
-                                <?= ucfirst(str_replace('_', ' ', $e['tipo_de_cobranca'])) ?>
+                                <?= htmlspecialchars($tipos[$tipo] ?? 'Não definido') ?>
                             </span>
                         </div>
 
@@ -540,6 +605,13 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
 <script>
 // Inicialização do DataTable com configurações otimizadas (apenas para desktop)
 $(document).ready(function() {
+    // Adiciona comportamento de clique nas linhas da tabela
+    $('.clickable-row').on('click', function(e) {
+        if (!$(e.target).closest('a').length) {
+            window.location = $(this).data('href');
+        }
+    });
+    
     if (window.innerWidth >= 768) {  // Só inicializa em desktop
         const table = $('#tabela-emprestimos').DataTable({
             language: {

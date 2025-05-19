@@ -92,6 +92,45 @@ if ($cliente_id) {
     line-height: 1.5;
     color: #212529;
 }
+
+/* Ajustes para o Select2 dentro do input-group */
+.input-group > .select2-container {
+    position: relative;
+    flex: 1 1 auto;
+    width: 1% !important;
+}
+
+.input-group > .select2-container .select2-selection--single {
+    height: 100%;
+    line-height: calc(1.5em + 0.75rem);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Estilizar a opção de novo cliente */
+.select2-results__option[aria-selected=true][value="novo_cliente"],
+.select2-results__option[data-select2-id="novo_cliente"] {
+    font-weight: bold;
+    border-top: 1px solid #dee2e6;
+    margin-top: 5px;
+    padding-top: 10px;
+    color: #0d6efd;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected="true"][value="novo_cliente"],
+.select2-container--default .select2-results__option--highlighted[data-select2-id="novo_cliente"] {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+}
+
+/* Alerta de sucesso para cadastro de cliente */
+#alertaSucesso {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+}
 </style>
 
 <div class="container py-4">
@@ -113,9 +152,6 @@ if ($cliente_id) {
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <strong>Cliente Selecionado:</strong> <?= htmlspecialchars($cliente_selecionado['nome']) ?>
-                                            <?php if (!empty($cliente_selecionado['investidor_nome'])): ?>
-                                                - <?= htmlspecialchars($cliente_selecionado['investidor_nome']) ?>
-                                            <?php endif; ?>
                                             <?php if (!empty($cliente_selecionado['cpf_cnpj'])): ?>
                                             <br>
                                             <small class="text-muted">CPF: <?= formatarCPF($cliente_selecionado['cpf_cnpj']) ?></small>
@@ -126,47 +162,44 @@ if ($cliente_id) {
                                 </div>
                                 <input type="hidden" name="cliente" value="<?= $cliente_selecionado['id'] ?>">
                             <?php else: ?>
-                                <div class="mb-3">
-                                    <label for="cliente" class="form-label">Selecione o Cliente:</label>
-                                    <select class="form-select" id="cliente" name="cliente" required>
-                                        <option value="">Selecione um cliente</option>
-                                        <?php foreach ($clientes as $cliente): ?>
-                                            <option value="<?= $cliente['id'] ?>" data-investidor="<?= htmlspecialchars($cliente['investidor_nome'] ?? '') ?>">
-                                                <?= htmlspecialchars($cliente['nome']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- Investidor -->
-                        <div class="mb-4">
-                            <h5 class="mb-3">
-                                <i class="bi bi-person-badge"></i> Investidor
-                            </h5>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="investidor_id" class="form-label">Selecione o Investidor:</label>
-                                        <select class="form-select" id="investidor_id" name="investidor_id" required>
-                                            <option value="">Selecione um investidor</option>
-                                            <?php foreach ($investidores as $investidor): 
-                                                $tem_conta = in_array($investidor['id'], $investidores_com_conta);
-                                            ?>
-                                                <option value="<?= $investidor['id'] ?>" <?= !$tem_conta ? 'data-sem-conta="true"' : '' ?>>
-                                                    <?= htmlspecialchars($investidor['nome']) ?><?= !$tem_conta ? ' (Sem conta)' : '' ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <div id="aviso-investidor" class="text-danger mt-2" style="display: none;">
-                                            <i class="bi bi-exclamation-triangle-fill"></i> Este investidor não possui uma conta ativa. 
-                                            Por favor, solicite ao administrador que crie uma conta para este investidor antes de registrar empréstimos.
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="cliente" class="form-label">Selecione o Cliente:</label>
+                                            <select class="form-select" id="cliente" name="cliente" required>
+                                                <option value="">Selecione um cliente</option>
+                                                <?php foreach ($clientes as $cliente): ?>
+                                                    <option value="<?= $cliente['id'] ?>">
+                                                        <?= htmlspecialchars($cliente['nome']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                                <option value="novo_cliente" class="text-primary">+ Cadastrar novo cliente</option>
+                                            </select>
                                         </div>
-                                        <small class="form-text text-muted">O valor do empréstimo será debitado da conta deste investidor.</small>
+                                    </div>
+                            
+                                    <!-- Investidor -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="investidor_id" class="form-label">Selecione o Investidor:</label>
+                                            <select class="form-select" id="investidor_id" name="investidor_id" required>
+                                                <option value="">Selecione um investidor</option>
+                                                <?php foreach ($investidores as $investidor): 
+                                                    $tem_conta = in_array($investidor['id'], $investidores_com_conta);
+                                                ?>
+                                                    <option value="<?= $investidor['id'] ?>" <?= !$tem_conta ? 'data-sem-conta="true"' : '' ?>>
+                                                        <?= htmlspecialchars($investidor['nome']) ?><?= !$tem_conta ? ' (Sem conta)' : '' ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div id="aviso-investidor" class="text-danger mt-2" style="display: none;">
+                                                <i class="bi bi-exclamation-triangle-fill"></i> Este investidor não possui uma conta ativa. 
+                                                Por favor, solicite ao administrador que crie uma conta para este investidor antes de registrar empréstimos.
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Configurações -->
@@ -180,29 +213,12 @@ if ($cliente_id) {
                                         <label for="tipo_cobranca" class="form-label">Tipo de Cobrança:</label>
                                         <select class="form-select" id="tipo_cobranca" name="tipo_cobranca" required>
                                             <option value="">Selecione</option>
-                                            <option value="parcelada_comum">Parcelada Comum</option>
-                                            <option value="reparcelada_com_juros">Reparcelada com Juros</option>
+                                            <option value="parcelada_comum" selected>Parcelada Comum</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="usar_tlc" class="form-label">Taxa de Liberação de Crédito (TLC):</label>
-                                        <select class="form-select" id="usar_tlc" name="usar_tlc" required>
-                                            <option value="0">Não</option>
-                                            <option value="1">Sim</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6" id="tlc_valor_container" style="display: none;">
-                                    <div class="mb-3">
-                                        <label for="tlc_valor" class="form-label">Valor da TLC (R$):</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="text" class="form-control" id="tlc_valor" name="tlc_valor">
-                                        </div>
-                                    </div>
-                                </div>
+                                <input type="hidden" id="usar_tlc" name="usar_tlc" value="0">
+                                <input type="hidden" id="tlc_valor" name="tlc_valor" value="0">
                             </div>
                         </div>
 
@@ -235,26 +251,26 @@ if ($cliente_id) {
                                         <label for="modo_calculo" class="form-label">Modo de Cálculo:</label>
                                         <select class="form-select" id="modo_calculo" name="modo_calculo" required>
                                             <option value="">Selecione</option>
-                                            <option value="parcela">Informar Valor da Parcela</option>
+                                            <option value="parcela" selected>Informar Valor da Parcela</option>
                                             <option value="taxa">Informar Taxa de Juros</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-6" id="taxa_juros_container">
+                                <div class="col-md-6" id="taxa_juros_container" style="display: none;">
                                     <div class="mb-3">
                                         <label for="juros" class="form-label">Taxa de Juros (%):</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="bi bi-percent"></i></span>
-                                            <input type="text" class="form-control" id="juros" name="juros" step="0.01" required>
+                                            <input type="text" class="form-control" id="juros" name="juros" step="0.01">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6" id="valor_parcela_container" style="display: none;">
+                                <div class="col-md-6" id="valor_parcela_container">
                                     <div class="mb-3">
                                         <label for="valor_parcela" class="form-label">Valor da Parcela (R$):</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="text" class="form-control" id="valor_parcela" name="valor_parcela">
+                                            <input type="text" class="form-control" id="valor_parcela" name="valor_parcela" required>
                                             <button type="button" class="btn btn-outline-secondary" id="btn_arredondar" title="Arredondar para o próximo valor inteiro">
                                                 <i class="bi bi-arrow-up-circle"></i> Arredondar
                                             </button>
@@ -266,7 +282,7 @@ if ($cliente_id) {
                                         <label for="periodo_pagamento" class="form-label">Período de Pagamento:</label>
                                         <select class="form-select" id="periodo_pagamento" name="periodo_pagamento" required>
                                             <option value="">Selecione</option>
-                                            <option value="diario">Diário</option>
+                                            <option value="diario" selected>Diário</option>
                                             <option value="semanal">Semanal</option>
                                             <option value="quinzenal">Quinzenal</option>
                                             <option value="trimestral">Trimestral</option>
@@ -508,6 +524,14 @@ document.getElementById('modo_calculo').addEventListener('change', function() {
     verificarFormulario();
 });
 
+// Inicializar corretamente o modo de cálculo no carregamento da página
+document.addEventListener('DOMContentLoaded', function() {
+    const modoCalculo = document.getElementById('modo_calculo');
+    // Dispara o evento change para configurar corretamente os campos baseado na seleção inicial
+    const event = new Event('change');
+    modoCalculo.dispatchEvent(event);
+});
+
 // Verifica quando o formulário é enviado
 document.getElementById('formEmprestimo').addEventListener('submit', function(e) {
     // Primeiro validar se o investidor tem conta
@@ -551,27 +575,88 @@ document.getElementById('formEmprestimo').addEventListener('submit', function(e)
     document.getElementById('formEmprestimo').submit();
 });
 
-// Inicializa o Select2 de forma mais simples
 $(document).ready(function() {
+    // Inicializa o Select2 para o select de clientes
     $('#cliente').select2({
         placeholder: 'Selecione um cliente',
         width: '100%',
         templateResult: function(data) {
-            if (!data.id) return data.text;
-            
-            const investidor = $(data.element).data('investidor');
-            if (!investidor) return data.text;
-            
-            return `${data.text} - ${investidor}`;
-        },
-        templateSelection: function(data) {
-            if (!data.id) return data.text;
-            
-            const investidor = $(data.element).data('investidor');
-            if (!investidor) return data.text;
-            
-            return `${data.text} - ${investidor}`;
+            if (data.id === 'novo_cliente') {
+                return $('<span><i class="bi bi-person-plus-fill me-2"></i>' + data.text + '</span>');
+            }
+            return data.text;
         }
+    });
+    
+    // Detectar quando a opção "Cadastrar novo cliente" é selecionada
+    $('#cliente').on('change', function() {
+        const selectedValue = $(this).val();
+        
+        if (selectedValue === 'novo_cliente') {
+            // Abre a modal
+            $('#modalNovoCliente').modal('show');
+            
+            // Restaura a seleção anterior após um pequeno delay
+            setTimeout(function() {
+                $('#cliente').val('').trigger('change');
+            }, 100);
+        }
+    });
+    
+    // Corrigir o comportamento do Select2 quando a modal é aberta
+    $('#modalNovoCliente').on('shown.bs.modal', function() {
+        // Foca no campo nome quando a modal é aberta
+        $('#formNovoCliente input[name="nome"]').focus();
+    });
+    
+    // Quando a modal de novo cliente é fechada, reseta o formulário
+    $('#modalNovoCliente').on('hidden.bs.modal', function() {
+        $('#formNovoCliente')[0].reset();
+        $('#erroNovoCliente').addClass('d-none');
+    });
+    
+    // Submissão do formulário de novo cliente via AJAX
+    $('#formNovoCliente').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Mostrar indicador de carregamento
+        $('#btnSalvarCliente').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...');
+        $('#btnSalvarCliente').prop('disabled', true);
+        
+        $.ajax({
+            url: '../api/salvar_cliente.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Adiciona o novo cliente ao select
+                    var novoCliente = new Option(response.cliente.nome, response.cliente.id, true, true);
+                    $('#cliente').append(novoCliente).trigger('change');
+                    
+                    // Fecha a modal
+                    $('#modalNovoCliente').modal('hide');
+                    
+                    // Mostra mensagem de sucesso
+                    $('#alertaSucesso').html('<strong>Sucesso!</strong> Cliente cadastrado e selecionado.').removeClass('d-none');
+                    setTimeout(function() {
+                        $('#alertaSucesso').addClass('d-none');
+                    }, 5000);
+                } else {
+                    // Mostra erro
+                    $('#erroNovoCliente').html(response.message).removeClass('d-none');
+                }
+            },
+            error: function(xhr, status, error) {
+                // Mostra erro
+                $('#erroNovoCliente').html('Erro ao cadastrar cliente: ' + error).removeClass('d-none');
+            },
+            complete: function() {
+                // Restaura o botão de salvar
+                $('#btnSalvarCliente').html('Salvar');
+                $('#btnSalvarCliente').prop('disabled', false);
+            }
+        });
     });
 });
 
@@ -590,6 +675,82 @@ document.getElementById('investidor_id').addEventListener('change', function() {
     }
 });
 </script>
+
+<!-- Modal para cadastro rápido de cliente -->
+<div class="modal fade" id="modalNovoCliente" tabindex="-1" aria-labelledby="modalNovoClienteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNovoClienteLabel"><i class="bi bi-person-plus-fill"></i> Cadastrar Novo Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger d-none" id="erroNovoCliente"></div>
+                
+                <form id="formNovoCliente" method="POST">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nome <span class="text-danger">*</span></label>
+                            <input type="text" name="nome" class="form-control" placeholder="Nome completo" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="exemplo@dominio.com">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Telefone</label>
+                            <input type="text" name="telefone" class="form-control" placeholder="(00) 00000-0000">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tipo Pessoa</label>
+                            <select name="tipo_pessoa" class="form-select">
+                                <option value="1" selected>Física</option>
+                                <option value="2">Jurídica</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">CPF / CNPJ</label>
+                            <input type="text" name="cpf_cnpj" class="form-control" placeholder="000.000.000-00">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Chave Pix</label>
+                            <input type="text" name="chave_pix" class="form-control" placeholder="CPF, telefone, email ou aleatória">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="Ativo" selected>Ativo</option>
+                                <option value="Inativo">Inativo</option>
+                                <option value="Alerta">Alerta</option>
+                                <option value="Atenção">Atenção</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" name="ajax" value="1">
+                    <?php if (isset($_SESSION['usuario_id'])): ?>
+                    <input type="hidden" name="investidor_id" value="<?= $_SESSION['usuario_id'] ?>">
+                    <?php endif; ?>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="formNovoCliente" class="btn btn-primary" id="btnSalvarCliente">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alerta de sucesso -->
+<div class="alert alert-success alert-dismissible fade show d-none" id="alertaSucesso" role="alert">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
 </body>

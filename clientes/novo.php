@@ -4,11 +4,6 @@ require_once __DIR__ . '/../includes/head.php';
 require_once __DIR__ . '/../includes/conexao.php';
 require_once __DIR__ . '/../includes/autenticacao.php';
 
-// Buscar usuários investidores
-$sql_investidores = "SELECT id, nome, email FROM usuarios WHERE tipo = 'investidor'";
-$resultado_investidores = $conn->query($sql_investidores);
-$tem_investidores = $resultado_investidores && $resultado_investidores->num_rows > 0;
-
 // Obter dados do usuário logado
 $usuario_logado_id = $_SESSION['usuario_id'] ?? null;
 $usuario_logado_nivel = $_SESSION['nivel_autoridade'] ?? null;
@@ -124,25 +119,6 @@ $usuario_logado_nivel = $_SESSION['nivel_autoridade'] ?? null;
                 <div class="col-md-6">
                     <label class="form-label">Chave Pix</label>
                     <input type="text" name="chave_pix" class="form-control" placeholder="CPF, telefone, email ou aleatória">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Investidor</label>
-                    <select name="investidor_id" class="form-select" <?= !$tem_investidores ? 'disabled' : '' ?>>
-                        <?php if ($tem_investidores): ?>
-                            <option value="">Selecione um investidor</option>
-                            <?php while ($investidor = $resultado_investidores->fetch_assoc()): ?>
-                                <option value="<?= $investidor['id'] ?>"><?= htmlspecialchars($investidor['nome']) ?></option>
-                            <?php endwhile; ?>
-                        <?php else: ?>
-                            <option value="">Nenhum investidor disponível</option>
-                            <?php if ($usuario_logado_nivel == 'administrador' || $usuario_logado_nivel == 'superadmin'): ?>
-                                <input type="hidden" name="investidor_id" value="<?= $usuario_logado_id ?>">
-                            <?php endif; ?>
-                        <?php endif; ?>
-                    </select>
-                    <?php if (!$tem_investidores && ($usuario_logado_nivel == 'administrador' || $usuario_logado_nivel == 'superadmin')): ?>
-                        <small class="form-text text-muted">Você será automaticamente definido como investidor.</small>
-                    <?php endif; ?>
                 </div>
             </div>
 

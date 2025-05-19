@@ -1,4 +1,7 @@
 <?php
+// Iniciar buffer de saída para evitar erros de "headers already sent"
+ob_start();
+
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/conexao.php';
 require_once __DIR__ . '/../includes/autenticacao.php';
@@ -31,13 +34,17 @@ if ($is_investidor && $meus_aportes) {
     if ($result->num_rows > 0) {
         $conta_id = $result->fetch_assoc()['id'];
     } else {
-        // Investidor não tem conta, redirecionar para página do investidor
-        header("Location: ../investidor.php?erro=1&msg=" . urlencode("Você não possui uma conta ativa."));
+        // Investidor não tem conta, redirecionar usando JavaScript
+        $redirect_url = "../investidor.php?erro=1&msg=" . urlencode("Você não possui uma conta ativa.");
+        echo "<script>window.location.href = '$redirect_url';</script>";
+        echo '<meta http-equiv="refresh" content="0;url='.$redirect_url.'">';
         exit;
     }
 } elseif (!isset($_GET['conta_id']) || empty($_GET['conta_id'])) {
     // Não é o caso especial de "meus aportes" e não tem conta_id
-    header("Location: " . ($is_admin ? "contas.php" : "../investidor.php"));
+    $redirect_url = $is_admin ? "contas.php" : "../investidor.php";
+    echo "<script>window.location.href = '$redirect_url';</script>";
+    echo '<meta http-equiv="refresh" content="0;url='.$redirect_url.'">';
     exit;
 } else {
     $conta_id = intval($_GET['conta_id']);
@@ -52,7 +59,9 @@ $stmt->execute();
 $conta = $stmt->get_result()->fetch_assoc();
 
 if (!$conta) {
-    header("Location: " . ($is_admin ? "contas.php" : "../investidor.php"));
+    $redirect_url = $is_admin ? "contas.php" : "../investidor.php";
+    echo "<script>window.location.href = '$redirect_url';</script>";
+    echo '<meta http-equiv="refresh" content="0;url='.$redirect_url.'">';
     exit;
 }
 
@@ -62,31 +71,125 @@ if ($is_investidor && !$is_admin && $conta['usuario_id'] != $usuario_id) {
     $_SESSION['acesso_negado'] = true;
     $_SESSION['acesso_negado_mensagem'] = "Você só pode visualizar movimentações da sua própria conta!";
     $_SESSION['pagina_tentativa'] = $_SERVER['REQUEST_URI'];
-    header("Location: ../investidor.php?erro=acesso_negado");
+    $redirect_url = "../investidor.php?erro=acesso_negado";
+    echo "<script>window.location.href = '$redirect_url';</script>";
+    echo '<meta http-equiv="refresh" content="0;url='.$redirect_url.'">';
     exit;
 }
 
-// Processar adição de nova movimentação (apenas admin)
-if ($is_admin && isset($_POST['adicionar_movimentacao'])) {
-    $tipo = $_POST['tipo'];
-    $valor = floatval(str_replace(['.', ','], ['', '.'], $_POST['valor']));
-    $descricao = trim($_POST['descricao']);
-    $data_movimentacao = $_POST['data_movimentacao'];
-    
-    if (empty($tipo) || empty($valor) || $valor <= 0) {
-        $mensagem = "Por favor, preencha todos os campos obrigatórios corretamente.";
-        $tipo_alerta = "danger";
-    } else {
-        $stmt = $conn->prepare("INSERT INTO movimentacoes_contas (conta_id, tipo, valor, descricao, data_movimentacao) 
-                              VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("isdss", $conta_id, $tipo, $valor, $descricao, $data_movimentacao);
-        
-        if ($stmt->execute()) {
-            $mensagem = "Movimentação adicionada com sucesso!";
-            $tipo_alerta = "success";
+// Processar formulário de adição de movimentação
+if (isset($_POST['adicionar_movimentacao'])) {
+    // Verificar se conta_id foi enviado e não está vazio
+    if (!isset($_POST['conta_id']) || empty($_POST['conta_id'])) {
+        // Tentar usar o valor do campo oculto como fallback
+        if (isset($_POST['conta_id_hidden']) && !empty($_POST['conta_id_hidden'])) {
+            $conta_id = $_POST['conta_id_hidden'];
         } else {
-            $mensagem = "Erro ao adicionar movimentação: " . $conn->error;
+            $mensagem = "ID da conta não especificado.";
             $tipo_alerta = "danger";
+        }
+    } else {
+        $conta_id = $_POST['conta_id'];
+        $tipo = $_POST['tipo'] ?? '';
+        $valor = $_POST['valor'] ?? '';
+        // Converter valor do formato brasileiro (1.234,56) para formato numérico (1234.56)
+        $valor = str_replace('.', '', $valor); // Remove pontos
+        $valor = str_replace(',', '.', $valor); // Substitui vírgula por ponto
+        $descricao = $_POST['descricao'] ?? '';
+    
+        // Validação básica
+        if (empty($tipo) || empty($valor) || !is_numeric($valor) || floatval($valor) <= 0) {
+            $mensagem = "Por favor, preencha todos os campos corretamente.";
+            $tipo_alerta = "danger";
+        } else {
+            // Verificar se a conta existe
+            $sql_verificar_conta = "SELECT id, nome, usuario_id, saldo_inicial FROM contas WHERE id = ? AND status = 'ativo'";
+            $stmt_verificar = $conn->prepare($sql_verificar_conta);
+            $stmt_verificar->bind_param("i", $conta_id);
+            $stmt_verificar->execute();
+            $result_verificar = $stmt_verificar->get_result();
+            
+            if ($result_verificar && $result_verificar->num_rows > 0) {
+                // Obter informações da conta
+                $conta_info = $result_verificar->fetch_assoc();
+                
+                // Calcular o saldo atual com base no saldo inicial e movimentações
+                $sql_movimentacoes = "SELECT COALESCE(SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END), 0) as total_movimentacoes FROM movimentacoes_contas WHERE conta_id = ?";
+                $stmt_movimentacoes = $conn->prepare($sql_movimentacoes);
+                $stmt_movimentacoes->bind_param("i", $conta_id);
+                $stmt_movimentacoes->execute();
+                $result_movimentacoes = $stmt_movimentacoes->get_result();
+                $total_movimentacoes = $result_movimentacoes->fetch_assoc()['total_movimentacoes'];
+                
+                $saldo_atual = floatval($conta_info['saldo_inicial']) + floatval($total_movimentacoes);
+                $valor_movimentacao = floatval($valor);
+                
+                // Se for saque (saída), verificar se há saldo suficiente
+                if ($tipo === 'saida' && $valor_movimentacao > $saldo_atual) {
+                    $mensagem = "Saldo insuficiente para realizar esta operação. Saldo atual: R$ " . number_format($saldo_atual, 2, ',', '.');
+                    $tipo_alerta = "danger";
+                } else {
+                    // Iniciar transação
+                    $conn->begin_transaction();
+                    
+                    try {
+                        // Inserir movimentação
+                        $sql_movimentacao = "INSERT INTO movimentacoes_contas (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                            VALUES (?, ?, ?, ?, NOW())";
+                        $stmt_mov = $conn->prepare($sql_movimentacao);
+                        $stmt_mov->bind_param("isds", $conta_id, $tipo, $valor_movimentacao, $descricao);
+                        
+                        if ($stmt_mov->execute()) {
+                            // Commit a transação primeiro
+                            $conn->commit();
+                            
+                            // Recalcular o saldo atual após a inserção e commit
+                            $stmt_recalc = $conn->prepare("SELECT 
+                                                         COALESCE(SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END), 0) as total_movimentacoes
+                                                        FROM movimentacoes_contas 
+                                                        WHERE conta_id = ?");
+                            $stmt_recalc->bind_param("i", $conta_id);
+                            $stmt_recalc->execute();
+                            $result_recalc = $stmt_recalc->get_result();
+                            $row_recalc = $result_recalc->fetch_assoc();
+                            $total_movimentacoes = $row_recalc['total_movimentacoes'];
+                            $saldo_atual = $conta_info['saldo_inicial'] + floatval($total_movimentacoes);
+                            
+                            // Atualizar também a conta para exibição
+                            $conta['saldo_inicial'] = $conta_info['saldo_inicial']; 
+                            
+                            $mensagem = "Movimentação " . ($tipo === 'entrada' ? "de entrada" : "de saída") . " registrada com sucesso!";
+                            $tipo_alerta = "success";
+                            
+                            // Se a movimentação foi bem-sucedida, registrar detalhes adicionais para saques
+                            if ($tipo === 'saida' && stripos($descricao, 'saque') !== false) {
+                                // Registrar informações adicionais do saque (se necessário)
+                                $nome_usuario = obterNomeUsuario($conta_info['usuario_id'], $conn);
+                                
+                                // Registrar log do saque
+                                registrarLog("Saque realizado - Conta: " . $conta_info['nome'] . 
+                                          " (ID: " . $conta_id . ") - Valor: R$ " . 
+                                          number_format($valor_movimentacao, 2, ',', '.') . 
+                                          " - Usuário: " . $nome_usuario . 
+                                          " - Descrição: " . $descricao, $conn);
+                            }
+                        } else {
+                            throw new Exception("Erro ao registrar movimentação: " . $conn->error);
+                        }
+                    } catch (Exception $e) {
+                        // Rollback em caso de erro
+                        $conn->rollback();
+                        $mensagem = "Erro: " . $e->getMessage();
+                        $tipo_alerta = "danger";
+                        
+                        // Registrar erro no log
+                        registrarLog("Erro ao processar movimentação: " . $e->getMessage(), $conn, true);
+                    }
+                }
+            } else {
+                $mensagem = "Conta não encontrada ou inativa.";
+            $tipo_alerta = "danger";
+            }
         }
     }
 }
@@ -132,14 +235,14 @@ $movimentacoes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 // Calcular saldo atual
 $stmt = $conn->prepare("SELECT 
-                        SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END) as total_movimentacoes
+                        COALESCE(SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END), 0) as total_movimentacoes
                        FROM movimentacoes_contas 
                        WHERE conta_id = ?");
 $stmt->bind_param("i", $conta_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
-$total_movimentacoes = $row['total_movimentacoes'] ?: 0;
+$total_movimentacoes = $row['total_movimentacoes'];
 $saldo_atual = $conta['saldo_inicial'] + $total_movimentacoes;
 
 // Definir o título da página
@@ -308,6 +411,24 @@ $titulo_pagina = $is_investidor && $meus_aportes ? "Histórico de Aportes" : "Mo
             </div>
             <form method="post">
                 <div class="modal-body">
+                    <!-- Campo oculto para garantir que o conta_id seja sempre enviado -->
+                    <input type="hidden" name="conta_id_hidden" value="<?= $conta_id ?>">
+                    
+                    <div class="mb-3">
+                        <label for="conta_id" class="form-label">Conta</label>
+                        <select class="form-select" id="conta_id" name="conta_id" required>
+                            <?php
+                            $stmt = $conn->prepare("SELECT id, nome FROM contas WHERE status = 'ativo'");
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            while ($row = $result->fetch_assoc()):
+                                $selected = ($row['id'] == $conta_id) ? 'selected' : '';
+                            ?>
+                                <option value="<?= $row['id'] ?>" <?= $selected ?>><?= htmlspecialchars($row['nome']) ?></option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+                    
                     <div class="mb-3">
                         <label for="tipo" class="form-label">Tipo</label>
                         <select class="form-select" id="tipo" name="tipo" required>
@@ -324,12 +445,6 @@ $titulo_pagina = $is_investidor && $meus_aportes ? "Histórico de Aportes" : "Mo
                     <div class="mb-3">
                         <label for="descricao" class="form-label">Descrição</label>
                         <textarea class="form-control" id="descricao" name="descricao" rows="2"></textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="data_movimentacao" class="form-label">Data</label>
-                        <input type="date" class="form-control" id="data_movimentacao" name="data_movimentacao" 
-                               value="<?= date('Y-m-d') ?>" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -390,7 +505,55 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('movimentacao_id_excluir').value = this.getAttribute('data-id');
         });
     });
+    
+    // Configurar modal de adição para selecionar conta atual
+    const addModal = document.getElementById('adicionarMovimentacaoModal');
+    if (addModal) {
+        addModal.addEventListener('show.bs.modal', function() {
+            // Garantir que a conta atual esteja selecionada
+            const contaSelect = document.getElementById('conta_id');
+            if (contaSelect) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const contaId = urlParams.get('conta_id');
+                if (contaId) {
+                    // Tentar selecionar a opção com o valor igual ao conta_id
+                    const opcao = Array.from(contaSelect.options).find(option => option.value === contaId);
+                    if (opcao) {
+                        opcao.selected = true;
+                    }
+                }
+            }
+        });
+    }
 });
 </script>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?> 
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+ob_end_flush();
+?>
+
+<?php
+// Função auxiliar para obter nome do usuário
+function obterNomeUsuario($id, $conn) {
+    $stmt = $conn->prepare("SELECT nome FROM usuarios WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result && $result->num_rows > 0) {
+        return $result->fetch_assoc()['nome'];
+    }
+    
+    return "Usuário #" . $id;
+}
+
+// Função auxiliar para registrar log
+function registrarLog($mensagem, $conn, $is_error = false) {
+    $tipo = $is_error ? 'erro' : 'info';
+    $usuario_id = isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 0;
+    
+    $sql = "INSERT INTO log_sistema (tipo, mensagem, usuario_id, data_registro) VALUES (?, ?, ?, NOW())";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssi", $tipo, $mensagem, $usuario_id);
+    $stmt->execute();
+} 
