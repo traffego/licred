@@ -23,6 +23,7 @@ cache
 # /uploads/*
 # !/uploads/.gitkeep
 /logs/*
+/logs/php_error.log
 logs/*
 logs/
 logs
