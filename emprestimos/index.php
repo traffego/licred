@@ -337,7 +337,7 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                     <thead class="table-light">
                         <tr>
                             <th style="width: 25%">Cliente</th>
-                            <th style="width: 15%">Tipo</th>
+                            <th style="width: 15%">Quanto falta para terminar o empréstimo</th>
                             <th style="width: 15%">Valor</th>
                             <th style="width: 15%">Parcelas</th>
                             <th style="width: 15%">Progresso</th>
@@ -421,9 +421,23 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge text-bg-info">
-                                        <?= htmlspecialchars($tipos[$tipo] ?? 'Não definido') ?>
-                                    </span>
+                                    <?php 
+                                    // Calcula o valor total que falta pagar
+                                    $valor_faltante = 0;
+                                    foreach ($parcelas as $p) {
+                                        if ($p['status'] === 'pendente') {
+                                            $valor_faltante += floatval($p['valor']);
+                                        } elseif ($p['status'] === 'parcial') {
+                                            $valor_faltante += (floatval($p['valor']) - floatval($p['valor_pago'] ?? 0));
+                                        } elseif ($p['status'] === 'atrasado') {
+                                            $valor_faltante += floatval($p['valor']);
+                                        }
+                                    }
+                                    ?>
+                                    <div class="fw-bold">R$ <?= number_format($valor_faltante, 2, ',', '.') ?></div>
+                                    <small class="text-muted">
+                                        <?= $total_parcelas - $pagas ?> parcelas restantes
+                                    </small>
                                 </td>
                                 <td>
                                     <div class="fw-bold">R$ <?= number_format((float)$e['valor_emprestado'], 2, ',', '.') ?></div>
@@ -554,9 +568,24 @@ if (isset($_GET['sucesso']) && isset($_GET['id'])) {
                             <small class="text-muted d-block">
                                 Início: <?= date('d/m/Y', strtotime($e['data_inicio'])) ?>
                             </small>
-                            <span class="badge text-bg-info">
-                                <?= htmlspecialchars($tipos[$tipo] ?? 'Não definido') ?>
-                            </span>
+                            <?php
+                            // Calcula o valor total que falta pagar
+                            $valor_faltante = 0;
+                            foreach ($parcelas as $p) {
+                                if ($p['status'] === 'pendente') {
+                                    $valor_faltante += floatval($p['valor']);
+                                } elseif ($p['status'] === 'parcial') {
+                                    $valor_faltante += (floatval($p['valor']) - floatval($p['valor_pago'] ?? 0));
+                                } elseif ($p['status'] === 'atrasado') {
+                                    $valor_faltante += floatval($p['valor']);
+                                }
+                            }
+                            ?>
+                            <div>
+                                <small class="text-muted d-block">Falta para finalizar:</small>
+                                <strong>R$ <?= number_format($valor_faltante, 2, ',', '.') ?></strong>
+                                <small class="text-muted d-block"><?= $total_parcelas - $pagas ?> parcelas restantes</small>
+                            </div>
                         </div>
 
                         <div class="row g-2 mb-2">

@@ -2372,3 +2372,248 @@ Stack trace:
                         COUNT(id) AS total_parcelas
                      FROM parcelas 
                      WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-18'))
+[22-May-2025 10:18:40 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-22 10:18:40","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"tf7tei4rmurh744gqe1j7ilsva","csrf_token":64}
+[22-May-2025 10:18:46 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[22-May-2025 10:18:46 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[22-May-2025 10:18:48 America/Sao_Paulo] Total de parcelas com status 'atrasado': 0
+[22-May-2025 10:18:48 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[22-May-2025 10:18:48 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-21'))
+[22-May-2025 10:19:49 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[22-May-2025 10:19:49 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[22-May-2025 10:19:50 America/Sao_Paulo] Total de parcelas com status 'atrasado': 0
+[22-May-2025 10:19:50 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[22-May-2025 10:19:50 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-21'))
+[24-May-2025 00:29:30 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-24 00:29:30","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"6dsd87uhtr23r1ek0r68de3tmp","csrf_token":64}
+[24-May-2025 00:29:31 America/Sao_Paulo] [PARCELAS] 1 parcelas atualizadas para status 'atrasado'
+[24-May-2025 00:29:32 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 00:29:32 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 00:29:32 America/Sao_Paulo] Total de parcelas com status 'atrasado': 1
+[24-May-2025 00:29:32 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 00:29:32 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 00:45:28 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 00:45:28 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 00:45:28 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 00:45:28 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 00:45:28 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 00:51:02 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 00:51:02 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 00:51:02 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 00:51:02 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 00:51:02 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 00:51:40 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 00:51:40 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 00:51:40 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 00:51:40 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 00:51:40 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:00:20 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 01:00:20 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 01:00:20 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 01:00:20 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 01:00:20 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:00:37 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 01:00:37 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 01:00:37 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 01:00:37 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 01:00:37 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:00:37 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 01:00:37 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 01:00:37 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 01:00:37 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 01:00:37 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:00:38 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 01:00:38 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 01:00:38 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 01:00:38 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 01:00:38 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:00:38 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 01:00:38 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 01:00:38 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 01:00:38 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 01:00:38 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:00:39 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 01:00:39 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 01:00:39 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 01:00:39 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 01:00:39 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:07:09 America/Sao_Paulo] Status recebido: atrasado
+[24-May-2025 01:07:14 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 01:07:14 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 01:07:14 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 01:07:14 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 01:07:14 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:07:40 America/Sao_Paulo] Status recebido: pendente
+[24-May-2025 01:07:46 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 01:07:46 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 01:07:46 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 01:07:46 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 01:07:46 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:08:09 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 01:08:09 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 01:08:09 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 01:08:09 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 01:08:09 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:08:15 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 01:08:15 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 01:08:15 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 01:08:15 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 01:08:15 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
