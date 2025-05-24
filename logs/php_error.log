@@ -2617,3 +2617,54 @@ Stack trace:
                         COUNT(id) AS total_parcelas
                      FROM parcelas 
                      WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:14:23 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 01:14:23 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 01:14:23 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 01:14:23 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 01:14:23 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 01:14:28 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'c.uf' in 'SELECT' in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php:15
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php(15): mysqli->prepare('\r\n    SELECT \r\n...')
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php on line 15
+[24-May-2025 01:26:45 America/Sao_Paulo] PHP Warning:  Undefined array key "data_emprestimo" in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php on line 322
+[24-May-2025 01:26:45 America/Sao_Paulo] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php on line 90
+[24-May-2025 01:26:45 America/Sao_Paulo] PHP Fatal error:  Uncaught TypeError: number_format(): Argument #1 ($num) must be of type float, string given in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php:129
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php(129): number_format('1.320,00', 2, '.', '.')
+#1 C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php(330): valorPorExtenso('1.320,00')
+#2 {main}
+  thrown in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php on line 129
+[24-May-2025 11:05:25 America/Sao_Paulo] PHP Fatal error:  Uncaught TypeError: number_format(): Argument #1 ($num) must be of type float, string given in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php:141
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php(141): number_format('1.320,00', 2, '.', '.')
+#1 C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php(342): valorPorExtenso('1.320,00')
+#2 {main}
+  thrown in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\recibo_quitacao.php on line 141
+[24-May-2025 13:15:01 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[24-May-2025 13:15:01 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[24-May-2025 13:15:01 America/Sao_Paulo] Total de parcelas com status 'atrasado': 2
+[24-May-2025 13:15:01 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[24-May-2025 13:15:01 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
+[24-May-2025 13:17:09 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\quitar.php on line 30
+[24-May-2025 13:17:09 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\quitar.php on line 31

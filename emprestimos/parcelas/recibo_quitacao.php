@@ -20,7 +20,7 @@ $stmt = $conn->prepare("
         c.telefone AS cliente_telefone,
         c.endereco AS cliente_endereco,
         c.cidade AS cliente_cidade,
-        c.uf AS cliente_uf
+        c.estado AS cliente_uf
     FROM 
         emprestimos e
     JOIN 
@@ -87,6 +87,9 @@ function formatarMoeda($valor) {
 }
 
 function formatarData($data) {
+    if (empty($data)) {
+        return date('d/m/Y'); // Se a data for vazia, retorna a data atual
+    }
     return date('d/m/Y', strtotime($data));
 }
 
@@ -114,7 +117,22 @@ function dataPorExtenso($data) {
 
 // Função para converter valor em extenso
 function valorPorExtenso($valor) {
-    $valor = number_format($valor, 2, ',', '.');
+    // Preparar o valor para processamento
+    if (is_string($valor)) {
+        // Remove quaisquer caracteres não numéricos, exceto ponto e vírgula
+        $valor = preg_replace('/[^0-9.,]/', '', $valor);
+        
+        // Converte formato brasileiro para formato americano
+        $valor = str_replace('.', '', $valor); // Remove pontos (separadores de milhares)
+        $valor = str_replace(',', '.', $valor); // Substitui vírgula por ponto (decimal)
+    }
+    
+    // Garantir que é um número
+    $valor = (float)$valor;
+    
+    // Agora podemos usar o number_format com segurança
+    $valor_formatado = number_format($valor, 2, ',', '.');
+    
     $singular = array('centavo', 'real', 'mil', 'milhão', 'bilhão');
     $plural = array('centavos', 'reais', 'mil', 'milhões', 'bilhões');
 
@@ -126,8 +144,8 @@ function valorPorExtenso($valor) {
     $z = 0;
     $rt = '';
 
-    $valor = number_format($valor, 2, '.', '.');
-    $inteiro = explode('.', $valor);
+    // Usar o valor já convertido para float
+    $inteiro = explode(',', $valor_formatado);
     
     for($i=0;$i<count($inteiro);$i++)
         for($ii=mb_strlen($inteiro[$i]);$ii<3;$ii++)
@@ -166,12 +184,12 @@ function valorPorExtenso($valor) {
     if (mb_substr($rt, -7) == 'milhão') { $rt = mb_substr($rt, 0, -7) . 'milhões'; }
     if (mb_substr($rt, -4) == 'mil ') { $rt = mb_substr($rt, 0, -4) . ' mil '; }
     
-    $decimal = explode('.', number_format($valor, 2, '.', '.'));
-    $decimal = intval($decimal[1]);
+    // Os centavos são a parte decimal do valor formatado
+    $centavos = (int)$inteiro[1];
     
-    if ($decimal) {
-        $cent = $decimal == 1 ? 'centavo' : 'centavos';
-        $rt .= ' e ' . $decimal . ' ' . $cent;
+    if ($centavos) {
+        $cent = $centavos == 1 ? 'centavo' : 'centavos';
+        $rt .= ' e ' . $centavos . ' ' . $cent;
     }
 
     return $rt ? ucfirst($rt) : 'Zero';
@@ -319,7 +337,7 @@ $html = '
             <div class="info-titulo">DADOS DO EMPRÉSTIMO:</div>
             <div class="info-dados">
                 <p>Nº do Contrato: ' . $emprestimo_id . '</p>
-                <p>Data do Empréstimo: ' . formatarData($emprestimo['data_emprestimo']) . '</p>
+                <p>Data do Empréstimo: ' . formatarData($emprestimo['data_inicio'] ?? null) . '</p>
                 <p>Valor Emprestado: ' . formatarMoeda($emprestimo['valor_emprestado']) . '</p>
                 <p>Valor Total: ' . formatarMoeda($total_previsto) . '</p>
                 <p>Valor Total Pago: ' . formatarMoeda($total_pago) . '</p>
@@ -329,7 +347,7 @@ $html = '
         <div class="texto-recibo">
             <p>Declaro para os devidos fins que o empréstimo de número <span class="valor-destacado">' . $emprestimo_id . '</span>, no valor total de <span class="valor-destacado">' . formatarMoeda($total_previsto) . '</span> (<span class="valor-destacado">' . valorPorExtenso($total_previsto) . '</span>), foi totalmente QUITADO nesta data, não havendo mais nenhum valor a ser pago referente a este contrato.</p>
             
-            <p>O pagamento total foi realizado em parcelas, sendo a última liquidação efetuada em <span class="valor-destacado">' . formatarData($ultima_data_pagamento ?? date('Y-m-d')) . '</span>, através de <span class="valor-destacado">' . ucfirst($ultima_forma_pagamento ?? 'pagamento') . '</span>.</p>
+            <p>O pagamento total foi realizado em parcelas, sendo a última liquidação efetuada em <span class="valor-destacado">' . formatarData($ultima_data_pagamento) . '</span>, através de <span class="valor-destacado">' . ucfirst($ultima_forma_pagamento ?? 'pagamento') . '</span>.</p>
             
             <p>Dou plena, geral e irrevogável quitação, para nada mais reclamar em tempo algum, seja a que título for.</p>
         </div>
