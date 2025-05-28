@@ -2668,3 +2668,113 @@ Stack trace:
                      WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-23'))
 [24-May-2025 13:17:09 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\quitar.php on line 30
 [24-May-2025 13:17:09 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\quitar.php on line 31
+[28-May-2025 10:04:59 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-05-28 10:04:59","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/136.0.0.0 Safari\/537.36","session_id":"ujffr8eac8l4p2v791ipciq884","csrf_token":64}
+[28-May-2025 10:05:00 America/Sao_Paulo] Total de empréstimos ativos (IDs): 
+[28-May-2025 10:05:00 America/Sao_Paulo] Total de empréstimos ativos (contagem): 0
+[28-May-2025 10:05:00 America/Sao_Paulo] Total de parcelas com status 'atrasado': 0
+[28-May-2025 10:05:00 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[28-May-2025 10:05:00 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-27'))
+[28-May-2025 10:22:13 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[28-May-2025 10:22:13 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[28-May-2025 10:22:14 America/Sao_Paulo] Total de parcelas com status 'atrasado': 0
+[28-May-2025 10:22:14 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[28-May-2025 10:22:14 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-27'))
+[28-May-2025 10:41:56 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[28-May-2025 10:41:56 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[28-May-2025 10:41:56 America/Sao_Paulo] Total de parcelas com status 'atrasado': 0
+[28-May-2025 10:41:56 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[28-May-2025 10:41:56 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-05-27'))
+[28-May-2025 10:44:15 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:216
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(216): mysqli_stmt->bind_param('isiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 216
+[28-May-2025 10:46:42 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:216
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(216): mysqli_stmt->bind_param('issiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 216
+[28-May-2025 10:49:29 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:216
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(216): mysqli_stmt->bind_param('issiiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 216
+[28-May-2025 10:51:57 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:216
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(216): mysqli_stmt->bind_param('issiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 216
+[28-May-2025 10:51:58 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:216
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(216): mysqli_stmt->bind_param('issiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 216
+[28-May-2025 11:01:15 America/Sao_Paulo] PHP Warning:  Undefined array key "parcelas_atrasadas" in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 143
+[28-May-2025 11:01:15 America/Sao_Paulo] PHP Warning:  Undefined array key "parcelas_atrasadas" in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 143
+[28-May-2025 11:01:15 America/Sao_Paulo] PHP Warning:  Undefined array key "parcelas_atrasadas" in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 271
+[28-May-2025 11:01:15 America/Sao_Paulo] PHP Warning:  Undefined array key "parcelas_atrasadas" in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 271
+[28-May-2025 11:26:17 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:137
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(137): mysqli_stmt->bind_param('issiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 137
+[28-May-2025 11:27:47 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:141
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(141): mysqli_stmt->bind_param('issiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 141
+[28-May-2025 11:27:48 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:141
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(141): mysqli_stmt->bind_param('issiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 141
+[28-May-2025 11:27:48 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:141
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(141): mysqli_stmt->bind_param('issiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 141
+[28-May-2025 11:27:49 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:141
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(141): mysqli_stmt->bind_param('issiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 141
+[28-May-2025 11:27:49 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:141
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(141): mysqli_stmt->bind_param('issiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 141
+[28-May-2025 11:27:50 America/Sao_Paulo] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php:141
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(141): mysqli_stmt->bind_param('issiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 141

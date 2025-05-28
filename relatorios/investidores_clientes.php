@@ -11,182 +11,162 @@ if ($nivel_usuario !== 'administrador' && $nivel_usuario !== 'superadmin') {
     exit;
 }
 
-// Opções de filtro
+// Verifica se o formulário foi submetido
+$filtro_aplicado = isset($_GET['filtrar']);
+
+// Filtros
 $filtro_investidor = isset($_GET['investidor']) ? intval($_GET['investidor']) : 0;
-$filtro_periodo = isset($_GET['periodo']) ? $_GET['periodo'] : '30';
+$filtro_periodo = isset($_GET['periodo']) ? intval($_GET['periodo']) : 30;
 $filtro_status = isset($_GET['status']) ? $_GET['status'] : '';
 
-// Determinar datas com base no período
-$data_fim = date('Y-m-d');
-switch ($filtro_periodo) {
-    case '7':
-        $data_inicio = date('Y-m-d', strtotime('-7 days'));
-        break;
-    case '30':
-        $data_inicio = date('Y-m-d', strtotime('-30 days'));
-        break;
-    case '90':
-        $data_inicio = date('Y-m-d', strtotime('-90 days'));
-        break;
-    case '180':
-        $data_inicio = date('Y-m-d', strtotime('-180 days'));
-        break;
-    case '365':
-        $data_inicio = date('Y-m-d', strtotime('-1 year'));
-        break;
-    case 'all':
-        $data_inicio = '2000-01-01'; // Data no passado para pegar todos
-        break;
-    default:
-        $data_inicio = date('Y-m-d', strtotime('-30 days'));
-}
-
-// Buscar lista de investidores para o filtro
-$sql_investidores = "SELECT id, nome FROM usuarios WHERE tipo = 'investidor' ORDER BY nome ASC";
-$result_investidores = $conn->query($sql_investidores);
-$investidores = [];
-
-if ($result_investidores && $result_investidores->num_rows > 0) {
-    while ($row = $result_investidores->fetch_assoc()) {
-        $investidores[] = $row;
+// Condição de status para as queries
+$status_condition = "";
+if ($filtro_aplicado && $filtro_status) {
+    if ($filtro_status === 'ativo') {
+        $status_condition = "AND (e.status = 'ativo' OR e.status IS NULL)";
+    } elseif ($filtro_status === 'quitado') {
+        $status_condition = "AND e.status = 'quitado'";
     }
 }
 
-// Consulta principal para clientes e investidores
+// Query principal para buscar resumo dos investidores
 $sql = "SELECT 
-            u.id AS investidor_id,
-            u.nome AS investidor_nome,
-            COUNT(DISTINCT c.id) AS total_clientes,
-            COUNT(DISTINCT e.id) AS total_emprestimos,
-            COALESCE(SUM(e.valor_emprestado), 0) AS total_valor_emprestado,
-            (
-                SELECT COALESCE(SUM(p.valor_pago), 0)
-                FROM parcelas p
-                JOIN emprestimos e2 ON p.emprestimo_id = e2.id
-                JOIN clientes c2 ON e2.cliente_id = c2.id
-                WHERE c2.indicacao = u.id
-                AND p.data_pagamento BETWEEN ? AND ?
-            ) AS total_valor_recebido,
-            (
-                SELECT COALESCE(SUM(p.valor), 0) - COALESCE(SUM(p.valor_pago), 0)
-                FROM parcelas p
-                JOIN emprestimos e2 ON p.emprestimo_id = e2.id
-                JOIN clientes c2 ON e2.cliente_id = c2.id
-                WHERE c2.indicacao = u.id
-                AND p.status IN ('pendente', 'atrasado', 'parcial')
-            ) AS total_pendente,
-            (
-                SELECT COUNT(p.id)
-                FROM parcelas p
-                JOIN emprestimos e2 ON p.emprestimo_id = e2.id
-                JOIN clientes c2 ON e2.cliente_id = c2.id
-                WHERE c2.indicacao = u.id
-                AND p.status IN ('pendente', 'atrasado')
-                AND p.vencimento < CURRENT_DATE()
-            ) AS total_parcelas_atrasadas
-        FROM 
-            usuarios u
-            LEFT JOIN clientes c ON u.id = c.indicacao
-            LEFT JOIN emprestimos e ON c.id = e.cliente_id AND c.indicacao = u.id
-        WHERE 
-            u.tipo = 'investidor'";
+    u.id AS investidor_id,
+    u.nome AS investidor_nome,
+    COUNT(DISTINCT c.id) AS total_clientes,
+    COUNT(DISTINCT CASE WHEN e.id IS NOT NULL $status_condition THEN e.id END) AS total_emprestimos,
+    COALESCE(SUM(CASE WHEN e.id IS NOT NULL $status_condition THEN e.valor_emprestado ELSE 0 END), 0) AS total_valor_emprestado,
+    (
+        SELECT COALESCE(SUM(
+            CASE 
+                WHEN p.status = 'pago' THEN p.valor
+                WHEN p.status = 'parcial' THEN COALESCE(p.valor_pago, 0)
+                ELSE 0 
+            END
+        ), 0)
+        FROM parcelas p
+        JOIN emprestimos e2 ON p.emprestimo_id = e2.id
+        WHERE e2.investidor_id = u.id
+        $status_condition
+    ) AS total_valor_recebido,
+    (
+        SELECT COALESCE(SUM(
+            CASE 
+                WHEN p.status IN ('pendente', 'atrasado') THEN p.valor
+                WHEN p.status = 'parcial' THEN (p.valor - COALESCE(p.valor_pago, 0))
+                ELSE 0 
+            END
+        ), 0)
+        FROM parcelas p
+        JOIN emprestimos e2 ON p.emprestimo_id = e2.id
+        WHERE e2.investidor_id = u.id
+        $status_condition
+    ) AS total_valor_pendente,
+    (
+        SELECT COUNT(DISTINCT p2.id)
+        FROM parcelas p2
+        JOIN emprestimos e2 ON p2.emprestimo_id = e2.id
+        WHERE e2.investidor_id = u.id
+        $status_condition
+        AND p2.vencimento < CURRENT_DATE()
+        AND p2.status = 'pendente'
+    ) AS parcelas_atrasadas
+FROM 
+    usuarios u
+LEFT JOIN 
+    emprestimos e ON u.id = e.investidor_id
+LEFT JOIN 
+    clientes c ON e.cliente_id = c.id
+WHERE 
+    u.tipo = 'investidor'
+GROUP BY 
+    u.id, u.nome
+ORDER BY 
+    u.nome";
 
-// Adicionar filtro por investidor específico se selecionado
+// Executar query principal sem parâmetros
+$result = $conn->query($sql);
+$investidores = [];
+while ($row = $result->fetch_assoc()) {
+    $investidores[] = $row;
+}
+
+// Query para buscar detalhes dos clientes por investidor
 if ($filtro_investidor > 0) {
-    $sql .= " AND u.id = $filtro_investidor";
-}
+    $sql_clientes = "SELECT 
+        c.id AS cliente_id,
+        c.nome AS cliente_nome,
+        c.indicacao,
+        COUNT(DISTINCT CASE WHEN e.id IS NOT NULL $status_condition THEN e.id END) AS total_emprestimos,
+        COALESCE(SUM(CASE WHEN e.id IS NOT NULL $status_condition THEN e.valor_emprestado ELSE 0 END), 0) AS total_valor_emprestado,
+        (
+            SELECT COALESCE(SUM(
+                CASE 
+                    WHEN p2.status = 'pago' THEN p2.valor
+                    WHEN p2.status = 'parcial' THEN COALESCE(p2.valor_pago, 0)
+                    ELSE 0 
+                END
+            ), 0)
+            FROM parcelas p2
+            JOIN emprestimos e2 ON p2.emprestimo_id = e2.id
+            WHERE e2.cliente_id = c.id 
+            AND e2.investidor_id = ?
+            $status_condition
+        ) AS valor_recebido,
+        (
+            SELECT COALESCE(SUM(
+                CASE 
+                    WHEN p2.status IN ('pendente', 'atrasado') THEN p2.valor
+                    WHEN p2.status = 'parcial' THEN (p2.valor - COALESCE(p2.valor_pago, 0))
+                    ELSE 0 
+                END
+            ), 0)
+            FROM parcelas p2
+            JOIN emprestimos e2 ON p2.emprestimo_id = e2.id
+            WHERE e2.cliente_id = c.id 
+            AND e2.investidor_id = ?
+            $status_condition
+        ) AS valor_pendente,
+        (
+            SELECT COUNT(DISTINCT p3.id)
+            FROM parcelas p3
+            JOIN emprestimos e3 ON p3.emprestimo_id = e3.id
+            WHERE e3.cliente_id = c.id 
+            AND e3.investidor_id = ?
+            $status_condition
+            AND p3.vencimento < CURRENT_DATE()
+            AND p3.status = 'pendente'
+        ) AS parcelas_atrasadas
+    FROM 
+        clientes c
+    LEFT JOIN 
+        emprestimos e ON c.id = e.cliente_id AND e.investidor_id = ?
+    WHERE 
+        (c.indicacao = ? OR EXISTS (
+            SELECT 1 
+            FROM emprestimos e4 
+            WHERE e4.cliente_id = c.id 
+            AND e4.investidor_id = ?
+        ))
+    GROUP BY 
+        c.id, c.nome, c.indicacao
+    ORDER BY 
+        c.nome";
 
-$sql .= " GROUP BY u.id";
-
-// Adicionar filtros de status
-if ($filtro_status === 'inadimplentes') {
-    $sql .= " HAVING total_parcelas_atrasadas > 0";
-} elseif ($filtro_status === 'sem_clientes') {
-    $sql .= " HAVING total_clientes = 0";
-} elseif ($filtro_status === 'com_emprestimos') {
-    $sql .= " HAVING total_emprestimos > 0";
-}
-
-$sql .= " ORDER BY u.nome ASC";
-
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ss", $data_inicio, $data_fim);
-$stmt->execute();
-$result = $stmt->get_result();
-$investidores_dados = [];
-
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $investidores_dados[] = $row;
-    }
-}
-
-// Calcular totais gerais
-$total_geral_clientes = 0;
-$total_geral_emprestimos = 0;
-$total_geral_emprestado = 0;
-$total_geral_recebido = 0;
-$total_geral_pendente = 0;
-$total_geral_atrasadas = 0;
-
-foreach ($investidores_dados as $investidor) {
-    $total_geral_clientes += $investidor['total_clientes'];
-    $total_geral_emprestimos += $investidor['total_emprestimos'];
-    $total_geral_emprestado += $investidor['total_valor_emprestado'];
-    $total_geral_recebido += $investidor['total_valor_recebido'];
-    $total_geral_pendente += $investidor['total_pendente'];
-    $total_geral_atrasadas += $investidor['total_parcelas_atrasadas'];
-}
-
-// Consulta para detalhes dos clientes por investidor (usado quando um investidor específico é selecionado)
-$clientes_investidor = [];
-if ($filtro_investidor > 0) {
-    $sql_clientes = "SELECT
-                     c.id AS cliente_id,
-                     c.nome AS cliente_nome,
-                     c.telefone AS cliente_telefone,
-                     COUNT(e.id) AS emprestimos_ativos,
-                     COALESCE(SUM(e.valor_emprestado), 0) AS valor_emprestado,
-                     (
-                         SELECT COALESCE(SUM(p.valor_pago), 0)
-                         FROM parcelas p
-                         JOIN emprestimos e2 ON p.emprestimo_id = e2.id
-                         WHERE e2.cliente_id = c.id
-                         AND c.indicacao = ?
-                         AND p.data_pagamento BETWEEN ? AND ?
-                     ) AS valor_pago,
-                     (
-                         SELECT COALESCE(SUM(p.valor), 0) - COALESCE(SUM(p.valor_pago), 0)
-                         FROM parcelas p
-                         JOIN emprestimos e2 ON p.emprestimo_id = e2.id
-                         WHERE e2.cliente_id = c.id
-                         AND c.indicacao = ?
-                         AND p.status IN ('pendente', 'atrasado', 'parcial')
-                     ) AS valor_pendente,
-                     (
-                         SELECT COUNT(p.id)
-                         FROM parcelas p
-                         JOIN emprestimos e2 ON p.emprestimo_id = e2.id
-                         WHERE e2.cliente_id = c.id
-                         AND c.indicacao = ?
-                         AND p.status IN ('pendente', 'atrasado')
-                         AND p.vencimento < CURRENT_DATE()
-                     ) AS parcelas_atrasadas
-                 FROM
-                     clientes c
-                     LEFT JOIN emprestimos e ON c.id = e.cliente_id
-                 WHERE
-                     c.indicacao = ?
-                 GROUP BY
-                     c.id
-                 ORDER BY
-                     c.nome ASC";
-    
     $stmt_clientes = $conn->prepare($sql_clientes);
-    $stmt_clientes->bind_param("isiii", $filtro_investidor, $data_inicio, $data_fim, $filtro_investidor, $filtro_investidor, $filtro_investidor);
+    $stmt_clientes->bind_param("iiiiii", 
+        $filtro_investidor,  // Para primeira subquery (valor_recebido)
+        $filtro_investidor,  // Para segunda subquery (valor_pendente)
+        $filtro_investidor,  // Para terceira subquery (parcelas_atrasadas)
+        $filtro_investidor,  // Para JOIN com empréstimos
+        $filtro_investidor,  // Para WHERE indicacao
+        $filtro_investidor   // Para EXISTS subquery
+    );
+    
     $stmt_clientes->execute();
     $result_clientes = $stmt_clientes->get_result();
     
+    $clientes_investidor = [];
     if ($result_clientes && $result_clientes->num_rows > 0) {
         while ($row = $result_clientes->fetch_assoc()) {
             $clientes_investidor[] = $row;
@@ -198,11 +178,28 @@ if ($filtro_investidor > 0) {
 $investidor_selecionado_nome = '';
 if ($filtro_investidor > 0) {
     foreach ($investidores as $inv) {
-        if ($inv['id'] == $filtro_investidor) {
-            $investidor_selecionado_nome = $inv['nome'];
+        if ($inv['investidor_id'] == $filtro_investidor) {
+            $investidor_selecionado_nome = $inv['investidor_nome'];
             break;
         }
     }
+}
+
+// Calcular totais gerais
+$total_geral_clientes = 0;
+$total_geral_emprestimos = 0;
+$total_geral_emprestado = 0;
+$total_geral_recebido = 0;
+$total_geral_pendente = 0;
+$total_geral_atrasadas = 0;
+
+foreach ($investidores as $investidor) {
+    $total_geral_clientes += $investidor['total_clientes'];
+    $total_geral_emprestimos += $investidor['total_emprestimos'];
+    $total_geral_emprestado += $investidor['total_valor_emprestado'];
+    $total_geral_recebido += $investidor['total_valor_recebido'];
+    $total_geral_pendente += $investidor['total_valor_pendente'];
+    $total_geral_atrasadas += $investidor['parcelas_atrasadas'];
 }
 ?>
 
@@ -272,38 +269,35 @@ if ($filtro_investidor > 0) {
                     <div class="col-md-4">
                         <label for="investidor" class="form-label">Investidor</label>
                         <select name="investidor" id="investidor" class="form-select">
-                            <option value="0" <?= $filtro_investidor === 0 ? 'selected' : '' ?>>Todos os Investidores</option>
-                            <?php foreach ($investidores as $investidor): ?>
-                                <option value="<?= $investidor['id'] ?>" <?= $filtro_investidor === $investidor['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($investidor['nome']) ?>
+                            <option value="0">Todos os Investidores</option>
+                            <?php foreach ($investidores as $inv): ?>
+                                <option value="<?= $inv['investidor_id'] ?>" <?= $filtro_investidor == $inv['investidor_id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($inv['investidor_nome']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label for="periodo" class="form-label">Período de Recebimentos</label>
-                        <select name="periodo" id="periodo" class="form-select">
-                            <option value="7" <?= $filtro_periodo === '7' ? 'selected' : '' ?>>Últimos 7 dias</option>
-                            <option value="30" <?= $filtro_periodo === '30' ? 'selected' : '' ?>>Últimos 30 dias</option>
-                            <option value="90" <?= $filtro_periodo === '90' ? 'selected' : '' ?>>Últimos 90 dias</option>
-                            <option value="180" <?= $filtro_periodo === '180' ? 'selected' : '' ?>>Últimos 180 dias</option>
-                            <option value="365" <?= $filtro_periodo === '365' ? 'selected' : '' ?>>Último ano</option>
-                            <option value="all" <?= $filtro_periodo === 'all' ? 'selected' : '' ?>>Todo o período</option>
-                        </select>
+                        <label for="periodo" class="form-label">Período (dias)</label>
+                        <input type="number" class="form-control" id="periodo" name="periodo" value="<?= $filtro_periodo ?>">
                     </div>
                     <div class="col-md-4">
                         <label for="status" class="form-label">Status</label>
                         <select name="status" id="status" class="form-select">
-                            <option value="" <?= $filtro_status === '' ? 'selected' : '' ?>>Todos</option>
-                            <option value="inadimplentes" <?= $filtro_status === 'inadimplentes' ? 'selected' : '' ?>>Com Inadimplentes</option>
-                            <option value="sem_clientes" <?= $filtro_status === 'sem_clientes' ? 'selected' : '' ?>>Sem Clientes</option>
-                            <option value="com_emprestimos" <?= $filtro_status === 'com_emprestimos' ? 'selected' : '' ?>>Com Empréstimos Ativos</option>
+                            <option value="">Todos</option>
+                            <option value="ativo" <?= $filtro_status === 'ativo' ? 'selected' : '' ?>>Ativos</option>
+                            <option value="quitado" <?= $filtro_status === 'quitado' ? 'selected' : '' ?>>Quitados</option>
                         </select>
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" name="filtrar" value="1" class="btn btn-primary">
                             <i class="bi bi-filter me-1"></i>Filtrar
                         </button>
+                        <?php if ($filtro_aplicado): ?>
+                            <a href="<?= $_SERVER['PHP_SELF'] ?>" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Limpar Filtros
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </form>
             </div>
@@ -313,14 +307,13 @@ if ($filtro_investidor > 0) {
             <!-- Tabela de Resumo por Investidor -->
             <div class="card">
                 <div class="card-body">
-                    <?php if (count($investidores_dados) > 0): ?>
+                    <?php if (count($investidores) > 0): ?>
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Investidor</th>
-                                        <th class="text-center">Clientes</th>
-                                        <th class="text-center">Empréstimos</th>
+                                        <th>Quantidade</th>
                                         <th class="text-end">Valor Emprestado</th>
                                         <th class="text-end">Valor Recebido</th>
                                         <th class="text-end">Valor Pendente</th>
@@ -329,17 +322,25 @@ if ($filtro_investidor > 0) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($investidores_dados as $investidor): ?>
+                                    <?php foreach ($investidores as $investidor): ?>
                                     <tr>
                                         <td><?= htmlspecialchars($investidor['investidor_nome']) ?></td>
-                                        <td class="text-center"><?= $investidor['total_clientes'] ?></td>
-                                        <td class="text-center"><?= $investidor['total_emprestimos'] ?></td>
+                                        <td>
+                                            <div>
+                                                <small class="text-muted">Clientes Ativos: </small>
+                                                <strong><?= $investidor['total_clientes'] ?></strong>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted">Total Empréstimos: </small>
+                                                <span><?= $investidor['total_emprestimos'] ?></span>
+                                            </div>
+                                        </td>
                                         <td class="text-end">R$ <?= number_format($investidor['total_valor_emprestado'], 2, ',', '.') ?></td>
                                         <td class="text-end">R$ <?= number_format($investidor['total_valor_recebido'], 2, ',', '.') ?></td>
-                                        <td class="text-end">R$ <?= number_format($investidor['total_pendente'], 2, ',', '.') ?></td>
+                                        <td class="text-end">R$ <?= number_format($investidor['total_valor_pendente'], 2, ',', '.') ?></td>
                                         <td class="text-center">
-                                            <?php if ($investidor['total_parcelas_atrasadas'] > 0): ?>
-                                                <span class="badge bg-danger"><?= $investidor['total_parcelas_atrasadas'] ?></span>
+                                            <?php if ($investidor['parcelas_atrasadas'] > 0): ?>
+                                                <span class="badge bg-danger"><?= $investidor['parcelas_atrasadas'] ?></span>
                                             <?php else: ?>
                                                 <span class="badge bg-success">0</span>
                                             <?php endif; ?>
@@ -356,8 +357,16 @@ if ($filtro_investidor > 0) {
                                 <tfoot class="table-light">
                                     <tr>
                                         <th>Totais</th>
-                                        <th class="text-center"><?= $total_geral_clientes ?></th>
-                                        <th class="text-center"><?= $total_geral_emprestimos ?></th>
+                                        <th>
+                                            <div>
+                                                <small class="text-muted">Clientes Ativos: </small>
+                                                <strong><?= $total_geral_clientes ?></strong>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted">Total Empréstimos: </small>
+                                                <span><?= $total_geral_emprestimos ?></span>
+                                            </div>
+                                        </th>
                                         <th class="text-end">R$ <?= number_format($total_geral_emprestado, 2, ',', '.') ?></th>
                                         <th class="text-end">R$ <?= number_format($total_geral_recebido, 2, ',', '.') ?></th>
                                         <th class="text-end">R$ <?= number_format($total_geral_pendente, 2, ',', '.') ?></th>
@@ -384,64 +393,25 @@ if ($filtro_investidor > 0) {
                                 <thead class="table-light">
                                     <tr>
                                         <th>Cliente</th>
-                                        <th>Telefone</th>
-                                        <th class="text-center">Empréstimos Ativos</th>
-                                        <th class="text-end">Valor Emprestado</th>
-                                        <th class="text-end">Valor Pago</th>
-                                        <th class="text-end">Valor Pendente</th>
-                                        <th class="text-center">Parcelas Atrasadas</th>
-                                        <th class="text-center">Ações</th>
+                                        <th>Total Empréstimos</th>
+                                        <th>Valor Total</th>
+                                        <th>Valor Recebido</th>
+                                        <th>Valor Pendente</th>
+                                        <th>Parcelas Atrasadas</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php 
-                                    $total_emprestimos_ativos = 0;
-                                    $total_valor_emprestado = 0;
-                                    $total_valor_pago = 0;
-                                    $total_valor_pendente = 0;
-                                    $total_parcelas_atrasadas = 0;
-                                    
-                                    foreach ($clientes_investidor as $cliente): 
-                                        $total_emprestimos_ativos += $cliente['emprestimos_ativos'];
-                                        $total_valor_emprestado += $cliente['valor_emprestado'];
-                                        $total_valor_pago += $cliente['valor_pago'];
-                                        $total_valor_pendente += $cliente['valor_pendente'];
-                                        $total_parcelas_atrasadas += $cliente['parcelas_atrasadas'];
-                                    ?>
+                                    <?php foreach ($clientes_investidor as $cliente): ?>
                                     <tr>
                                         <td><?= htmlspecialchars($cliente['cliente_nome']) ?></td>
-                                        <td><?= htmlspecialchars($cliente['cliente_telefone']) ?></td>
-                                        <td class="text-center"><?= $cliente['emprestimos_ativos'] ?></td>
-                                        <td class="text-end">R$ <?= number_format($cliente['valor_emprestado'], 2, ',', '.') ?></td>
-                                        <td class="text-end">R$ <?= number_format($cliente['valor_pago'], 2, ',', '.') ?></td>
-                                        <td class="text-end">R$ <?= number_format($cliente['valor_pendente'], 2, ',', '.') ?></td>
-                                        <td class="text-center">
-                                            <?php if ($cliente['parcelas_atrasadas'] > 0): ?>
-                                                <span class="badge bg-danger"><?= $cliente['parcelas_atrasadas'] ?></span>
-                                            <?php else: ?>
-                                                <span class="badge bg-success">0</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="<?= BASE_URL ?>clientes/visualizar.php?id=<?= $cliente['cliente_id'] ?>" 
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-eye"></i> Ver
-                                            </a>
-                                        </td>
+                                        <td><?= $cliente['total_emprestimos'] ?></td>
+                                        <td>R$ <?= number_format($cliente['total_valor_emprestado'], 2, ',', '.') ?></td>
+                                        <td>R$ <?= number_format($cliente['valor_recebido'], 2, ',', '.') ?></td>
+                                        <td>R$ <?= number_format($cliente['valor_pendente'], 2, ',', '.') ?></td>
+                                        <td><?= $cliente['parcelas_atrasadas'] ?></td>
                                     </tr>
                                     <?php endforeach; ?>
                                 </tbody>
-                                <tfoot class="table-light">
-                                    <tr>
-                                        <th colspan="2">Totais</th>
-                                        <th class="text-center"><?= $total_emprestimos_ativos ?></th>
-                                        <th class="text-end">R$ <?= number_format($total_valor_emprestado, 2, ',', '.') ?></th>
-                                        <th class="text-end">R$ <?= number_format($total_valor_pago, 2, ',', '.') ?></th>
-                                        <th class="text-end">R$ <?= number_format($total_valor_pendente, 2, ',', '.') ?></th>
-                                        <th class="text-center"><?= $total_parcelas_atrasadas ?></th>
-                                        <th class="text-center"></th>
-                                    </tr>
-                                </tfoot>
                             </table>
                         </div>
                     <?php else: ?>
@@ -473,6 +443,24 @@ if ($filtro_investidor > 0) {
             @page {
                 size: landscape;
             }
+        }
+        /* Ajusta o espaçamento e estilo da coluna de quantidade */
+        .text-muted {
+            color: #6c757d !important;
+            font-size: 0.85rem;
+        }
+        /* Remove margem desnecessária */
+        .mb-1 {
+            margin-bottom: 0 !important;
+        }
+        /* Ajusta o tamanho do número */
+        strong, span {
+            font-size: 0.95rem;
+        }
+        /* Remove o display block que estava forçando quebra de linha */
+        .d-block {
+            display: inline !important;
+            font-size: 0.85rem;
         }
     </style>
     
