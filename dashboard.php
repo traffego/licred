@@ -21,7 +21,8 @@ $total_emprestimos_ativos = 0;
 
 try {
     // Busca empréstimos com tratamento de erro
-    $emprestimos = buscarTodosEmprestimosComCliente($conn);
+    $resultado = buscarTodosEmprestimosComCliente($conn);
+    $emprestimos = $resultado['emprestimos'] ?? [];
     if (!empty($emprestimos)) {
         $ultimos_emprestimos = array_slice($emprestimos, 0, 5);
     }
@@ -44,7 +45,9 @@ try {
     $total_recebido = 0;
     
     foreach ($emprestimos as $e) {
-        $total_emprestado += floatval($e['valor_emprestado']);
+        if (isset($e['valor_emprestado'])) {
+            $total_emprestado += floatval($e['valor_emprestado']);
+        }
         if (isset($e['total_pago'])) {
             $total_recebido += floatval($e['total_pago']);
         }

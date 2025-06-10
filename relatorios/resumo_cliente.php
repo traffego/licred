@@ -279,10 +279,12 @@ foreach ($clientes as $cliente) {
                                     </td>
                                     <td>
                                         <div class="btn-group">
-                                            <a href="<?= BASE_URL ?>clientes/visualizar.php?id=<?= $cliente['cliente_id'] ?>" 
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
+                                            <form action="<?= BASE_URL ?>clientes/visualizar.php" method="POST" style="display:inline;">
+                                                <input type="hidden" name="id" value="<?= $cliente['cliente_id'] ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </form>
                                             <?php if (floatval($cliente['total_emprestado']) > 0): ?>
                                                 <a href="<?= BASE_URL ?>clientes/extrato.php?id=<?= $cliente['cliente_id'] ?>" 
                                                    class="btn btn-sm btn-outline-info">

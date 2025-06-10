@@ -316,9 +316,7 @@ foreach ($investidores as $investidor) {
                                         <th>Quantidade</th>
                                         <th class="text-end">Valor Emprestado</th>
                                         <th class="text-end">Valor Recebido</th>
-                                        <th class="text-end">Valor Pendente</th>
-                                        <th class="text-center">Parcelas Atrasadas</th>
-                                        <th class="text-center">Ações</th>
+                                        <th class="text-end">Pendente</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -337,19 +335,19 @@ foreach ($investidores as $investidor) {
                                         </td>
                                         <td class="text-end">R$ <?= number_format($investidor['total_valor_emprestado'], 2, ',', '.') ?></td>
                                         <td class="text-end">R$ <?= number_format($investidor['total_valor_recebido'], 2, ',', '.') ?></td>
-                                        <td class="text-end">R$ <?= number_format($investidor['total_valor_pendente'], 2, ',', '.') ?></td>
-                                        <td class="text-center">
-                                            <?php if ($investidor['parcelas_atrasadas'] > 0): ?>
-                                                <span class="badge bg-danger"><?= $investidor['parcelas_atrasadas'] ?></span>
-                                            <?php else: ?>
-                                                <span class="badge bg-success">0</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="?investidor=<?= $investidor['investidor_id'] ?>&periodo=<?= $filtro_periodo ?>" 
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-search"></i> Detalhes
-                                            </a>
+                                        <td class="text-end">
+                                            <div>
+                                                <strong>R$ <?= number_format($investidor['total_valor_pendente'], 2, ',', '.') ?></strong>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted">
+                                                    <?php if ($investidor['parcelas_atrasadas'] > 0): ?>
+                                                        <span class="text-danger"><?= $investidor['parcelas_atrasadas'] ?> parcela(s) atrasada(s)</span>
+                                                    <?php else: ?>
+                                                        <span class="text-success">Sem atrasos</span>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </div>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
@@ -369,9 +367,20 @@ foreach ($investidores as $investidor) {
                                         </th>
                                         <th class="text-end">R$ <?= number_format($total_geral_emprestado, 2, ',', '.') ?></th>
                                         <th class="text-end">R$ <?= number_format($total_geral_recebido, 2, ',', '.') ?></th>
-                                        <th class="text-end">R$ <?= number_format($total_geral_pendente, 2, ',', '.') ?></th>
-                                        <th class="text-center"><?= $total_geral_atrasadas ?></th>
-                                        <th class="text-center"></th>
+                                        <th class="text-end">
+                                            <div>
+                                                <strong>R$ <?= number_format($total_geral_pendente, 2, ',', '.') ?></strong>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted">
+                                                    <?php if ($total_geral_atrasadas > 0): ?>
+                                                        <span class="text-danger"><?= $total_geral_atrasadas ?> parcela(s) atrasada(s)</span>
+                                                    <?php else: ?>
+                                                        <span class="text-success">Sem atrasos</span>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </div>
+                                        </th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -396,8 +405,7 @@ foreach ($investidores as $investidor) {
                                         <th>Total Empréstimos</th>
                                         <th>Valor Total</th>
                                         <th>Valor Recebido</th>
-                                        <th>Valor Pendente</th>
-                                        <th>Parcelas Atrasadas</th>
+                                        <th>Pendente</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -407,8 +415,20 @@ foreach ($investidores as $investidor) {
                                         <td><?= $cliente['total_emprestimos'] ?></td>
                                         <td>R$ <?= number_format($cliente['total_valor_emprestado'], 2, ',', '.') ?></td>
                                         <td>R$ <?= number_format($cliente['valor_recebido'], 2, ',', '.') ?></td>
-                                        <td>R$ <?= number_format($cliente['valor_pendente'], 2, ',', '.') ?></td>
-                                        <td><?= $cliente['parcelas_atrasadas'] ?></td>
+                                        <td>
+                                            <div>
+                                                <strong>R$ <?= number_format($cliente['valor_pendente'], 2, ',', '.') ?></strong>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted">
+                                                    <?php if ($cliente['parcelas_atrasadas'] > 0): ?>
+                                                        <span class="text-danger"><?= $cliente['parcelas_atrasadas'] ?> parcela(s) atrasada(s)</span>
+                                                    <?php else: ?>
+                                                        <span class="text-success">Sem atrasos</span>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </div>
+                                        </td>
                                     </tr>
                                     <?php endforeach; ?>
                                 </tbody>

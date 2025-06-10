@@ -2778,3 +2778,188 @@ Stack trace:
 #0 C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php(141): mysqli_stmt->bind_param('issiiii', 8, '2025-04-28', '2025-05-28', 8, 8, 8)
 #1 {main}
   thrown in C:\xampp\htdocs\emprestimos\relatorios\investidores_clientes.php on line 141
+[09-Jun-2025 14:14:13 America/Sao_Paulo] Erro no login: Email ou senha incorretos.
+[09-Jun-2025 14:14:17 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-06-09 14:14:17","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/137.0.0.0 Safari\/537.36","session_id":"54uudp5phl9efhd2tn3igv8jg3","csrf_token":64}
+[09-Jun-2025 14:14:29 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262
+[09-Jun-2025 14:14:29 America/Sao_Paulo] Total de empréstimos ativos (contagem): 261
+[09-Jun-2025 14:14:29 America/Sao_Paulo] Total de parcelas com status 'atrasado': 577
+[09-Jun-2025 14:14:29 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[09-Jun-2025 14:14:29 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-06-08'))
+[09-Jun-2025 15:06:29 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.data_emprestimo' in 'ORDER BY' in C:\xampp\htdocs\emprestimos\clientes\extrato.php:38
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\clientes\extrato.php(38): mysqli->prepare('SELECT \r\n    e....')
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\clientes\extrato.php on line 38
+[09-Jun-2025 15:07:31 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.descricao' in 'SELECT' in C:\xampp\htdocs\emprestimos\clientes\extrato.php:59
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\clientes\extrato.php(59): mysqli->prepare('SELECT \r\n    p....')
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\clientes\extrato.php on line 59
+[09-Jun-2025 15:10:27 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'e.descricao' in 'SELECT' in C:\xampp\htdocs\emprestimos\clientes\extrato.php:59
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\clientes\extrato.php(59): mysqli->prepare('SELECT \r\n    p....')
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\clientes\extrato.php on line 59
+[09-Jun-2025 15:15:09 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262
+[09-Jun-2025 15:15:09 America/Sao_Paulo] Total de empréstimos ativos (contagem): 261
+[09-Jun-2025 15:15:10 America/Sao_Paulo] Total de parcelas com status 'atrasado': 577
+[09-Jun-2025 15:15:10 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[09-Jun-2025 15:15:10 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-06-08'))
+[09-Jun-2025 15:46:39 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Column 'status' in SELECT is ambiguous in C:\xampp\htdocs\emprestimos\emprestimos\index.php:31
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\emprestimos\index.php(31): mysqli->query('SELECT \n    SUM...')
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\emprestimos\index.php on line 31
+[09-Jun-2025 15:46:42 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Column 'status' in SELECT is ambiguous in C:\xampp\htdocs\emprestimos\emprestimos\index.php:31
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\emprestimos\index.php(31): mysqli->query('SELECT \n    SUM...')
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\emprestimos\index.php on line 31
+[09-Jun-2025 15:46:47 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Column 'status' in SELECT is ambiguous in C:\xampp\htdocs\emprestimos\emprestimos\index.php:31
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\emprestimos\index.php(31): mysqli->query('SELECT \n    SUM...')
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\emprestimos\index.php on line 31
+[09-Jun-2025 15:53:24 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262
+[09-Jun-2025 15:53:24 America/Sao_Paulo] Total de empréstimos ativos (contagem): 261
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Warning:  Undefined array key "valor_emprestado" in C:\xampp\htdocs\emprestimos\dashboard.php on line 47
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Warning:  Trying to access array offset on value of type int in C:\xampp\htdocs\emprestimos\dashboard.php on line 47
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Warning:  Trying to access array offset on value of type int in C:\xampp\htdocs\emprestimos\dashboard.php on line 47
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Warning:  Trying to access array offset on value of type int in C:\xampp\htdocs\emprestimos\dashboard.php on line 47
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Warning:  Trying to access array offset on value of type float in C:\xampp\htdocs\emprestimos\dashboard.php on line 47
+[09-Jun-2025 15:53:24 America/Sao_Paulo] Total de parcelas com status 'atrasado': 577
+[09-Jun-2025 15:53:24 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[09-Jun-2025 15:53:24 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-06-08'))
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\emprestimos\dashboard.php on line 512
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Warning:  Undefined array key "cliente_nome" in C:\xampp\htdocs\emprestimos\dashboard.php on line 516
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\emprestimos\dashboard.php on line 516
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Warning:  Undefined array key "data_inicio" in C:\xampp\htdocs\emprestimos\dashboard.php on line 518
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in C:\xampp\htdocs\emprestimos\dashboard.php on line 518
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Warning:  Undefined array key "valor_emprestado" in C:\xampp\htdocs\emprestimos\dashboard.php on line 536
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Warning:  Undefined array key "parcelas" in C:\xampp\htdocs\emprestimos\dashboard.php on line 544
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Warning:  Undefined array key "valor_parcela" in C:\xampp\htdocs\emprestimos\dashboard.php on line 544
+[09-Jun-2025 15:53:24 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Cannot use a scalar value as an array in C:\xampp\htdocs\emprestimos\dashboard.php:463
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\emprestimos\dashboard.php on line 463
+[09-Jun-2025 15:55:14 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262
+[09-Jun-2025 15:55:14 America/Sao_Paulo] Total de empréstimos ativos (contagem): 261
+[09-Jun-2025 15:55:14 America/Sao_Paulo] Total de parcelas com status 'atrasado': 577
+[09-Jun-2025 15:55:14 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[09-Jun-2025 15:55:14 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-06-08'))
+[09-Jun-2025 15:57:28 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262
+[09-Jun-2025 15:57:28 America/Sao_Paulo] Total de empréstimos ativos (contagem): 261
+[09-Jun-2025 15:57:28 America/Sao_Paulo] Total de parcelas com status 'atrasado': 577
+[09-Jun-2025 15:57:28 America/Sao_Paulo] Total de parcelas vencidas (deveriam estar atrasadas): 0
+[09-Jun-2025 15:57:28 America/Sao_Paulo] Consulta de parcelas atrasadas: SELECT 
+                        SUM(
+                            CASE 
+                                WHEN status = 'parcial' THEN (valor - IFNULL(valor_pago, 0))
+                                ELSE valor 
+                            END
+                        ) AS total_valor,
+                        COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
+                        COUNT(id) AS total_parcelas
+                     FROM parcelas 
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < '2025-06-08'))
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:41 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:32:57 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Warning:  Undefined variable $valor_faltante in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 16:33:07 America/Sao_Paulo] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\buscar_emprestimos.php on line 95
+[09-Jun-2025 20:25:48 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-06-09 20:25:48","email":"diego@rego.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/137.0.0.0 Safari\/537.36","session_id":"e8d2ka0hhtssbovvoe6admcgb3","csrf_token":64}

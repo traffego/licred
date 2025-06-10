@@ -52,7 +52,45 @@ function buscarResumoEmprestimoId(mysqli $conn, int $id): array|null {
     return null;
 }
 
-function buscarTodosEmprestimosComCliente(mysqli $conn): array {
+function buscarTodosEmprestimosComCliente(mysqli $conn, int $pagina = 1, int $por_pagina = 10, array $filtros = []): array {
+    // Calcula o offset
+    $offset = ($pagina - 1) * $por_pagina;
+    
+    // Prepara as condições WHERE base
+    $where_conditions = ["(e.status != 'inativo' OR e.status IS NULL)"];
+    $params = [];
+    $param_types = "";
+    
+    // Adiciona filtro de busca por cliente
+    if (!empty($filtros['busca'])) {
+        $where_conditions[] = "c.nome LIKE ?";
+        $params[] = "%" . $filtros['busca'] . "%";
+        $param_types .= "s";
+    }
+    
+    // Adiciona filtro de tipo de cobrança
+    if (!empty($filtros['tipo'])) {
+        $where_conditions[] = "e.tipo_de_cobranca = ?";
+        $params[] = $filtros['tipo'];
+        $param_types .= "s";
+    }
+    
+    // Primeiro, vamos buscar o total de registros para a paginação
+    $sql_total = "SELECT COUNT(*) as total 
+                  FROM emprestimos e 
+                  JOIN clientes c ON e.cliente_id = c.id
+                  WHERE " . implode(" AND ", $where_conditions);
+    
+    $stmt_total = $conn->prepare($sql_total);
+    if (!empty($params)) {
+        $stmt_total->bind_param($param_types, ...$params);
+    }
+    $stmt_total->execute();
+    $result_total = $stmt_total->get_result();
+    $row_total = $result_total->fetch_assoc();
+    $total_registros = $row_total['total'];
+    
+    // Query principal com LIMIT e OFFSET
     $sql = "SELECT 
                 e.id,
                 e.cliente_id,
@@ -72,13 +110,32 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
             FROM emprestimos e 
             JOIN clientes c ON e.cliente_id = c.id
             LEFT JOIN usuarios u ON e.investidor_id = u.id
-            WHERE e.status != 'inativo' OR e.status IS NULL
-            ORDER BY e.id DESC";
+            WHERE " . implode(" AND ", $where_conditions);
+
+    // Adiciona ordenação
+    if (!empty($filtros['ordem'])) {
+        $sql .= " ORDER BY " . $filtros['ordem'];
+    } else {
+        $sql .= " ORDER BY e.id DESC";
+    }
+    
+    // Adiciona LIMIT apenas se por_pagina não for -1 (todos)
+    if ($por_pagina > 0) {
+        $sql .= " LIMIT ? OFFSET ?";
+        $param_types .= "ii";
+        $params[] = $por_pagina;
+        $params[] = $offset;
+    }
             
-    $stmt = $conn->query($sql);
+    $stmt = $conn->prepare($sql);
+    if (!empty($params)) {
+        $stmt->bind_param($param_types, ...$params);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
     $lista = [];
 
-    while ($e = $stmt->fetch_assoc()) {
+    while ($e = $result->fetch_assoc()) {
         // Adiciona os dados básicos
         $emprestimo = $e;
         
@@ -112,10 +169,50 @@ function buscarTodosEmprestimosComCliente(mysqli $conn): array {
         $emprestimo['total_pago'] = $total_pago;
         $emprestimo['parcelas_pagas'] = $parcelas_pagas;
         
+        // Aplica filtro de status se necessário
+        if (!empty($filtros['status'])) {
+            $status_atual = calcularStatusEmprestimo($emprestimo);
+            if ($status_atual !== $filtros['status']) {
+                continue;
+            }
+        }
+        
         $lista[] = $emprestimo;
     }
 
-    return $lista;
+    return [
+        'emprestimos' => $lista,
+        'total_registros' => $total_registros,
+        'pagina_atual' => $pagina,
+        'por_pagina' => $por_pagina,
+        'total_paginas' => $por_pagina > 0 ? ceil($total_registros / $por_pagina) : 1
+    ];
+}
+
+// Função auxiliar para calcular o status do empréstimo
+function calcularStatusEmprestimo($emprestimo) {
+    if ($emprestimo['total_pago'] >= $emprestimo['total_previsto']) {
+        return 'quitado';
+    }
+    
+    // Verifica se tem parcelas atrasadas
+    $stmt = $GLOBALS['conn']->prepare("
+        SELECT COUNT(*) as total 
+        FROM parcelas 
+        WHERE emprestimo_id = ? 
+        AND status IN ('pendente', 'parcial') 
+        AND vencimento < CURRENT_DATE - INTERVAL 1 DAY
+    ");
+    $stmt->bind_param("i", $emprestimo['id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    
+    if ($row['total'] > 0) {
+        return 'atrasado';
+    }
+    
+    return 'ativo';
 }
 
 function calcularTotalParcelasAtrasadas(mysqli $conn) {

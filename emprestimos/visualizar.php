@@ -240,6 +240,7 @@ foreach ($parcelas as $p) {
                             Ver Detalhes do Cliente
                         </a>
                     </div>
+                    
                     <form id="visualizar-cliente" action="../clientes/visualizar.php" method="post" style="display: none;">
                         <input type="hidden" name="id" value="<?= $emprestimo['cliente_id'] ?>">
                     </form>
