@@ -201,7 +201,7 @@ function calcularStatusEmprestimo($emprestimo) {
         FROM parcelas 
         WHERE emprestimo_id = ? 
         AND status IN ('pendente', 'parcial') 
-        AND vencimento < CURRENT_DATE - INTERVAL 1 DAY
+        AND vencimento < CURRENT_DATE
     ");
     $stmt->bind_param("i", $emprestimo['id']);
     $stmt->execute();
@@ -218,19 +218,15 @@ function calcularStatusEmprestimo($emprestimo) {
 function calcularTotalParcelasAtrasadas(mysqli $conn) {
     $total_atrasado = 0;
     
-    // Usar a data de ontem para considerar atrasadas apenas as parcelas que venceram há pelo menos 1 dia
-    $ontem = date('Y-m-d', strtotime('-1 day'));
-    
     $sql = "SELECT 
                 SUM(valor) as total 
             FROM 
                 parcelas 
             WHERE 
                 status = 'pendente' 
-                AND vencimento < ?";
+                AND vencimento < CURRENT_DATE";
                 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $ontem);
     $stmt->execute();
     $resultado = $stmt->get_result();
     
@@ -242,17 +238,35 @@ function calcularTotalParcelasAtrasadas(mysqli $conn) {
 }
 
 function contarEmprestimosAtivos(mysqli $conn) {
+    // Primeiro, vamos buscar todos os empréstimos que não estão explicitamente inativos
     $sql = "SELECT 
-                COUNT(id) as total
+                e.id,
+                e.status,
+                COUNT(p.id) as total_parcelas,
+                SUM(CASE WHEN p.status = 'pago' THEN 1 ELSE 0 END) as parcelas_pagas,
+                SUM(CASE 
+                    WHEN p.status IN ('pendente', 'parcial') AND p.vencimento < CURRENT_DATE THEN 1 
+                    ELSE 0 
+                END) as parcelas_atrasadas
             FROM 
-                emprestimos
+                emprestimos e
+            LEFT JOIN 
+                parcelas p ON e.id = p.emprestimo_id
             WHERE 
-                (status = 'ativo' OR status IS NULL)";
+                (e.status = 'ativo' OR e.status IS NULL)
+            GROUP BY 
+                e.id, e.status
+            HAVING 
+                parcelas_pagas < total_parcelas";
                 
     $resultado = $conn->query($sql);
-    $linha = $resultado->fetch_assoc();
     
-    return (int) $linha['total'];
+    if (!$resultado) {
+        error_log("Erro ao contar empréstimos ativos: " . $conn->error);
+        return 0;
+    }
+    
+    return $resultado->num_rows;
 }
 
 function buscarTodosClientes(mysqli $conn): array {
@@ -301,4 +315,17 @@ function buscarEmprestimoPorId(mysqli $conn, int $id) {
     }
     
     return $emprestimo;
+}
+
+function contarTotalEmprestimos(mysqli $conn) {
+    $sql = "SELECT COUNT(id) as total FROM emprestimos";
+    $resultado = $conn->query($sql);
+    
+    if (!$resultado) {
+        error_log("Erro ao contar total de empréstimos: " . $conn->error);
+        return 0;
+    }
+    
+    $linha = $resultado->fetch_assoc();
+    return (int) $linha['total'];
 }

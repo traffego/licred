@@ -18,6 +18,7 @@ $emprestimos = [];
 $ultimos_emprestimos = [];
 $total_atrasado = 0;
 $total_emprestimos_ativos = 0;
+$total_emprestimos = 0;
 
 try {
     // Busca empréstimos com tratamento de erro
@@ -28,6 +29,7 @@ try {
     }
 
     // Calcula totais com tratamento de erro
+    $total_emprestimos = contarTotalEmprestimos($conn);
     $total_emprestimos_ativos = contarEmprestimosAtivos($conn);
     
     // Debug - verificar empréstimos ativos manualmente
@@ -110,25 +112,6 @@ try {
     }
     
     // Calculando total atrasado corretamente
-    $ontem = date('Y-m-d', strtotime('-1 day'));
-    
-    // Debug - verificar quantas parcelas têm status explicitamente 'atrasado'
-    $sql_debug = "SELECT COUNT(*) AS total FROM parcelas WHERE status = 'atrasado'";
-    $result_debug = $conn->query($sql_debug);
-    $row_debug = $result_debug->fetch_assoc();
-    $count_atrasado = $row_debug['total'];
-    error_log("Total de parcelas com status 'atrasado': " . $count_atrasado);
-    
-    // Debug - verificar quantas parcelas deveriam estar atrasadas (vencimento < ontem e não pagas)
-    $sql_debug_vencidas = "SELECT COUNT(*) AS total FROM parcelas 
-                          WHERE status IN ('pendente', 'parcial') 
-                          AND vencimento < '$ontem'";
-    $result_debug_vencidas = $conn->query($sql_debug_vencidas);
-    $row_debug_vencidas = $result_debug_vencidas->fetch_assoc();
-    $count_vencidas = $row_debug_vencidas['total'];
-    error_log("Total de parcelas vencidas (deveriam estar atrasadas): " . $count_vencidas);
-    
-    // Consulta simplificada para parcelas atrasadas
     $sql_atrasado = "SELECT 
                         SUM(
                             CASE 
@@ -139,11 +122,7 @@ try {
                         COUNT(DISTINCT emprestimo_id) AS total_emprestimos,
                         COUNT(id) AS total_parcelas
                      FROM parcelas 
-                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < ?))";
-    
-    // Debug - log da consulta completa
-    $sql_debug_completo = str_replace("?", "'" . $ontem . "'", $sql_atrasado);
-    error_log("Consulta de parcelas atrasadas: " . $sql_debug_completo);
+                     WHERE (status = 'atrasado' OR (status IN ('pendente', 'parcial') AND vencimento < CURRENT_DATE))";
     
     $stmt_atrasado = $conn->prepare($sql_atrasado);
     if (!$stmt_atrasado) {
@@ -152,7 +131,6 @@ try {
         $emprestimos_atrasados = 0;
         $parcelas_atrasadas = 0;
     } else {
-        $stmt_atrasado->bind_param("s", $ontem);
         $stmt_atrasado->execute();
         $result_atrasado = $stmt_atrasado->get_result();
         
@@ -240,7 +218,7 @@ try {
                 <div class="card bg-info text-white h-100">
                     <div class="card-body">
                         <h6 class="card-title">Empréstimos</h6>
-                        <h4 class="mb-0"><?= count($emprestimos) ?></h4>
+                        <h4 class="mb-0"><?= $total_emprestimos ?></h4>
                     </div>
                 </div>
             </div>
@@ -296,7 +274,7 @@ try {
                 <div class="card bg-info text-white h-100">
                     <div class="card-body">
                         <h6 class="card-title">Empréstimos</h6>
-                        <h4 class="mb-0"><?= count($emprestimos) ?></h4>
+                        <h4 class="mb-0"><?= $total_emprestimos ?></h4>
                     </div>
                 </div>
             </div>
@@ -493,10 +471,9 @@ try {
                                             $status = 'ativo';
                                             
                                             $data_vencimento = new DateTime($p['vencimento']);
-                                            $hoje_menos_um = new DateTime();
-                                            $hoje_menos_um->modify('-1 day');
+                                            $hoje = new DateTime();
                                             
-                                            if ($data_vencimento < $hoje_menos_um) {
+                                            if ($data_vencimento < $hoje) {
                                                 $tem_atrasada = true;
                                                 $status = 'atrasado';
                                                 break;
@@ -622,10 +599,9 @@ try {
                                     $status = 'ativo';
                                     
                                     $data_vencimento = new DateTime($p['vencimento']);
-                                    $hoje_menos_um = new DateTime();
-                                    $hoje_menos_um->modify('-1 day');
+                                    $hoje = new DateTime();
                                     
-                                    if ($data_vencimento < $hoje_menos_um) {
+                                    if ($data_vencimento < $hoje) {
                                         $tem_atrasada = true;
                                         $status = 'atrasado';
                                         break;

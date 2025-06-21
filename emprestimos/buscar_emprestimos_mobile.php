@@ -64,10 +64,9 @@ ob_start();
                 $status = 'ativo';
                 
                 $data_vencimento = new DateTime($p['vencimento']);
-                $hoje_menos_um = new DateTime();
-                $hoje_menos_um->modify('-1 day');
+                $hoje = new DateTime();
                 
-                if ($data_vencimento < $hoje_menos_um) {
+                if ($data_vencimento < $hoje) {
                     $tem_atrasada = true;
                     $status = 'atrasado';
                     break;

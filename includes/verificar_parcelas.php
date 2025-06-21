@@ -79,14 +79,13 @@ function verificarAtualizarParcelasVencidas() {
     ];
 
     try {
-        // Data atual para considerar parcelas atrasadas (sem o -1 day)
+        // Data atual para considerar parcelas atrasadas
         $hoje = new DateTime();
-        $hoje_formatado = $hoje->format('Y-m-d');
         
         // Método mais simples e eficiente: atualizar todas as parcelas de uma vez
         $sql_update_todas = "UPDATE parcelas SET status = 'atrasado' 
                              WHERE status IN ('pendente', 'parcial') 
-                             AND vencimento < ? 
+                             AND vencimento < CURRENT_DATE 
                              AND id IN (
                                 SELECT p.id 
                                 FROM (SELECT * FROM parcelas) AS p
@@ -101,7 +100,6 @@ function verificarAtualizarParcelasVencidas() {
             throw new Exception($erro_mensagem);
         }
         
-        $stmt_update_todas->bind_param("s", $hoje_formatado);
         if (!$stmt_update_todas->execute()) {
             $erro_mensagem = "Erro ao executar atualização em massa: " . $stmt_update_todas->error;
             $stats['log_erros'][] = $erro_mensagem;

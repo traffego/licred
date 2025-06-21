@@ -11,8 +11,8 @@ if ($nivel_usuario !== 'administrador' && $nivel_usuario !== 'superadmin') {
     exit;
 }
 
-// Data de ontem para verificar parcelas atrasadas
-$ontem = date('Y-m-d', strtotime('-1 day'));
+// Data atual para verificar parcelas atrasadas
+$hoje = date('Y-m-d');
 
 // Consulta para buscar parcelas em atraso
 $sql = "SELECT 
@@ -31,13 +31,12 @@ $sql = "SELECT
             INNER JOIN emprestimos e ON p.emprestimo_id = e.id
             INNER JOIN clientes c ON e.cliente_id = c.id
         WHERE 
-            (p.status = 'atrasado' OR (p.status IN ('pendente', 'parcial') AND p.vencimento < ?))
+            (p.status = 'atrasado' OR (p.status IN ('pendente', 'parcial') AND p.vencimento < CURRENT_DATE))
             AND (e.status = 'ativo' OR e.status IS NULL)
         ORDER BY 
             dias_atraso DESC, c.nome ASC";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $ontem);
 $stmt->execute();
 $result = $stmt->get_result();
 $parcelas_atraso = [];
