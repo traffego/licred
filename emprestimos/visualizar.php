@@ -79,6 +79,10 @@ foreach ($parcelas as &$parcela) {
     $data_vencimento = new DateTime($parcela['vencimento']);
     $hoje = new DateTime();
     
+    // Zeramos as horas para comparar apenas as datas
+    $data_vencimento->setTime(0, 0, 0);
+    $hoje->setTime(0, 0, 0);
+    
     // Verifica parcelas vencidas - considera atrasada se a data de vencimento já passou
     if ($parcela['status'] === 'pendente' && $data_vencimento < $hoje) {
         $parcela['status'] = 'atrasado';
@@ -129,6 +133,12 @@ foreach ($parcelas as $p) {
         $total_pago += $p['valor_pago'] ?? 0;
     } else {
         $data_vencimento = new DateTime($p['vencimento']);
+        $hoje = new DateTime();
+        
+        // Zeramos as horas para comparar apenas as datas
+        $data_vencimento->setTime(0, 0, 0);
+        $hoje->setTime(0, 0, 0);
+        
         if ($data_vencimento < $hoje) {
             $vencidas++;
         } else {

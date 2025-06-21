@@ -73,7 +73,14 @@ function buscarParcelas($conn, $data_inicial, $data_final, $cliente_id = 0, $sta
         }
         // Se a parcela não foi paga, verifica o vencimento
         else {
-            if (strtotime($row['vencimento']) < strtotime($hoje)) {
+            $data_vencimento = new DateTime($row['vencimento']);
+            $data_hoje = new DateTime($hoje);
+            
+            // Zeramos as horas para comparar apenas as datas
+            $data_vencimento->setTime(0, 0, 0);
+            $data_hoje->setTime(0, 0, 0);
+            
+            if ($data_vencimento < $data_hoje) {
                 $row['status'] = 'atrasado';
             } else {
                 $row['status'] = 'pendente';

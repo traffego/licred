@@ -24,8 +24,8 @@ function deveVerificarParcelas() {
     // Arquivo que armazena timestamp da última verificação
     $arquivo_cache = __DIR__ . '/../cache/ultima_verificacao_parcelas.txt';
     
-    // Intervalo mínimo entre verificações (10 minutos = 600 segundos)
-    $intervalo_minimo = 600;
+    // Intervalo mínimo entre verificações (1 hora = 3600 segundos)
+    $intervalo_minimo = 3600;
     
     // Se o diretório cache não existir, cria
     if (!file_exists(__DIR__ . '/../cache')) {
@@ -85,7 +85,7 @@ function verificarAtualizarParcelasVencidas() {
         // Método mais simples e eficiente: atualizar todas as parcelas de uma vez
         $sql_update_todas = "UPDATE parcelas SET status = 'atrasado' 
                              WHERE status IN ('pendente', 'parcial') 
-                             AND vencimento < CURRENT_DATE 
+                             AND DATE(vencimento) < DATE(NOW())
                              AND id IN (
                                 SELECT p.id 
                                 FROM (SELECT * FROM parcelas) AS p

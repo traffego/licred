@@ -326,10 +326,10 @@ $html = '
         <div class="info-bloco">
             <div class="info-titulo">DADOS DO CLIENTE:</div>
             <div class="info-dados">
-                <p>Nome: ' . htmlspecialchars($emprestimo['cliente_nome']) . '</p>
+                <p>Nome: ' . htmlspecialchars($emprestimo['cliente_nome'] ?? '') . '</p>
                 <p>CPF: ' . formatarCPF($emprestimo['cliente_cpf']) . '</p>
                 <p>Endereço: ' . htmlspecialchars($emprestimo['cliente_endereco'] ?? 'Não informado') . '</p>
-                <p>Telefone: ' . htmlspecialchars($emprestimo['cliente_telefone']) . '</p>
+                <p>Telefone: ' . htmlspecialchars($emprestimo['cliente_telefone'] ?? '') . '</p>
             </div>
         </div>
         

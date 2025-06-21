@@ -42,18 +42,18 @@ function selecionado($valor, $comparar) {
         <div class="row mb-3">
             <div class="col-md-6">
                 <label class="form-label">Nome</label>
-                <input type="text" name="nome" class="form-control" value="<?= htmlspecialchars($cliente['nome']) ?>" required>
+                <input type="text" name="nome" class="form-control" value="<?= htmlspecialchars($cliente['nome'] ?? '') ?>" required>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Email</label>
-                <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($cliente['email']) ?>">
+                <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($cliente['email'] ?? '') ?>">
             </div>
         </div>
 
         <div class="row mb-3">
             <div class="col-md-4">
                 <label class="form-label">Telefone</label>
-                <input type="text" name="telefone" class="form-control" value="<?= htmlspecialchars($cliente['telefone']) ?>">
+                <input type="text" name="telefone" class="form-control" value="<?= htmlspecialchars($cliente['telefone'] ?? '') ?>">
             </div>
             <div class="col-md-4">
                 <label class="form-label">Tipo Pessoa</label>
@@ -64,7 +64,7 @@ function selecionado($valor, $comparar) {
             </div>
             <div class="col-md-4">
                 <label class="form-label">CPF / CNPJ</label>
-                <input type="text" name="cpf_cnpj" class="form-control" value="<?= htmlspecialchars($cliente['cpf_cnpj']) ?>">
+                <input type="text" name="cpf_cnpj" class="form-control" value="<?= htmlspecialchars($cliente['cpf_cnpj'] ?? '') ?>">
             </div>
         </div>
 
@@ -75,26 +75,26 @@ function selecionado($valor, $comparar) {
             </div>
             <div class="col-md-3">
                 <label class="form-label">CEP</label>
-                <input type="text" name="cep" class="form-control" value="<?= htmlspecialchars($cliente['cep']) ?>">
+                <input type="text" name="cep" class="form-control" value="<?= htmlspecialchars($cliente['cep'] ?? '') ?>">
             </div>
             <div class="col-md-6">
                 <label class="form-label">Endereço</label>
-                <input type="text" name="endereco" class="form-control" value="<?= htmlspecialchars($cliente['endereco']) ?>">
+                <input type="text" name="endereco" class="form-control" value="<?= htmlspecialchars($cliente['endereco'] ?? '') ?>">
             </div>
         </div>
 
         <div class="row mb-3">
             <div class="col-md-4">
                 <label class="form-label">Bairro</label>
-                <input type="text" name="bairro" class="form-control" value="<?= htmlspecialchars($cliente['bairro']) ?>">
+                <input type="text" name="bairro" class="form-control" value="<?= htmlspecialchars($cliente['bairro'] ?? '') ?>">
             </div>
             <div class="col-md-4">
                 <label class="form-label">Cidade</label>
-                <input type="text" name="cidade" class="form-control" value="<?= htmlspecialchars($cliente['cidade']) ?>">
+                <input type="text" name="cidade" class="form-control" value="<?= htmlspecialchars($cliente['cidade'] ?? '') ?>">
             </div>
             <div class="col-md-2">
                 <label class="form-label">Estado</label>
-                <input type="text" name="estado" class="form-control" value="<?= htmlspecialchars($cliente['estado']) ?>">
+                <input type="text" name="estado" class="form-control" value="<?= htmlspecialchars($cliente['estado'] ?? '') ?>">
             </div>
             <div class="col-md-2">
                 <label class="form-label">Status</label>
@@ -110,29 +110,29 @@ function selecionado($valor, $comparar) {
         <div class="row mb-3">
             <div class="col-md-6">
                 <label class="form-label">Chave Pix</label>
-                <input type="text" name="chave_pix" class="form-control" value="<?= htmlspecialchars($cliente['chave_pix']) ?>">
+                <input type="text" name="chave_pix" class="form-control" value="<?= htmlspecialchars($cliente['chave_pix'] ?? '') ?>">
             </div>
         </div>
 
         <div class="row mb-3">
             <div class="col-md-6">
                 <label class="form-label">Nome Secundário</label>
-                <input type="text" name="nome_secundario" class="form-control" value="<?= htmlspecialchars($cliente['nome_secundario']) ?>">
+                <input type="text" name="nome_secundario" class="form-control" value="<?= htmlspecialchars($cliente['nome_secundario'] ?? '') ?>">
             </div>
             <div class="col-md-6">
                 <label class="form-label">Telefone Secundário</label>
-                <input type="text" name="telefone_secundario" class="form-control" value="<?= htmlspecialchars($cliente['telefone_secundario']) ?>">
+                <input type="text" name="telefone_secundario" class="form-control" value="<?= htmlspecialchars($cliente['telefone_secundario'] ?? '') ?>">
             </div>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Endereço Secundário</label>
-            <input type="text" name="endereco_secundario" class="form-control" value="<?= htmlspecialchars($cliente['endereco_secundario']) ?>">
+            <input type="text" name="endereco_secundario" class="form-control" value="<?= htmlspecialchars($cliente['endereco_secundario'] ?? '') ?>">
         </div>
 
         <div class="mb-4">
             <label class="form-label">Observações</label>
-            <textarea name="observacoes" class="form-control" rows="4"><?= htmlspecialchars($cliente['observacoes']) ?></textarea>
+            <textarea name="observacoes" class="form-control" rows="4"><?= htmlspecialchars($cliente['observacoes'] ?? '') ?></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary">Salvar</button>
