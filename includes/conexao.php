@@ -5,15 +5,15 @@ ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../logs/php_error.log');
 
 // Configurações do banco de dados
-// $host = "187.33.241.40";
-// $usuario = "platafo5_licred2";
-// $senha = "Licred2444#";
-// $banco = "platafo5_licred2";
+$host = "187.33.241.40";
+$usuario = "platafo5_licred3";
+$senha = "Licred2444#";
+$banco = "platafo5_licred3";
 
-$host = "localhost";
-$usuario = "root";
-$senha = "";
-$banco = "sistema_emprestimosv1_8";
+// $host = "localhost";
+// $usuario = "root";
+// $senha = "";
+// $banco = "sistema_emprestimosv1_8";
 
 try {
     // Criando a conexão
