@@ -6,6 +6,73 @@ require_once __DIR__ . '/autenticacao.php';
 $pagina_atual = basename($_SERVER['PHP_SELF']);
 $is_admin = temPermissao('admin');
 $is_investidor = isset($_SESSION['nivel_autoridade']) && $_SESSION['nivel_autoridade'] === 'investidor';
+
+$menu_items = array();
+
+// Menu para todos os usuários
+$menu_items[] = array(
+    'link' => 'dashboard.php',
+    'icon' => 'fas fa-tachometer-alt',
+    'texto' => 'Dashboard'
+);
+
+// Menu para administradores
+if (temPermissao('administrador')) {
+    // Dropdown Empréstimos
+    $menu_items[] = array(
+        'tipo' => 'dropdown',
+        'texto' => 'Empréstimos',
+        'icon' => 'fas fa-money-bill-wave',
+        'itens' => array(
+            array(
+                'link' => 'emprestimos/',
+                'texto' => 'Listar'
+            ),
+            array(
+                'link' => 'emprestimos/novo.php',
+                'texto' => 'Novo'
+            )
+        )
+    );
+    
+    // Dropdown Clientes
+    $menu_items[] = array(
+        'tipo' => 'dropdown',
+        'texto' => 'Clientes',
+        'icon' => 'fas fa-users',
+        'itens' => array(
+            array(
+                'link' => 'clientes/',
+                'texto' => 'Listar'
+            ),
+            array(
+                'link' => 'clientes/novo.php',
+                'texto' => 'Novo'
+            )
+        )
+    );
+    
+    $menu_items[] = array(
+        'link' => 'usuarios/',
+        'icon' => 'fas fa-user-shield',
+        'texto' => 'Usuários'
+    );
+    
+    $menu_items[] = array(
+        'link' => 'relatorios/',
+        'icon' => 'fas fa-chart-bar',
+        'texto' => 'Relatórios'
+    );
+}
+
+// Menu para investidores
+if (temPermissao('investidor')) {
+    $menu_items[] = array(
+        'link' => 'configuracoes/contas.php',
+        'icon' => 'fas fa-wallet',
+        'texto' => 'Contas'
+    );
+}
 ?>
 
 <!-- Barra superior com informações de parcelas (visível apenas para administradores) -->
@@ -79,89 +146,33 @@ $is_investidor = isset($_SESSION['nivel_autoridade']) && $_SESSION['nivel_autori
         <!-- Menu Principal -->
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav mx-auto">
-                <?php if ($is_admin): ?>
-                <!-- Dashboard (Admin) -->
-                <li class="nav-item">
-                    <a class="nav-link <?= $pagina_atual === 'dashboard.php' ? 'active' : '' ?>" 
-                       href="<?= BASE_URL ?>dashboard.php">
-                            <i class="bi bi-speedometer2 me-1"></i>
-                            Dashboard
-                    </a>
-                </li>
-
-                <!-- Empréstimos (Admin) -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['emprestimos/index.php', 'emprestimos/novo.php', 'emprestimos/visualizar.php']) ? 'active' : '' ?>" 
-                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-cash-stack me-1"></i>
-                            Empréstimos
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>emprestimos/"><i class="bi bi-list-ul me-2"></i>Listar</a></li>
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>emprestimos/novo.php"><i class="bi bi-plus-circle me-2"></i>Novo</a></li>
-                    </ul>
-                </li>
-
-                <!-- Clientes (Admin) -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?= in_array($pagina_atual, ['clientes/index.php', 'clientes/novo.php', 'clientes/visualizar.php']) ? 'active' : '' ?>" 
-                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-people me-1"></i>
-                            Clientes
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>clientes/"><i class="bi bi-list-ul me-2"></i>Listar</a></li>
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>clientes/novo.php"><i class="bi bi-person-plus me-2"></i>Novo</a></li>
-                    </ul>
-                </li>
-
-                <!-- Relatórios (Admin) -->
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos($pagina_atual, 'relatorios/') !== false ? 'active' : '' ?>" 
-                       href="<?= BASE_URL ?>relatorios/">
-                            <i class="bi bi-graph-up me-1"></i>
-                            Relatórios
-                    </a>
-                </li>
-
-                
-                <!-- Feriados (Admin) -->
-                <li class="nav-item">
-                    <a class="nav-link <?= $pagina_atual === 'feriados/index.php' ? 'active' : '' ?>" 
-                       href="<?= BASE_URL ?>feriados/">
-                            <i class="bi bi-calendar-event me-1"></i>
-                            Feriados
-                    </a>
-                </li>
-                
-                <!-- Contas (Admin) -->
-                <li class="nav-item">
-                    <a class="nav-link <?= $pagina_atual === 'configuracoes/contas.php' ? 'active' : '' ?>"
-                       href="<?= BASE_URL ?>configuracoes/contas.php">
-                        <i class="bi bi-wallet2 me-1"></i>
-                        Contas
-                    </a>
-                </li>
-
-                <?php else: ?>
-                <!-- Menu do Investidor -->
-                <li class="nav-item">
-                    <a class="nav-link <?= $pagina_atual === 'investidor.php' ? 'active' : '' ?>" 
-                       href="<?= BASE_URL ?>investidor.php">
-                            <i class="bi bi-speedometer2 me-1"></i>
-                            Dashboard
-                    </a>
-                </li>
-                
-                <!-- Histórico de Aportes (Investidor) -->
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos($pagina_atual, 'configuracoes/movimentacoes.php') !== false ? 'active' : '' ?>" 
-                       href="<?= BASE_URL ?>configuracoes/movimentacoes.php?meus_aportes=1">
-                            <i class="bi bi-cash-coin me-1"></i>
-                            Meus Aportes
-                    </a>
-                </li>
-                <?php endif; ?>
+                <?php foreach ($menu_items as $item): ?>
+                    <?php if (isset($item['tipo']) && $item['tipo'] === 'dropdown'): ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="<?= $item['icon']; ?> me-1"></i>
+                                <?= $item['texto']; ?>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <?php foreach ($item['itens'] as $subitem): ?>
+                                    <li>
+                                        <a class="dropdown-item" href="<?= BASE_URL . $subitem['link']; ?>">
+                                            <?= $subitem['texto']; ?>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?= $pagina_atual === $item['link'] ? 'active' : '' ?>" 
+                               href="<?= BASE_URL . $item['link']; ?>">
+                                <i class="<?= $item['icon']; ?> me-1"></i>
+                                <?= $item['texto']; ?>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                <?php endforeach; ?>
             </ul>
 
             <!-- Menu do Usuário -->

@@ -9,6 +9,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../includes/autenticacao.php';
 require_once __DIR__ . '/../../includes/conexao.php';
+require_once __DIR__ . '/../../includes/funcoes_comissoes.php';
 
 // Função para retornar resposta JSON e encerrar
 function jsonResponse($status, $message, $httpCode = 200) {
@@ -47,20 +48,20 @@ try {
     // Busca as parcelas do empréstimo
     $stmt = $conn->prepare("
         SELECT 
-            id, 
-            numero, 
-            valor, 
-            vencimento, 
-            status, 
-            valor_pago, 
-            data_pagamento, 
-            forma_pagamento 
+            p.id, 
+            p.numero, 
+            p.valor, 
+            p.vencimento, 
+            p.status, 
+            p.valor_pago, 
+            p.data_pagamento, 
+            p.forma_pagamento
         FROM 
-            parcelas 
+            parcelas p
         WHERE 
-            emprestimo_id = ? 
+            p.emprestimo_id = ? 
         ORDER BY 
-            numero
+            p.numero
     ");
     $stmt->bind_param("i", $emprestimo_id);
     $stmt->execute();
@@ -70,13 +71,8 @@ try {
         jsonResponse('error', 'Nenhuma parcela encontrada para este empréstimo.', 404);
     }
     
-    $parcelas = [];
-    while ($p = $result_parcelas->fetch_assoc()) {
-        $parcelas[] = $p;
-    }
-    
     // Atualiza todas as parcelas pendentes ou parciais
-    foreach ($parcelas as $parcela) {
+    while ($parcela = $result_parcelas->fetch_assoc()) {
         if ($parcela['status'] !== 'pago') {
             $stmt_atualiza = $conn->prepare("
                 UPDATE parcelas 
@@ -92,6 +88,13 @@ try {
             $stmt_atualiza->bind_param("ssi", $data_quitacao, $forma_pagamento, $parcela['id']);
             $stmt_atualiza->execute();
         }
+    }
+
+    // Processa o retorno do capital e as comissões usando a nova função
+    $resultado_processamento = processarComissoesERetornos($conn, $emprestimo_id);
+    
+    if (!$resultado_processamento['success']) {
+        throw new Exception("Erro ao processar comissões: " . $resultado_processamento['message']);
     }
     
     // Registra a quitação no histórico

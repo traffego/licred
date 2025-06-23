@@ -37,6 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_limpeza']))
             $conn->begin_transaction();
             
             try {
+                // Desabilitar verificação de chaves estrangeiras
+                $conn->query("SET FOREIGN_KEY_CHECKS = 0");
+
                 // Registrar início da operação em log
                 $log_operacao = "Iniciando operação de limpeza do sistema pelo usuário ID {$usuario_id}";
                 error_log($log_operacao);
@@ -47,8 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_limpeza']))
                 // 2. Eliminar registros de controle_comissoes
                 $conn->query("DELETE FROM controle_comissoes");
                 
-                // 3. Eliminar registros de retorno_capital
-                $conn->query("DELETE FROM retorno_capital");
+                // Retorno de capital agora é controlado apenas pela tabela movimentacoes_contas
                 
                 // 4. Eliminar registros de movimentacoes_contas
                 $conn->query("DELETE FROM movimentacoes_contas");
@@ -58,11 +60,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_limpeza']))
                 
                 // 6. Eliminar registros de clientes
                 $conn->query("DELETE FROM clientes");
+
+                // 7. Excluir a tabela retorno_capital que não será mais usada
+                $conn->query("DROP TABLE IF EXISTS retorno_capital");
                 
                 // 7. Resetar as sequências das tabelas (IDs)
                 $conn->query("ALTER TABLE parcelas AUTO_INCREMENT = 1");
                 $conn->query("ALTER TABLE controle_comissoes AUTO_INCREMENT = 1");
-                $conn->query("ALTER TABLE retorno_capital AUTO_INCREMENT = 1");
+                // Retorno de capital agora é controlado apenas pela tabela movimentacoes_contas
                 $conn->query("ALTER TABLE movimentacoes_contas AUTO_INCREMENT = 1");
                 $conn->query("ALTER TABLE emprestimos AUTO_INCREMENT = 1");
                 $conn->query("ALTER TABLE clientes AUTO_INCREMENT = 1");
@@ -70,6 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_limpeza']))
                 // 8. Não é necessário resetar os saldos das contas, pois eles são calculados dinamicamente
                 // a partir das movimentações, que já foram excluídas no passo 4
                 
+                // Reabilitar verificação de chaves estrangeiras
+                $conn->query("SET FOREIGN_KEY_CHECKS = 1");
+
                 // Confirmar transação
                 $conn->commit();
                 

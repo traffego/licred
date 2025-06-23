@@ -9,6 +9,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../includes/autenticacao.php';
 require_once __DIR__ . '/../../includes/conexao.php';
+require_once __DIR__ . '/../../includes/funcoes_comissoes.php';
 
 // Função para retornar resposta JSON e encerrar
 function jsonResponse($status, $message, $httpCode = 200) {
@@ -28,9 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $emprestimo_id = filter_input(INPUT_POST, 'emprestimo_id', FILTER_VALIDATE_INT);
 $parcela_numero = filter_input(INPUT_POST, 'parcela_numero', FILTER_VALIDATE_INT);
 $valor_pago = filter_input(INPUT_POST, 'valor_pago', FILTER_VALIDATE_FLOAT);
-$data_pagamento = filter_input(INPUT_POST, 'data_pagamento', FILTER_SANITIZE_STRING);
-$forma_pagamento = filter_input(INPUT_POST, 'forma_pagamento', FILTER_SANITIZE_STRING);
-$modo_distribuicao = filter_input(INPUT_POST, 'modo_distribuicao', FILTER_SANITIZE_STRING) ?? 'desconto_proximas';
+$data_pagamento = filter_input(INPUT_POST, 'data_pagamento', FILTER_DEFAULT);
+$forma_pagamento = filter_input(INPUT_POST, 'forma_pagamento', FILTER_DEFAULT);
+$modo_distribuicao = filter_input(INPUT_POST, 'modo_distribuicao', FILTER_DEFAULT) ?? 'desconto_proximas';
 
 // Validação mais detalhada
 $erros = [];
@@ -274,12 +275,26 @@ try {
         }
     }
     
-    // Confirma a transação
+    // Verifica se todas as parcelas estão pagas e processa comissões se necessário
+    $status_comissoes = calcularPrevisaoComissoes($conn, $emprestimo_id);
+    
+    // Se todas as parcelas estão pagas, processa o retorno e comissões
+    if ($status_comissoes && 
+        $status_comissoes['status']['todas_parcelas_pagas'] && 
+        !isset($status_comissoes['status']['retorno_processado'])) {
+        
+        // Processa o retorno do capital e as comissões
+        $resultado_processamento = processarComissoesERetornos($conn, $emprestimo_id);
+        
+        if (!$resultado_processamento['success']) {
+            throw new Exception("Erro ao processar comissões: " . $resultado_processamento['message']);
+        }
+    }
+
     $conn->commit();
-    $conn->close();
-    jsonResponse('success', 'Pagamento registrado com sucesso');
+    jsonResponse('success', 'Pagamento registrado com sucesso!');
+    
 } catch (Exception $e) {
     $conn->rollback();
-    $conn->close();
-    jsonResponse('error', 'Erro ao processar o pagamento: ' . $e->getMessage());
+    jsonResponse('error', 'Erro ao processar pagamento: ' . $e->getMessage());
 }

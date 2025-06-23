@@ -214,63 +214,7 @@ if (!$result) {
     }
 }
 
-// 4. Verificar tabela retorno_capital
-echo "<h2>Tabela retorno_capital</h2>";
-
-// Primeiro, verificar se a tabela existe
-$sql = "SHOW TABLES LIKE 'retorno_capital'";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-    // Tabela existe, buscar registros
-    $sql = "SELECT * FROM retorno_capital ORDER BY id DESC LIMIT 20";
-    $result = $conn->query($sql);
-    
-    if (!$result) {
-        echo "<p class='error'>Erro ao consultar tabela retorno_capital: " . $conn->error . "</p>";
-    } else {
-        if ($result->num_rows > 0) {
-            echo "<table>";
-            // Cabeçalho
-            echo "<tr>";
-            $fields = $result->fetch_fields();
-            foreach ($fields as $field) {
-                echo "<th>{$field->name}</th>";
-            }
-            echo "</tr>";
-            
-            // Dados
-            $result->data_seek(0);
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                foreach ($row as $key => $value) {
-                    echo "<td>" . ($value === null ? "NULL" : $value) . "</td>";
-                }
-                echo "</tr>";
-            }
-            echo "</table>";
-        } else {
-            echo "<p>Nenhum registro encontrado na tabela retorno_capital.</p>";
-        }
-    }
-} else {
-    echo "<p class='error'>A tabela retorno_capital não existe no banco de dados.</p>";
-    
-    // Ver a estrutura do banco
-    echo "<h3>Estrutura do Banco de Dados</h3>";
-    $sql = "SHOW TABLES";
-    $result = $conn->query($sql);
-    
-    if (!$result) {
-        echo "<p class='error'>Erro ao listar tabelas: " . $conn->error . "</p>";
-    } else {
-        echo "<ul>";
-        while ($row = $result->fetch_row()) {
-            echo "<li>{$row[0]}</li>";
-        }
-        echo "</ul>";
-    }
-}
+// Retorno de capital agora é controlado apenas pela tabela movimentacoes_contas
 
 echo "<h2>Ações Disponíveis</h2>";
 echo "<p><a href='corrigir_retorno_capital.php' class='btn btn-primary'>Corrigir Retorno de Capital</a> (Cria registros de retorno para empréstimos quitados)</p>";

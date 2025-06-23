@@ -341,42 +341,34 @@ if (!empty($contas)) {
                                     c.nome as cliente_nome,
                                     e.parcelas as total_parcelas,
                                     COUNT(p.id) as parcelas_existentes,
-                                    COUNT(CASE WHEN p.status = 'pago' THEN 1 END) as parcelas_pagas
+                                    COUNT(CASE WHEN p.status = 'pago' THEN 1 END) as parcelas_pagas,
+                                    (SELECT COUNT(*) FROM movimentacoes_contas mc 
+                                     WHERE mc.conta_id = ct.id 
+                                     AND mc.tipo = 'entrada'
+                                     AND mc.descricao LIKE CONCAT('Retorno de capital - Empréstimo #', e.id, '%')
+                                    ) as tem_retorno_capital
                                  FROM 
                                     emprestimos e
                                  INNER JOIN
                                     clientes c ON e.cliente_id = c.id
                                  LEFT JOIN
                                     parcelas p ON e.id = p.emprestimo_id
-                                 LEFT JOIN
-                                    retorno_capital rc ON e.id = rc.emprestimo_id
+                                 INNER JOIN
+                                    contas ct ON e.investidor_id = ct.usuario_id
                                  WHERE 
                                     e.investidor_id = ?
-                                    AND rc.id IS NULL
+                                    AND (SELECT COUNT(*) FROM movimentacoes_contas mc 
+                                        WHERE mc.conta_id = ct.id 
+                                        AND mc.tipo = 'entrada'
+                                        AND mc.descricao LIKE CONCAT('Retorno de capital - Empréstimo #', e.id, '%')
+                                       ) = 0
                                  GROUP BY
                                     e.id
                                  HAVING
                                     parcelas_existentes = total_parcelas
                                     AND parcelas_pagas = total_parcelas";
                                     
-    // Verificar se a tabela de retorno de capital existe
-    $verifica_tabela = $conn->query("SHOW TABLES LIKE 'retorno_capital'");
-    if ($verifica_tabela->num_rows === 0) {
-        $sql_criar_tabela = "CREATE TABLE IF NOT EXISTS retorno_capital (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            emprestimo_id INT NOT NULL,
-            usuario_id INT NOT NULL,
-            conta_id INT NOT NULL,
-            valor_retornado DECIMAL(10,2) NOT NULL,
-            data_processamento DATETIME DEFAULT CURRENT_TIMESTAMP,
-            observacao TEXT NULL,
-            UNIQUE KEY (emprestimo_id),
-            FOREIGN KEY (emprestimo_id) REFERENCES emprestimos(id),
-            FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
-            FOREIGN KEY (conta_id) REFERENCES contas(id)
-        )";
-        $conn->query($sql_criar_tabela);
-    }
+    // Não é mais necessário verificar a tabela retorno_capital pois agora usamos apenas movimentacoes_contas
     
     // Processar empréstimos quitados
     $stmt_quitados = $conn->prepare($sql_emprestimos_quitados);
@@ -396,19 +388,7 @@ if (!empty($contas)) {
                 $valor_capital = floatval($emp_quitado['valor_emprestado']);
                 $quitado_id = $emp_quitado['id'];
                 
-                // Registrar na tabela de controle de retorno de capital
-                $stmt_retorno = $conn->prepare("INSERT INTO retorno_capital 
-                                              (emprestimo_id, usuario_id, conta_id, valor_retornado) 
-                                              VALUES (?, ?, ?, ?)");
-                $stmt_retorno->bind_param("iiid", 
-                                         $quitado_id, 
-                                         $usuario_id, 
-                                         $contas[0]['id'], 
-                                         $valor_capital);
-                
-                if (!$stmt_retorno->execute()) {
-                    throw new Exception("Erro ao registrar retorno de capital: " . $conn->error);
-                }
+                // Não é mais necessário registrar na tabela retorno_capital
                 
                 // Adicionar valor do capital como entrada na conta
                 $descricao = "Retorno de capital - Empréstimo #{$quitado_id} para {$emp_quitado['cliente_nome']} (quitado)";
@@ -612,6 +592,10 @@ if (!empty($contas)) {
         }
     }
 }
+
+// Buscar status das comissões
+require_once __DIR__ . '/includes/funcoes_comissoes.php';
+$status_comissoes = buscarStatusComissoes($conn, $usuario_id);
 
 // Exibir mensagem de alerta se enviada via GET
 if (isset($_GET['alerta']) && isset($_GET['msg']) && isset($_GET['tipo'])) {
@@ -933,6 +917,111 @@ if (isset($_GET['alerta']) && isset($_GET['msg']) && isset($_GET['tipo'])) {
         </div>
     </div>
     <?php endif; ?>
+
+    <!-- Após o card de Últimas Movimentações -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-percentage me-1"></i>
+            Status das Comissões
+        </div>
+        <div class="card-body">
+            <!-- Cards de Resumo das Comissões -->
+            <div class="row mb-4">
+                <div class="col-xl-4 col-md-6">
+                    <div class="card bg-primary text-white h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="me-3">
+                                    <div class="text-white-75 small">Comissão Total Prevista</div>
+                                    <div class="text-lg fw-bold">
+                                        R$ <?php echo number_format($status_comissoes['resumo']['total_comissao_prevista'], 2, ',', '.'); ?>
+                                    </div>
+                                </div>
+                                <i class="fas fa-calculator fa-2x text-white-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-md-6">
+                    <div class="card bg-success text-white h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="me-3">
+                                    <div class="text-white-75 small">Comissões Recebidas</div>
+                                    <div class="text-lg fw-bold">
+                                        R$ <?php echo number_format($status_comissoes['resumo']['total_comissao_processada'], 2, ',', '.'); ?>
+                                    </div>
+                                </div>
+                                <i class="fas fa-check-circle fa-2x text-white-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-md-6">
+                    <div class="card bg-warning text-white h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="me-3">
+                                    <div class="text-white-75 small">Comissões Pendentes</div>
+                                    <div class="text-lg fw-bold">
+                                        R$ <?php echo number_format($status_comissoes['resumo']['total_comissao_pendente'], 2, ',', '.'); ?>
+                                    </div>
+                                </div>
+                                <i class="fas fa-clock fa-2x text-white-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de Empréstimos com Status de Comissões -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="tabelaComissoes">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Progresso</th>
+                            <th>Comissão Prevista</th>
+                            <th>Recebido</th>
+                            <th>Pendente</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($status_comissoes['emprestimos'] as $emp): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($emp['emprestimo']['cliente_nome']); ?></td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: <?php echo $emp['status']['progresso']; ?>%"
+                                         aria-valuenow="<?php echo $emp['status']['progresso']; ?>" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        <?php echo number_format($emp['status']['progresso'], 1); ?>%
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    <?php echo $emp['emprestimo']['parcelas_pagas']; ?> de <?php echo $emp['emprestimo']['total_parcelas']; ?> parcelas
+                                </small>
+                            </td>
+                            <td>R$ <?php echo number_format($emp['comissoes']['prevista'], 2, ',', '.'); ?></td>
+                            <td>R$ <?php echo number_format($emp['comissoes']['processada'], 2, ',', '.'); ?></td>
+                            <td>R$ <?php echo number_format($emp['comissoes']['pendente'], 2, ',', '.'); ?></td>
+                            <td class="text-center">
+                                <?php if ($emp['status']['finalizado']): ?>
+                                    <span class="badge bg-success">Finalizado</span>
+                                <?php else: ?>
+                                    <span class="badge bg-primary">Em Andamento</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -941,6 +1030,18 @@ document.addEventListener('DOMContentLoaded', function() {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
+
+<script>
+$(document).ready(function() {
+    // Inicializar DataTable para a tabela de comissões
+    $('#tabelaComissoes').DataTable({
+        order: [[1, 'desc']],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+        }
     });
 });
 </script>

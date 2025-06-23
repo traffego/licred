@@ -120,13 +120,18 @@ if (isset($_POST['salvar'])) {
 }
 
 // Consulta para todas as contas
-$sql = "SELECT c.*, u.nome as usuario_nome, 
+$sql = "SELECT c.*, u.nome as usuario_nome, u.nivel_autoridade,
         COALESCE(c.saldo_inicial + SUM(CASE WHEN mc.tipo = 'entrada' THEN mc.valor ELSE -mc.valor END), c.saldo_inicial) as saldo_atual,
-        COALESCE(c.comissao, 0) as comissao
+        COALESCE(c.comissao, 0) as comissao,
+        CASE 
+            WHEN u.nivel_autoridade IN ('admin', 'superadmin') THEN 1 
+            ELSE 0 
+        END as is_admin_user
        FROM contas c
        LEFT JOIN usuarios u ON c.usuario_id = u.id
        LEFT JOIN movimentacoes_contas mc ON c.id = mc.conta_id
-       GROUP BY c.id, c.nome, c.descricao, c.status, c.saldo_inicial, c.comissao, c.usuario_id, c.criado_em, c.atualizado_em, u.nome
+       GROUP BY c.id, c.nome, c.descricao, c.status, c.saldo_inicial, c.comissao, c.usuario_id, 
+                c.criado_em, c.atualizado_em, u.nome, u.nivel_autoridade
        ORDER BY c.status DESC, c.nome ASC";
 
 $result = $conn->query($sql);
@@ -291,18 +296,32 @@ usort($investidores, function($a, $b) {
                         </div>
                         <div class="card-footer bg-transparent">
                             <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex gap-2 flex-grow-1">
+                                <div class="d-flex gap-1 flex-grow-1">
                                     <a href="movimentacoes.php?conta_id=<?= $conta['id'] ?>" 
-                                       class="btn btn-primary flex-grow-1" 
+                                       class="btn btn-primary btn-sm px-1 flex-grow-1" 
                                        title="Ver movimentações da conta">
-                                        <i class="bi bi-cash-coin me-2"></i>Movimentações
+                                        <i class="bi bi-cash-coin"></i> Movimentações
                                     </a>
                                     
-                                    <a href="editar_conta.php?id=<?= $conta['id'] ?>" 
-                                       class="btn btn-warning" 
-                                       title="Editar detalhes da conta">
-                                        <i class="bi bi-pencil-square me-2"></i>Detalhes
+                                    <?php if ($conta['nivel_autoridade'] === 'admin' || $conta['nivel_autoridade'] === 'superadmin'): ?>
+                                    <a href="../emprestimos_admin.php" 
+                                       class="btn btn-sm btn-info px-1 flex-grow-1 text-white">
+                                        <i class="fas fa-hand-holding-usd"></i> Meus Empréstimos
                                     </a>
+                                    <?php endif; ?>
+                                    
+                                    <button type="button" 
+                                            class="btn btn-warning btn-sm px-1 editar-conta flex-grow-1" 
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#contaModal"
+                                            data-id="<?= $conta['id'] ?>"
+                                            data-usuario-id="<?= $conta['usuario_id'] ?>"
+                                            data-descricao="<?= htmlspecialchars($conta['descricao']) ?>"
+                                            data-comissao="<?= $conta['comissao'] ?>"
+                                            data-status="<?= $conta['status'] ?>"
+                                            title="Editar detalhes da conta">
+                                        <i class="bi bi-pencil-square"></i> Detalhes
+                                    </button>
                                     
                                     <?php if (!$isAdminConta): ?>
                                     <button type="button" 

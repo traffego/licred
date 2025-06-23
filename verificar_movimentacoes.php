@@ -126,33 +126,47 @@ while ($row = $result_pagamentos->fetch_assoc()) {
 }
 echo "</table>";
 
-// Consultar tabela de retorno de capital
-$sql_retorno = "SHOW TABLES LIKE 'retorno_capital'";
-$result_retorno = $conn->query($sql_retorno);
+// Retornos de capital agora são controlados apenas pela tabela movimentacoes_contas
+// Buscar movimentações de retorno de capital
+$sql_retornos = "SELECT 
+                    mc.id,
+                    mc.conta_id,
+                    mc.valor,
+                    mc.descricao,
+                    mc.data_movimentacao,
+                    u.id as usuario_id,
+                    u.nome as usuario_nome
+                 FROM 
+                    movimentacoes_contas mc
+                 INNER JOIN
+                    contas c ON mc.conta_id = c.id
+                 INNER JOIN
+                    usuarios u ON c.usuario_id = u.id
+                 WHERE 
+                    mc.tipo = 'entrada'
+                    AND mc.descricao LIKE 'Retorno de capital - Empréstimo #%'
+                 ORDER BY 
+                    mc.id DESC 
+                 LIMIT 10";
 
-if ($result_retorno->num_rows > 0) {
-    $sql_retornos = "SELECT * FROM retorno_capital ORDER BY id DESC LIMIT 10";
-    $result_retornos = $conn->query($sql_retornos);
-    
-    echo "<h2>Retornos de Capital (Últimos 10)</h2>";
-    echo "<table border='1' cellpadding='5'>";
-    echo "<tr><th>ID</th><th>Empréstimo ID</th><th>Usuário ID</th><th>Conta ID</th><th>Valor Retornado</th><th>Data</th></tr>";
-    
-    if ($result_retornos && $result_retornos->num_rows > 0) {
-        while ($row = $result_retornos->fetch_assoc()) {
-            echo "<tr>";
-            echo "<td>{$row['id']}</td>";
-            echo "<td>{$row['emprestimo_id']}</td>";
-            echo "<td>{$row['usuario_id']}</td>";
-            echo "<td>{$row['conta_id']}</td>";
-            echo "<td>R$ " . number_format($row['valor_retornado'], 2, ',', '.') . "</td>";
-            echo "<td>{$row['data_processamento']}</td>";
-            echo "</tr>";
-        }
-    } else {
-        echo "<tr><td colspan='6'>Nenhum retorno de capital registrado</td></tr>";
+$result_retornos = $conn->query($sql_retornos);
+
+echo "<h2>Retornos de Capital (Últimos 10)</h2>";
+echo "<table border='1' cellpadding='5'>";
+echo "<tr><th>ID</th><th>Usuário</th><th>Conta ID</th><th>Valor</th><th>Descrição</th><th>Data</th></tr>";
+
+if ($result_retornos && $result_retornos->num_rows > 0) {
+    while ($row = $result_retornos->fetch_assoc()) {
+        echo "<tr>";
+        echo "<td>{$row['id']}</td>";
+        echo "<td>{$row['usuario_nome']} (ID: {$row['usuario_id']})</td>";
+        echo "<td>{$row['conta_id']}</td>";
+        echo "<td>R$ " . number_format($row['valor'], 2, ',', '.') . "</td>";
+        echo "<td>{$row['descricao']}</td>";
+        echo "<td>{$row['data_movimentacao']}</td>";
+        echo "</tr>";
     }
-    echo "</table>";
 } else {
-    echo "<h2>Tabela de Retorno de Capital não existe ainda</h2>";
-} 
+    echo "<tr><td colspan='6'>Nenhum retorno de capital registrado</td></tr>";
+}
+echo "</table>"; 
