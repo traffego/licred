@@ -113,7 +113,7 @@ if ($parcelas_atualizadas) {
             WHERE id = ?
         ");
         $stmt_atualiza->bind_param("si", $parcela['status'], $parcela['id']);
-        $stmt_atualiza->execute();
+        $stmt_atualiza.execute();
     }
 }
 
@@ -512,33 +512,28 @@ foreach ($parcelas as $p) {
                                     <?php 
                                     // Encontra o número da próxima parcela pendente
                                     $proxima_parcela = null;
-                                    $parcela_seguinte = null;
                                     foreach ($parcelas as $parcela) {
                                         if ($parcela['status'] === 'pendente' || $parcela['status'] === 'parcial') {
-                                            if ($proxima_parcela === null) {
-                                                $proxima_parcela = $parcela['numero'];
-                                            } else if ($parcela_seguinte === null) {
-                                                $parcela_seguinte = $parcela['numero'];
-                                                break;
-                                            }
+                                            $proxima_parcela = $parcela['numero'];
+                                            break;
                                         }
                                     }
 
                                     if (($p['status'] === 'pendente' || $p['status'] === 'parcial' || $p['status'] === 'atrasado') && isset($p['valor']) && $p['valor'] > 0): 
-                                        $botoes_habilitados = ($p['numero'] === $proxima_parcela || $p['numero'] === $parcela_seguinte || $p['status'] === 'atrasado');
+                                        $botoes_habilitados = ($p['numero'] === $proxima_parcela || $p['status'] === 'atrasado');
                                     ?>
                                         <button type="button" 
                                                 class="btn btn-sm <?= $botoes_habilitados ? 'btn-success' : 'btn-secondary' ?> btn-pagar" 
                                                 data-parcela='<?= json_encode($p) ?>'
                                                 <?= !$botoes_habilitados ? 'disabled' : '' ?>
-                                                title="<?= $botoes_habilitados ? 'Registrar Pagamento' : 'Pagamento disponível apenas para próximas parcelas ou atrasadas' ?>">
+                                                title="<?= $botoes_habilitados ? 'Registrar Pagamento' : 'Pagamento disponível apenas para próxima parcela ou atrasadas' ?>">
                                             <i class="bi bi-cash-coin"></i> Pagar
                                         </button>
                                         <button type="button" 
                                                 class="btn btn-sm <?= $botoes_habilitados ? 'btn-info' : 'btn-secondary' ?>" 
                                                 onclick="enviarCobranca(<?= $emprestimo['id'] ?>, <?= $p['numero'] ?>)"
                                                 <?= !$botoes_habilitados ? 'disabled' : '' ?>
-                                                title="<?= $botoes_habilitados ? 'Enviar Cobrança' : 'Cobrança disponível apenas para próximas parcelas ou atrasadas' ?>">
+                                                title="<?= $botoes_habilitados ? 'Enviar Cobrança' : 'Cobrança disponível apenas para próxima parcela ou atrasadas' ?>">
                                             <i class="bi bi-whatsapp"></i> Cobrar
                                         </button>
                                     <?php else: ?>
@@ -640,9 +635,8 @@ foreach ($parcelas as $p) {
                                 <div class="mt-3 d-flex justify-content-end gap-2">
                                 <?php 
                                 // Encontra o número da próxima parcela pendente se ainda não foi definido
-                                if (!isset($proxima_parcela) || !isset($parcela_seguinte)) {
+                                if (!isset($proxima_parcela)) {
                                     $proxima_parcela = null;
-                                    $parcela_seguinte = null;
                                     foreach ($parcelas as $parcela) {
                                         if ($parcela['status'] === 'pendente' || $parcela['status'] === 'parcial') {
                                             if ($proxima_parcela === null) {
@@ -753,32 +747,33 @@ foreach ($parcelas as $p) {
                         </select>
                     </div>
 
-                    <div id="opcoes_distribuicao" class="mb-3 d-none">
-                        <label class="form-label">Opções de Distribuição</label>
-                        <div class="alert alert-info" id="info_diferenca"></div>
-                        
-                        <!-- Opções para valor menor -->
-                        <div id="opcoes_menor" class="d-none">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="modo_distribuicao" value="proxima_parcela" checked>
-                                <label class="form-check-label">
-                                    Adicionar diferença na próxima parcela
+                    <!-- Opções de distribuição do excedente -->
+                    <div id="opcoes_distribuicao" class="d-none">
+                        <div class="alert alert-info">
+                            <h6 class="mb-2">Como deseja distribuir o excedente?</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="modo_distribuicao" id="desconto_proximas" value="desconto_proximas" checked>
+                                <label class="form-check-label" for="desconto_proximas">
+                                    Descontar das próximas parcelas
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="modo_distribuicao" id="desconto_ultimas" value="desconto_ultimas">
+                                <label class="form-check-label" for="desconto_ultimas">
+                                    Descontar das últimas parcelas
                                 </label>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Opções para valor maior -->
-                        <div id="opcoes_maior" class="d-none">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="modo_distribuicao" value="desconto_proximas" checked>
-                                <label class="form-check-label">
-                                    Descontar valor excedente das próximas parcelas
-                                </label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="modo_distribuicao" value="desconto_ultimas">
-                                <label class="form-check-label">
-                                    Descontar valor excedente das últimas parcelas
+                    <!-- Opções para pagamento parcial -->
+                    <div id="opcoes_menor" class="d-none">
+                        <div class="alert alert-info">
+                            <h6 class="mb-2">Pagamento Parcial</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="modo_distribuicao" id="proxima_parcela" value="proxima_parcela" checked>
+                                <label class="form-check-label" for="proxima_parcela">
+                                    Adicionar diferença na próxima parcela
                                 </label>
                             </div>
                         </div>
@@ -947,31 +942,83 @@ document.addEventListener('DOMContentLoaded', function() {
         const valor_pago_input = document.getElementById('valor_pago');
         const data_pagamento_input = document.getElementById('data_pagamento');
         
-        if (valor_total_display) valor_total_display.textContent = 'R$ ' + valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        if (valor_pago_display) valor_pago_display.textContent = 'R$ ' + valorPagoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        if (valor_a_receber_display) valor_a_receber_display.textContent = 'R$ ' + valorAReceber.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        if (valor_total_display) valor_total_display.textContent = 'R$ ' + valorTotal.toFixed(2).replace('.', ',');
+        if (valor_pago_display) valor_pago_display.textContent = 'R$ ' + valorPagoAtual.toFixed(2).replace('.', ',');
+        if (valor_a_receber_display) valor_a_receber_display.textContent = 'R$ ' + valorAReceber.toFixed(2).replace('.', ',');
         
-        // Sempre define o campo de valor para o valor a receber (valor pendente)
-        if (valor_pago_input) {
-            valor_pago_input.value = valorAReceber.toFixed(2);
-            // Dispara evento 'input' para ativar listeners que dependem deste valor
-            const event = new Event('input', { bubbles: true });
-            valor_pago_input.dispatchEvent(event);
-        }
+        // Define o valor padrão como o valor a receber
+        if (valor_pago_input) valor_pago_input.value = valorAReceber.toFixed(2);
         
+        // Define a data padrão como hoje
         if (data_pagamento_input) data_pagamento_input.value = new Date().toISOString().split('T')[0];
         
-        // Esconde as opções de distribuição inicialmente
-        const opcoes_distribuicao = document.getElementById('opcoes_distribuicao');
-        const opcoes_menor = document.getElementById('opcoes_menor');
-        const opcoes_maior = document.getElementById('opcoes_maior');
+        // Garante que o radio button "Descontar das próximas parcelas" esteja marcado
+        const radioDescontoProximas = document.querySelector('input[name="modo_distribuicao"][value="desconto_proximas"]');
+        if (radioDescontoProximas) {
+            radioDescontoProximas.checked = true;
+        }
         
-        if (opcoes_distribuicao) opcoes_distribuicao.classList.add('d-none');
-        if (opcoes_menor) opcoes_menor.classList.add('d-none');
-        if (opcoes_maior) opcoes_maior.classList.add('d-none');
+        // Garante que o radio button "Adicionar diferença na próxima parcela" esteja marcado
+        const radioProximaParcela = document.querySelector('input[name="modo_distribuicao"][value="proxima_parcela"]');
+        if (radioProximaParcela) {
+            radioProximaParcela.checked = true;
+        }
         
-        const modal = new bootstrap.Modal(modalPagamento);
-        modal.show();
+        // Adiciona evento para verificar excedente
+        if (valor_pago_input) {
+            valor_pago_input.addEventListener('input', function() {
+                const valorInformado = parseFloat(this.value) || 0;
+                const excedente = valorInformado - valorAReceber;
+                
+                // Remove alerta anterior se existir
+                const alertaAnterior = document.querySelector('.alert-excedente');
+                if (alertaAnterior) {
+                    alertaAnterior.remove();
+                }
+                
+                // Esconde as opções de distribuição inicialmente
+                const opcoes_distribuicao = document.getElementById('opcoes_distribuicao');
+                const opcoes_menor = document.getElementById('opcoes_menor');
+                if (opcoes_distribuicao) opcoes_distribuicao.classList.add('d-none');
+                if (opcoes_menor) opcoes_menor.classList.add('d-none');
+                
+                if (excedente > 0) {
+                    // Se o valor informado é maior que o valor a receber
+                    const alerta = document.createElement('div');
+                    alerta.className = 'alert alert-warning mt-3 alert-excedente';
+                    alerta.innerHTML = `Valor maior que o valor a receber. Excedente: R$ ${excedente.toFixed(2).replace('.', ',')}`;
+                    this.parentElement.appendChild(alerta);
+                    
+                    // Mostra opções de distribuição do excedente e marca a opção padrão
+                    if (opcoes_distribuicao) {
+                        opcoes_distribuicao.classList.remove('d-none');
+                        opcoes_menor.classList.add('d-none');
+                        if (radioDescontoProximas) {
+                            radioDescontoProximas.checked = true;
+                        }
+                    }
+                } else if (excedente < 0 && valorInformado > 0) {
+                    // Se o valor informado é menor que o valor a receber
+                    const alerta = document.createElement('div');
+                    alerta.className = 'alert alert-info mt-3 alert-excedente';
+                    alerta.innerHTML = `Pagamento parcial. Restará um saldo de R$ ${Math.abs(excedente).toFixed(2).replace('.', ',')} para a próxima parcela.`;
+                    this.parentElement.appendChild(alerta);
+                    
+                    // Mostra opções para pagamento parcial e marca a opção padrão
+                    if (opcoes_menor) {
+                        opcoes_menor.classList.remove('d-none');
+                        opcoes_distribuicao.classList.add('d-none');
+                        if (radioProximaParcela) {
+                            radioProximaParcela.checked = true;
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Mostra o modal
+        const modalPagamento = new bootstrap.Modal(document.getElementById('modalPagamento'));
+        modalPagamento.show();
     };
 
     // Função para abrir o modal de quitação
@@ -1910,6 +1957,16 @@ function formatarTelefone($telefone) {
 .row.g-5 > * {
     padding-top: 2rem;
     padding-bottom: 2rem;
+}
+
+/* Opções de distribuição do excedente */
+.d-none {
+    display: none;
+}
+
+/* Opções para pagamento parcial */
+.d-none {
+    display: none;
 }
 </style>
 

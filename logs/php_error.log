@@ -3642,3 +3642,265 @@ Stack trace:
 [22-Jun-2025 21:14:10 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\quitar.php on line 32
 [22-Jun-2025 21:23:12 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2, 3
 [22-Jun-2025 21:23:12 America/Sao_Paulo] Total de empréstimos ativos (contagem): 3
+[22-Jun-2025 21:58:41 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2
+[22-Jun-2025 21:58:41 America/Sao_Paulo] Total de empréstimos ativos (contagem): 2
+[22-Jun-2025 22:37:12 America/Sao_Paulo] Erro de conexão: Uma operação de soquete foi tentada em uma rede inacessível
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] Iniciando busca por parcela anterior - Empréstimo: 2, Parcela: 9
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] Dados da parcela atual - ID: 19, Valor: 44.00, Valor Pago: 30.00, Status: parcial
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] SQL Parcela Anterior: 
+            SELECT id, numero, valor, valor_pago, status 
+            FROM parcelas 
+            WHERE emprestimo_id = ? 
+            AND numero < ?
+            AND valor_pago > 0 
+            AND valor_pago < valor
+            ORDER BY numero DESC 
+            LIMIT 1
+        
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] Nenhuma parcela anterior encontrada - Buscando todas as parcelas anteriores para debug
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] Parcela #8 - Valor: 44.00, Valor Pago: 44.00, Status: pago
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] Parcela #7 - Valor: 44.00, Valor Pago: 44.00, Status: pago
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] Parcela #6 - Valor: 44.00, Valor Pago: 44.00, Status: pago
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] Parcela #5 - Valor: 44.00, Valor Pago: 44.00, Status: pago
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] Parcela #4 - Valor: 44.00, Valor Pago: 44.00, Status: pago
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] Parcela #3 - Valor: 44.00, Valor Pago: 44.00, Status: pago
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] Parcela #2 - Valor: 44.00, Valor Pago: 44.00, Status: pago
+[22-Jun-2025 22:49:09 America/Sao_Paulo] [DEBUG] Parcela #1 - Valor: 44.00, Valor Pago: 44.00, Status: pago
+[22-Jun-2025 22:52:08 America/Sao_Paulo] [DEBUG] Iniciando pagamento da parcela anterior
+[22-Jun-2025 22:52:08 America/Sao_Paulo] [DEBUG] ID da parcela anterior recebido: 19
+[22-Jun-2025 22:52:08 America/Sao_Paulo] [DEBUG] Parcela anterior encontrada - Número: 9, Valor: 44.00, Valor Pago: 30.00, Status: parcial
+[22-Jun-2025 22:52:08 America/Sao_Paulo] [DEBUG] Valores calculados - Valor já pago: 30, Novo valor: 44, Novo status: pago
+[22-Jun-2025 22:52:08 America/Sao_Paulo] [DEBUG] Parcela anterior atualizada com sucesso
+[22-Jun-2025 22:52:08 America/Sao_Paulo] [DEBUG] Pagamento finalizado sem excedente
+[22-Jun-2025 23:01:06 America/Sao_Paulo] [DEBUG] Iniciando soma do valor pendente da parcela anterior com a atual
+[22-Jun-2025 23:01:06 America/Sao_Paulo] [DEBUG] Valor pendente da parcela anterior: 14
+[22-Jun-2025 23:01:06 America/Sao_Paulo] [DEBUG] Valores atualizados com sucesso
+[22-Jun-2025 23:01:08 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function execute() in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php:116
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 116
+[22-Jun-2025 23:05:57 America/Sao_Paulo] [DEBUG] Iniciando pagamento das duas parcelas
+[22-Jun-2025 23:05:57 America/Sao_Paulo] [DEBUG] Valores da parcela anterior - Total: 44, Já pago: 30, Pendente: 14
+[22-Jun-2025 23:05:57 America/Sao_Paulo] [DEBUG] Parcela anterior paga com sucesso
+[22-Jun-2025 23:05:57 America/Sao_Paulo] [DEBUG] Parcela atual paga com sucesso
+[22-Jun-2025 23:17:15 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\quitar.php on line 31
+[22-Jun-2025 23:17:15 America/Sao_Paulo] PHP Deprecated:  Constant FILTER_SANITIZE_STRING is deprecated in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\quitar.php on line 32
+[22-Jun-2025 23:21:35 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:21:35 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:21:35 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:21:46 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:21:46 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:21:46 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:22:05 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:22:05 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:22:05 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:22:45 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:22:45 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:22:45 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:26:03 America/Sao_Paulo] Iniciando operação de limpeza do sistema pelo usuário ID 1
+[22-Jun-2025 23:27:37 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:27:37 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:27:37 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:28:01 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:28:01 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:28:01 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:28:01 America/Sao_Paulo] [DEBUG] Iniciando pagamento da parcela anterior
+[22-Jun-2025 23:28:01 America/Sao_Paulo] [DEBUG] ID da parcela anterior recebido: 1
+[22-Jun-2025 23:28:01 America/Sao_Paulo] [DEBUG] Parcela anterior atualizada com sucesso
+[22-Jun-2025 23:28:01 America/Sao_Paulo] [DEBUG] Pagamento finalizado sem excedente
+[22-Jun-2025 23:28:39 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:28:39 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:28:39 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:28:50 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:28:50 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:28:50 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:29:34 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:29:34 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:29:34 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:29:34 America/Sao_Paulo] [DEBUG] Iniciando pagamento da parcela anterior
+[22-Jun-2025 23:29:34 America/Sao_Paulo] [DEBUG] ID da parcela anterior recebido: 3
+[22-Jun-2025 23:29:34 America/Sao_Paulo] [DEBUG] Parcela anterior atualizada com sucesso
+[22-Jun-2025 23:29:34 America/Sao_Paulo] [DEBUG] Pagamento finalizado sem excedente
+[22-Jun-2025 23:34:57 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:34:57 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:34:57 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:34:57 America/Sao_Paulo] [DEBUG] Iniciando pagamento APENAS da parcela anterior
+[22-Jun-2025 23:34:57 America/Sao_Paulo] [DEBUG] ID da parcela anterior recebido: 4
+[22-Jun-2025 23:34:57 America/Sao_Paulo] [DEBUG] Parcela anterior encontrada - Número: 4, Valor: 44.00, Valor Pago: 44.00, Status: pago
+[22-Jun-2025 23:34:57 America/Sao_Paulo] [DEBUG] Parcela anterior atualizada com sucesso
+[22-Jun-2025 23:35:10 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:35:10 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:35:10 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:35:27 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 131
+[22-Jun-2025 23:35:27 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 190
+[22-Jun-2025 23:35:27 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 249
+[22-Jun-2025 23:37:56 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 196
+[22-Jun-2025 23:37:56 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 255
+[22-Jun-2025 23:37:56 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 314
+[22-Jun-2025 23:40:24 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 215
+[22-Jun-2025 23:40:24 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 274
+[22-Jun-2025 23:40:24 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 333
+[22-Jun-2025 23:41:13 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 215
+[22-Jun-2025 23:41:13 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 274
+[22-Jun-2025 23:41:13 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 333
+[22-Jun-2025 23:43:57 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 278
+[22-Jun-2025 23:43:57 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 337
+[22-Jun-2025 23:43:57 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 396
+[22-Jun-2025 23:44:11 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 278
+[22-Jun-2025 23:44:11 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 337
+[22-Jun-2025 23:44:11 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 396
+[22-Jun-2025 23:44:11 America/Sao_Paulo] [DEBUG] Iniciando pagamento APENAS da parcela anterior
+[22-Jun-2025 23:44:11 America/Sao_Paulo] [DEBUG] ID da parcela anterior recebido: 6
+[22-Jun-2025 23:44:11 America/Sao_Paulo] [DEBUG] Parcela anterior encontrada - Número: 6, Valor: 44.00, Valor Pago: 44.00, Status: pago
+[22-Jun-2025 23:44:11 America/Sao_Paulo] [DEBUG] Parcela anterior atualizada com sucesso
+[22-Jun-2025 23:44:25 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 278
+[22-Jun-2025 23:44:25 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 337
+[22-Jun-2025 23:44:25 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 396
+[22-Jun-2025 23:46:16 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 278
+[22-Jun-2025 23:46:16 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 337
+[22-Jun-2025 23:46:16 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 396
+[22-Jun-2025 23:46:16 America/Sao_Paulo] [DEBUG] Iniciando pagamento APENAS da parcela anterior
+[22-Jun-2025 23:46:16 America/Sao_Paulo] [DEBUG] ID da parcela anterior recebido: 7
+[22-Jun-2025 23:46:16 America/Sao_Paulo] [DEBUG] Parcela anterior encontrada - Número: 7, Valor: 44.00, Valor Pago: 44.00, Status: pago
+[22-Jun-2025 23:46:16 America/Sao_Paulo] [DEBUG] Parcela anterior atualizada com sucesso
+[22-Jun-2025 23:46:31 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 278
+[22-Jun-2025 23:46:31 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 337
+[22-Jun-2025 23:46:31 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 396
+[22-Jun-2025 23:46:49 America/Sao_Paulo] [DEBUG] Excedente calculado no fluxo normal: 14
+[22-Jun-2025 23:46:49 America/Sao_Paulo] [DEBUG] Iniciando pagamento das duas parcelas
+[22-Jun-2025 23:46:49 America/Sao_Paulo] [DEBUG] Parcela anterior paga com sucesso
+[22-Jun-2025 23:46:49 America/Sao_Paulo] [DEBUG] Parcela atual paga com sucesso
+[22-Jun-2025 23:52:21 America/Sao_Paulo] [DEBUG] Excedente calculado no fluxo normal: 30
+[22-Jun-2025 23:52:21 America/Sao_Paulo] [DEBUG] Iniciando pagamento das duas parcelas
+[22-Jun-2025 23:52:21 America/Sao_Paulo] [DEBUG] ID da parcela anterior recebido: 10
+[22-Jun-2025 23:52:21 America/Sao_Paulo] [DEBUG] Valor faltante da parcela anterior: 30
+[22-Jun-2025 23:52:21 America/Sao_Paulo] [DEBUG] Parcela anterior atualizada com sucesso
+[22-Jun-2025 23:52:21 America/Sao_Paulo] [DEBUG] Parcela atual atualizada com sucesso
+[23-Jun-2025 10:48:06 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 278
+[23-Jun-2025 10:48:06 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 337
+[23-Jun-2025 10:48:06 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 396
+[23-Jun-2025 10:48:16 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 278
+[23-Jun-2025 10:48:16 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 337
+[23-Jun-2025 10:48:16 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 396
+[23-Jun-2025 10:48:35 America/Sao_Paulo] [DEBUG] Pagamento maior que valor faltante. Distribuindo excedente.
+[23-Jun-2025 10:48:35 America/Sao_Paulo] [DEBUG] Excedente calculado: 36
+[23-Jun-2025 10:48:35 America/Sao_Paulo] [DEBUG] Não há próxima parcela para aplicar o excedente.
+[23-Jun-2025 10:51:21 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 278
+[23-Jun-2025 10:51:21 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 337
+[23-Jun-2025 10:51:21 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 396
+[23-Jun-2025 10:55:56 America/Sao_Paulo] [DEBUG] Valor faltante da parcela atual: 14
+[23-Jun-2025 10:55:56 America/Sao_Paulo] [DEBUG] Valor pago recebido: 50
+[23-Jun-2025 10:55:56 America/Sao_Paulo] [DEBUG] Pagamento maior que valor faltante. Distribuindo excedente.
+[23-Jun-2025 10:55:56 America/Sao_Paulo] [DEBUG] Excedente calculado: 36
+[23-Jun-2025 10:55:56 America/Sao_Paulo] [DEBUG] Não há próxima parcela para aplicar o excedente.
+[23-Jun-2025 10:56:13 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 268
+[23-Jun-2025 10:56:13 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 327
+[23-Jun-2025 10:56:13 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 386
+[23-Jun-2025 10:56:35 America/Sao_Paulo] [DEBUG] Valor faltante da parcela atual: 14
+[23-Jun-2025 10:56:35 America/Sao_Paulo] [DEBUG] Valor pago recebido: 50
+[23-Jun-2025 10:56:35 America/Sao_Paulo] [DEBUG] Pagamento maior que valor faltante. Distribuindo excedente.
+[23-Jun-2025 10:56:35 America/Sao_Paulo] [DEBUG] Excedente calculado: 36
+[23-Jun-2025 10:56:35 America/Sao_Paulo] [DEBUG] Não há próxima parcela para aplicar o excedente.
+[23-Jun-2025 10:57:57 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 292
+[23-Jun-2025 10:57:57 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 351
+[23-Jun-2025 10:57:57 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 410
+[23-Jun-2025 10:58:08 America/Sao_Paulo] [DEBUG] Processando pagamento de parcela parcial
+[23-Jun-2025 10:58:08 America/Sao_Paulo] [DEBUG] Valor faltante: 14
+[23-Jun-2025 10:58:08 America/Sao_Paulo] [DEBUG] Valor pago recebido: 50
+[23-Jun-2025 10:58:08 America/Sao_Paulo] [DEBUG] Valor pago maior que o faltante, distribuindo excedente
+[23-Jun-2025 10:58:08 America/Sao_Paulo] [DEBUG] Parcela atual atualizada para paga
+[23-Jun-2025 10:58:08 America/Sao_Paulo] [DEBUG] Excedente calculado: 36
+[23-Jun-2025 10:58:08 America/Sao_Paulo] [DEBUG] Não há próxima parcela para aplicar o excedente
+[23-Jun-2025 10:59:48 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 297
+[23-Jun-2025 10:59:48 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 356
+[23-Jun-2025 10:59:48 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 415
+[23-Jun-2025 10:59:56 America/Sao_Paulo] [DEBUG] Processando pagamento de parcela parcial
+[23-Jun-2025 10:59:56 America/Sao_Paulo] [DEBUG] Valor faltante: 14
+[23-Jun-2025 10:59:56 America/Sao_Paulo] [DEBUG] Valor pago recebido: 50
+[23-Jun-2025 10:59:56 America/Sao_Paulo] [DEBUG] Valor pago maior que o faltante, distribuindo excedente
+[23-Jun-2025 10:59:56 America/Sao_Paulo] [DEBUG] Parcela atual atualizada para paga
+[23-Jun-2025 10:59:56 America/Sao_Paulo] [DEBUG] Excedente calculado: 36
+[23-Jun-2025 10:59:56 America/Sao_Paulo] [DEBUG] Não há próxima parcela para aplicar o excedente
+[23-Jun-2025 11:00:15 America/Sao_Paulo] [DEBUG] Excedente calculado no fluxo normal: 6
+[23-Jun-2025 11:04:23 America/Sao_Paulo] [DEBUG] Processando pagamento de parcela parcial
+[23-Jun-2025 11:04:23 America/Sao_Paulo] [DEBUG] Valor faltante: 38
+[23-Jun-2025 11:04:23 America/Sao_Paulo] [DEBUG] Valor pago recebido: 50
+[23-Jun-2025 11:04:23 America/Sao_Paulo] [DEBUG] Valor pago maior que o faltante, distribuindo excedente
+[23-Jun-2025 11:04:23 America/Sao_Paulo] [DEBUG] Parcela atual atualizada para paga
+[23-Jun-2025 11:04:23 America/Sao_Paulo] [DEBUG] Excedente calculado: 12
+[23-Jun-2025 11:04:23 America/Sao_Paulo] [DEBUG] Não há próxima parcela para aplicar o excedente
+[23-Jun-2025 11:09:46 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 303
+[23-Jun-2025 11:09:46 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 362
+[23-Jun-2025 11:09:46 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 421
+[23-Jun-2025 11:10:02 America/Sao_Paulo] [DEBUG] Excedente calculado no fluxo normal: 14
+[23-Jun-2025 11:10:02 America/Sao_Paulo] [DEBUG] Iniciando pagamento das duas parcelas
+[23-Jun-2025 11:10:02 America/Sao_Paulo] [DEBUG] ID da parcela anterior recebido: 20
+[23-Jun-2025 11:10:02 America/Sao_Paulo] [DEBUG] Valor faltante da parcela anterior: 14
+[23-Jun-2025 11:10:02 America/Sao_Paulo] [DEBUG] Parcela anterior atualizada com sucesso
+[23-Jun-2025 11:10:03 America/Sao_Paulo] [DEBUG] Parcela atual atualizada com sucesso
+[23-Jun-2025 11:10:55 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 278
+[23-Jun-2025 11:10:55 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 337
+[23-Jun-2025 11:10:55 America/Sao_Paulo] PHP Warning:  Undefined variable $excedente in C:\xampp\htdocs\emprestimos\emprestimos\parcelas\pagar.php on line 396
+[23-Jun-2025 11:38:56 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[23-Jun-2025 11:38:56 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[23-Jun-2025 11:39:38 America/Sao_Paulo] Iniciando operação de limpeza do sistema pelo usuário ID 1
+[23-Jun-2025 11:54:31 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1
+[23-Jun-2025 11:54:31 America/Sao_Paulo] Total de empréstimos ativos (contagem): 1
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:08:46 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:01 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:29 America/Sao_Paulo] PHP Warning:  Undefined variable $parcela_seguinte in C:\xampp\htdocs\emprestimos\emprestimos\visualizar.php on line 653
+[23-Jun-2025 12:09:44 America/Sao_Paulo] Iniciando operação de limpeza do sistema pelo usuário ID 1
