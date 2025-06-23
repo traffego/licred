@@ -332,7 +332,7 @@ if ($cliente_id) {
                                         <div class="row g-2">
                                             <div class="col-6 col-md-4">
                                                 <div class="form-check">
-                                                    <input type="checkbox" id="domingo" class="form-check-input" value="0" name="dias_semana[]">
+                                                    <input type="checkbox" id="domingo" class="form-check-input" value="0" name="dias_semana[]" checked>
                                                     <label for="domingo" class="form-check-label">Domingo</label>
                                                 </div>
                                             </div>
@@ -374,7 +374,7 @@ if ($cliente_id) {
                                             </div>
                                             <div class="col-6 col-md-4">
                                                 <div class="form-check">
-                                                    <input type="checkbox" id="feriados" class="form-check-input" value="feriados" name="dias_semana[]">
+                                                    <input type="checkbox" id="feriados" class="form-check-input" value="feriados" name="dias_semana[]" checked>
                                                     <label for="feriados" class="form-check-label">Feriados</label>
                                                 </div>
                                             </div>
