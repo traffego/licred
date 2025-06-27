@@ -207,33 +207,40 @@ $sql_emprestimos_quitados = "SELECT
                                     e.cliente_id,
                                     e.valor_emprestado,
                                     e.parcelas as total_parcelas,
-                                c.nome as cliente_nome,
-                                (
-                                    SELECT COUNT(*) 
-                                    FROM parcelas 
-                                    WHERE emprestimo_id = e.id
-                                ) as parcelas_existentes,
-                                (
-                                    SELECT COUNT(*) 
-                                    FROM parcelas 
-                                    WHERE emprestimo_id = e.id 
-                                    AND status = 'pago'
-                                ) as parcelas_pagas,
-                                (
-                                    SELECT SUM(valor_pago) 
-                                    FROM parcelas 
-                                    WHERE emprestimo_id = e.id 
-                                    AND status = 'pago'
-                                ) as total_pago,
-                                (
-                                    SELECT COUNT(*) 
-                                    FROM movimentacoes_contas 
-                                    WHERE descricao LIKE CONCAT('Comissão total - Empréstimo #', e.id, '%')
-                                    AND conta_id = ?
-                                ) as comissao_processada";
+                                    c.nome as cliente_nome,
+                                    (
+                                        SELECT COUNT(*) 
+                                        FROM parcelas 
+                                        WHERE emprestimo_id = e.id
+                                    ) as parcelas_existentes,
+                                    (
+                                        SELECT COUNT(*) 
+                                        FROM parcelas 
+                                        WHERE emprestimo_id = e.id 
+                                        AND status = 'pago'
+                                    ) as parcelas_pagas,
+                                    (
+                                        SELECT SUM(valor_pago) 
+                                        FROM parcelas 
+                                        WHERE emprestimo_id = e.id 
+                                        AND status = 'pago'
+                                    ) as total_pago,
+                                    (
+                                        SELECT COUNT(*) 
+                                        FROM movimentacoes_contas 
+                                        WHERE descricao LIKE CONCAT('Comissão total - Empréstimo #', e.id, '%')
+                                        AND conta_id = ?
+                                    ) as comissao_processada
+                                FROM 
+                                    emprestimos e
+                                INNER JOIN
+                                    clientes c ON e.cliente_id = c.id
+                                WHERE 
+                                    e.investidor_id = ?
+                                    AND e.status = 'ativo'";
 
 $stmt_quitados = $conn->prepare($sql_emprestimos_quitados);
-$stmt_quitados->bind_param("i", $contas[0]['id']);
+$stmt_quitados->bind_param("ii", $contas[0]['id'], $usuario_id);
 $stmt_quitados->execute();
 $result_quitados = $stmt_quitados->get_result();
 
