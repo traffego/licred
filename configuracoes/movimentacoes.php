@@ -216,19 +216,22 @@ $per_page = 20;
 $offset = ($page - 1) * $per_page;
 
 // Total de movimentações
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM movimentacoes_contas WHERE conta_id = ?");
-$stmt->bind_param("i", $conta_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-$total_rows = $row['total'];
-$total_pages = ceil($total_rows / $per_page);
+$sql_total = "SELECT COUNT(*) as total FROM movimentacoes_contas mc
+              WHERE mc.conta_id = ?";
+$stmt_total = $conn->prepare($sql_total);
+$stmt_total->bind_param("i", $conta_id);
+$stmt_total->execute();
+$total_movimentacoes = $stmt_total->get_result()->fetch_assoc()['total'];
+
+// Calcular total de páginas
+$total_pages = ceil($total_movimentacoes / $per_page);
 
 // Consulta das movimentações
-$stmt = $conn->prepare("SELECT * FROM movimentacoes_contas 
-                       WHERE conta_id = ? 
-                       ORDER BY data_movimentacao DESC, id DESC 
-                       LIMIT ?, ?");
+$sql = "SELECT mc.* FROM movimentacoes_contas mc
+        WHERE mc.conta_id = ?
+        ORDER BY mc.data_movimentacao DESC, mc.id DESC
+        LIMIT ?, ?";
+$stmt = $conn->prepare($sql);
 $stmt->bind_param("iii", $conta_id, $offset, $per_page);
 $stmt->execute();
 $movimentacoes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);

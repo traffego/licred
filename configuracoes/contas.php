@@ -139,6 +139,22 @@ $contas = [];
 
 if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
+        // Buscar as últimas 4 movimentações da conta
+        $sql_movimentacoes = "SELECT tipo, valor, descricao, data_movimentacao 
+                             FROM movimentacoes_contas 
+                             WHERE conta_id = ? 
+                             ORDER BY data_movimentacao DESC, id DESC 
+                             LIMIT 4";
+        $stmt_mov = $conn->prepare($sql_movimentacoes);
+        $stmt_mov->bind_param("i", $row['id']);
+        $stmt_mov->execute();
+        $result_mov = $stmt_mov->get_result();
+        
+        $row['ultimas_movimentacoes'] = [];
+        while ($mov = $result_mov->fetch_assoc()) {
+            $row['ultimas_movimentacoes'][] = $mov;
+        }
+        
         $contas[] = $row;
     }
 }
@@ -285,6 +301,34 @@ usort($investidores, function($a, $b) {
                                     R$ <?= number_format($conta['saldo_atual'], 2, ',', '.') ?>
                                 </div>
                             </div>
+                            
+                            <?php if (!empty($conta['ultimas_movimentacoes'])): ?>
+                            <div class="p-2 border rounded bg-light mb-3">
+                                <div class="small text-muted mb-1">Últimas Movimentações</div>
+                                <div style="font-size: 0.75rem;">
+                                    <?php foreach ($conta['ultimas_movimentacoes'] as $mov): 
+                                        $movClass = $mov['tipo'] === 'entrada' ? 'success' : 'danger';
+                                        $movIcon = $mov['tipo'] === 'entrada' ? 'plus' : 'dash';
+                                        $data = date('d/m/Y', strtotime($mov['data_movimentacao']));
+                                        // Limitar a descrição a 30 caracteres
+                                        $descricao = mb_strlen($mov['descricao']) > 30 ? mb_substr($mov['descricao'], 0, 30) . '...' : $mov['descricao'];
+                                    ?>
+                                        <div class="mb-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="text-<?= $movClass ?>" style="white-space: nowrap;">
+                                                    <i class="bi bi-<?= $movIcon ?>-circle-fill"></i>
+                                                    R$ <?= number_format($mov['valor'], 2, ',', '.') ?>
+                                                </div>
+                                                <div class="text-muted" style="margin-left: 8px;"><?= $data ?></div>
+                                            </div>
+                                            <div style="font-size: 0.65rem; margin-top: -2px; margin-left: 16px; font-style: italic; color: #adb5bd;">
+                                                <?= htmlspecialchars($descricao) ?>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            <?php endif; ?>
                             
                             <div class="p-2 border rounded bg-light mb-3">
                                 <div class="small text-muted">Comissão do Investidor</div>

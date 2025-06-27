@@ -24,12 +24,12 @@ function calcularPrevisaoComissoes($conn, $emprestimo_id) {
             (SELECT SUM(valor_pago) FROM parcelas WHERE emprestimo_id = e.id AND status = 'pago') as valor_ja_pago,
             (SELECT COUNT(*) FROM parcelas WHERE emprestimo_id = e.id AND status = 'pago') as parcelas_pagas,
             (SELECT COUNT(*) FROM parcelas WHERE emprestimo_id = e.id) as total_parcelas,
-            COALESCE(
-                (SELECT SUM(valor_comissao) 
-                 FROM controle_comissoes 
-                 WHERE emprestimo_id = e.id AND usuario_id = e.investidor_id AND processado = 1
-                ), 0
-            ) as comissao_ja_processada
+            (
+                SELECT COUNT(*) 
+                FROM movimentacoes_contas 
+                WHERE descricao LIKE CONCAT('Comissão total - Empréstimo #', e.id, '%')
+                AND conta_id = c.id
+            ) as comissao_processada
         FROM 
             emprestimos e
         JOIN 
@@ -62,7 +62,6 @@ function calcularPrevisaoComissoes($conn, $emprestimo_id) {
     // Calcula comissões
     $comissao_total_prevista = $lucro_total * ($percentual_comissao / 100);
     $comissao_ja_realizada = $lucro_ja_realizado * ($percentual_comissao / 100);
-    $comissao_ja_processada = floatval($result['comissao_ja_processada']);
 
     // Calcula parte do administrador
     $comissao_admin_prevista = $lucro_total - $comissao_total_prevista;
@@ -82,9 +81,7 @@ function calcularPrevisaoComissoes($conn, $emprestimo_id) {
             'conta_id' => $result['conta_id'],
             'percentual_comissao' => $percentual_comissao,
             'comissao_prevista' => $comissao_total_prevista,
-            'comissao_realizada' => $comissao_ja_realizada,
-            'comissao_processada' => $comissao_ja_processada,
-            'comissao_a_processar' => $comissao_ja_realizada - $comissao_ja_processada
+            'comissao_realizada' => $comissao_ja_realizada
         ],
         'administrador' => [
             'comissao_prevista' => $comissao_admin_prevista,
@@ -96,9 +93,31 @@ function calcularPrevisaoComissoes($conn, $emprestimo_id) {
         ],
         'status' => [
             'todas_parcelas_pagas' => ($result['parcelas_pagas'] == $result['total_parcelas']),
-            'tem_comissao_pendente' => ($comissao_ja_realizada > $comissao_ja_processada)
+            'comissao_processada' => ($result['comissao_processada'] > 0)
         ]
     ];
+}
+
+/**
+ * Verifica se há uma transação ativa na conexão
+ * @param mysqli $conn Conexão com o banco de dados
+ * @return bool True se houver uma transação ativa, false caso contrário
+ */
+function hasActiveTransaction($conn) {
+    try {
+        // Tenta iniciar uma transação. Se já houver uma, retornará false
+        $result = $conn->begin_transaction();
+        if ($result) {
+            // Se conseguiu iniciar, faz rollback e retorna false (não havia transação)
+            $conn->rollback();
+            return false;
+        }
+        // Se não conseguiu iniciar, é porque já existe uma transação
+        return true;
+    } catch (Exception $e) {
+        // Se der erro, assume que não há transação
+        return false;
+    }
 }
 
 /**
@@ -203,28 +222,6 @@ function registrarProcessamentoComissao($conn, $dados) {
 }
 
 /**
- * Verifica se há uma transação ativa na conexão
- * @param mysqli $conn Conexão com o banco de dados
- * @return bool True se houver uma transação ativa, false caso contrário
- */
-function hasActiveTransaction($conn) {
-    try {
-        // Tenta iniciar uma transação. Se já houver uma, retornará false
-        $result = $conn->begin_transaction();
-        if ($result) {
-            // Se conseguiu iniciar, faz rollback e retorna false (não havia transação)
-            $conn->rollback();
-            return false;
-        }
-        // Se não conseguiu iniciar, é porque já existe uma transação
-        return true;
-    } catch (Exception $e) {
-        // Se der erro, assume que não há transação
-        return false;
-    }
-}
-
-/**
  * Processa o retorno do capital e as comissões quando todas as parcelas estão pagas
  * 
  * @param mysqli $conn Conexão com o banco de dados
@@ -239,36 +236,44 @@ function processarComissoesERetornos($conn, $emprestimo_id) {
             $conn->begin_transaction();
         }
 
-        // Buscar informações do empréstimo e do administrador
+        // Verificar se já foi processado
+        $stmt_check = $conn->prepare("
+            SELECT COUNT(*) as total 
+            FROM movimentacoes_contas 
+            WHERE descricao LIKE ? 
+            AND tipo = 'entrada'
+        ");
+        $desc_check = "Retorno de capital - Empréstimo #" . $emprestimo_id . "%";
+        $stmt_check->bind_param("s", $desc_check);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
+        $ja_processado = $result_check->fetch_assoc()['total'] > 0;
+
+        if ($ja_processado) {
+            return array('success' => false, 'message' => 'Retorno de capital e comissões já foram processados para este empréstimo.');
+        }
+
+        // Buscar informações do empréstimo
         $sql = "SELECT 
                 e.*,
                 c.nome as cliente_nome,
                 u.id as investidor_id,
                 ct.id as conta_id,
                 ct.comissao as percentual_comissao,
+                (SELECT SUM(valor) FROM parcelas WHERE emprestimo_id = e.id) as total_previsto,
                 (SELECT SUM(valor_pago) FROM parcelas WHERE emprestimo_id = e.id AND status = 'pago') as total_pago,
-                (SELECT COUNT(*) FROM parcelas WHERE emprestimo_id = e.id AND status = 'pago') as parcelas_pagas,
                 (SELECT COUNT(*) FROM parcelas WHERE emprestimo_id = e.id) as total_parcelas,
-                (SELECT ct_admin.id 
-                 FROM usuarios u_admin 
-                 JOIN contas ct_admin ON u_admin.id = ct_admin.usuario_id 
-                 WHERE u_admin.nivel_autoridade IN ('administrador', 'superadmin') 
-                 AND ct_admin.status = 'ativo' 
-                 LIMIT 1) as conta_admin_id,
+                (SELECT COUNT(*) FROM parcelas WHERE emprestimo_id = e.id AND status = 'pago') as parcelas_pagas,
+                (SELECT id FROM contas WHERE usuario_id = 1 AND status = 'ativo' LIMIT 1) as conta_admin_id,
                 (SELECT COUNT(*) FROM movimentacoes_contas 
-                 WHERE conta_id = ct.id 
-                 AND tipo = 'entrada'
-                 AND descricao LIKE CONCAT('Retorno de capital - Empréstimo #', e.id, '%')) as retorno_capital_processado
-            FROM 
-                emprestimos e
-            JOIN 
-                clientes c ON e.cliente_id = c.id
-            JOIN 
-                usuarios u ON e.investidor_id = u.id
-            JOIN 
-                contas ct ON u.id = ct.usuario_id
-            WHERE 
-                e.id = ?";
+                 WHERE descricao LIKE CONCAT('Empréstimo #', e.id, '%')
+                 AND tipo = 'saida'
+                 AND conta_id = ct.id) as tem_saida_capital
+                FROM emprestimos e
+                JOIN clientes c ON e.cliente_id = c.id
+                JOIN usuarios u ON e.investidor_id = u.id
+                JOIN contas ct ON u.id = ct.usuario_id
+                WHERE e.id = ?";
 
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $emprestimo_id);
@@ -289,28 +294,27 @@ function processarComissoesERetornos($conn, $emprestimo_id) {
             return array('success' => false, 'message' => 'Nem todas as parcelas estão pagas');
         }
 
-        // Processar retorno do capital se ainda não foi feito
-        if ($emprestimo['retorno_capital_processado'] == 0) {
-            $valor_capital = floatval($emprestimo['valor_emprestado']);
-            $descricao_capital = sprintf(
-                "Retorno de capital - Empréstimo #%d para %s - Valor: R$ %s",
+        // Se não houver registro da saída do capital, registrar agora
+        if ($emprestimo['tem_saida_capital'] == 0) {
+            $descricao_saida = sprintf(
+                "Empréstimo #%d para %s em %s",
                 $emprestimo_id,
                 $emprestimo['cliente_nome'],
-                number_format($valor_capital, 2, ',', '.')
+                date('d/m/Y', strtotime($emprestimo['data_inicio']))
             );
 
-            $stmt = $conn->prepare("
-                INSERT INTO movimentacoes_contas (conta_id, tipo, valor, descricao, data_movimentacao) 
-                VALUES (?, 'entrada', ?, ?, NOW())
-            ");
-            $stmt->bind_param("ids", 
+            $stmt_saida = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                        (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                        VALUES (?, 'saida', ?, ?, ?)");
+            $stmt_saida->bind_param("idss", 
                 $emprestimo['conta_id'],
-                $valor_capital,
-                $descricao_capital
+                $emprestimo['valor_emprestado'],
+                $descricao_saida,
+                $emprestimo['data_inicio']
             );
             
-            if (!$stmt->execute()) {
-                throw new Exception("Erro ao registrar retorno de capital: " . $stmt->error);
+            if (!$stmt_saida->execute()) {
+                throw new Exception("Erro ao registrar saída de capital: " . $stmt_saida->error);
             }
         }
 
@@ -319,140 +323,171 @@ function processarComissoesERetornos($conn, $emprestimo_id) {
         $total_pago = floatval($emprestimo['total_pago']);
         $lucro_total = $total_pago - $valor_emprestado;
         $percentual_comissao = floatval($emprestimo['percentual_comissao']);
-        $valor_comissao_investidor = $lucro_total * ($percentual_comissao / 100);
-        $valor_comissao_admin = $lucro_total - $valor_comissao_investidor;
-
-        // Buscar todas as parcelas pagas que ainda não têm comissão processada
-        $sql_parcelas = "
-            SELECT p.* 
-            FROM parcelas p
-            LEFT JOIN controle_comissoes cc ON p.id = cc.parcela_id
-            WHERE p.emprestimo_id = ? 
-            AND p.status = 'pago' 
-            AND cc.id IS NULL
-            ORDER BY p.numero";
-            
-        $stmt = $conn->prepare($sql_parcelas);
-        $stmt->bind_param("i", $emprestimo_id);
-        $stmt->execute();
-        $result_parcelas = $stmt->get_result();
-
-        $parcelas_processadas = 0;
         
-        // Registrar comissão para cada parcela
-        while ($parcela = $result_parcelas->fetch_assoc()) {
-            // Calcular valor principal e lucro da parcela
-            $valor_principal_parcela = $valor_emprestado / $emprestimo['total_parcelas'];
-            $valor_pago = floatval($parcela['valor_pago']);
-            $lucro_parcela = max(0, $valor_pago - $valor_principal_parcela);
-            
-            // Calcular comissão do investidor para esta parcela
-            $valor_comissao_parcela_investidor = $lucro_parcela * ($percentual_comissao / 100);
-            
-            // Calcular comissão do admin para esta parcela
-            $valor_comissao_parcela_admin = $lucro_parcela - $valor_comissao_parcela_investidor;
+        // Verificar se já existe movimentação de retorno de capital
+        $stmt_check = $conn->prepare("SELECT COUNT(*) as total FROM movimentacoes_contas 
+                                    WHERE conta_id = ? 
+                                    AND descricao LIKE ?
+                                    AND tipo = 'entrada'");
+        $desc_check = "Retorno de capital - Empréstimo #" . $emprestimo_id . "%";
+        $stmt_check->bind_param("is", $emprestimo['conta_id'], $desc_check);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
+        $ja_processado = $result_check->fetch_assoc()['total'] > 0;
 
-            // Registrar comissão do investidor
-            $dados_comissao = array(
-                'parcela_id' => $parcela['id'],
-                'usuario_id' => $emprestimo['investidor_id'],
-                'conta_id' => $emprestimo['conta_id'],
-                'emprestimo_id' => $emprestimo_id,
-                'valor_comissao' => $valor_comissao_parcela_investidor
-            );
+        if (!$ja_processado) {
+            // Verificar se houve complemento de capital do administrador
+            $stmt_check_complemento = $conn->prepare("
+                SELECT valor as valor_recebido
+                FROM movimentacoes_contas 
+                WHERE conta_id = ? 
+                AND descricao LIKE ? 
+                AND tipo = 'entrada'
+                LIMIT 1
+            ");
+            $desc_complemento = "Recebimento de capital do administrador para Empréstimo #" . $emprestimo_id . "%";
+            $stmt_check_complemento->bind_param("is", $emprestimo['conta_id'], $desc_complemento);
+            $stmt_check_complemento->execute();
+            $result_complemento = $stmt_check_complemento->get_result();
+            $valor_complemento = floatval($result_complemento->fetch_assoc()['valor_recebido']);
 
-            $resultado = registrarProcessamentoComissao($conn, $dados_comissao);
-            if ($resultado !== true) {
-                // Se a comissão já foi processada, apenas continua
-                if (strpos($resultado, 'Comissão já processada') !== false) {
-                    continue;
-                }
-                throw new Exception($resultado);
-            }
-
-            // Registrar a movimentação do investidor
-            $descricao_comissao = sprintf(
-                "Comissão (%.1f%%) - Parcela #%d do empréstimo #%d para %s",
-                $percentual_comissao,
-                $parcela['numero'],
+            // 1. Registrar retorno do capital para o investidor
+            $descricao_retorno = sprintf(
+                "Retorno de capital - Empréstimo #%d para %s (quitado)",
                 $emprestimo_id,
                 $emprestimo['cliente_nome']
             );
 
-            $stmt = $conn->prepare("
-                INSERT INTO movimentacoes_contas (conta_id, tipo, valor, descricao, data_movimentacao) 
-                VALUES (?, 'entrada', ?, ?, NOW())
-            ");
+            $stmt = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                  (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                  VALUES (?, 'entrada', ?, ?, NOW())");
             $stmt->bind_param("ids", 
-                $emprestimo['conta_id'], 
-                $valor_comissao_parcela_investidor, 
+                $emprestimo['conta_id'],
+                $valor_emprestado,
+                $descricao_retorno
+            );
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Erro ao registrar retorno de capital: " . $stmt->error);
+            }
+
+            // 2. Registrar 100% da comissão para o investidor
+            $descricao_comissao = sprintf(
+                "Comissão total (%.1f%%) - Empréstimo #%d para %s (quitado) - Lucro: R$ %s",
+                $percentual_comissao,
+                $emprestimo_id,
+                $emprestimo['cliente_nome'],
+                number_format($lucro_total, 2, ',', '.')
+            );
+
+            $stmt = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                  (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                  VALUES (?, 'entrada', ?, ?, NOW())");
+            $stmt->bind_param("ids", 
+                $emprestimo['conta_id'],
+                $lucro_total,
                 $descricao_comissao
             );
-            $stmt->execute();
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Erro ao registrar comissão total do investidor: " . $stmt->error);
+            }
 
-            // Registrar comissão do administrador
-            if ($valor_comissao_parcela_admin > 0) {
-                $dados_comissao_admin = array(
-                    'parcela_id' => $parcela['id'],
-                    'usuario_id' => $emprestimo['investidor_id'], // mantemos o mesmo investidor para referência
-                    'conta_id' => $emprestimo['conta_admin_id'],
-                    'emprestimo_id' => $emprestimo_id,
-                    'valor_comissao' => $valor_comissao_parcela_admin
-                );
-
-                $resultado = registrarProcessamentoComissao($conn, $dados_comissao_admin);
-                if ($resultado !== true && strpos($resultado, 'Comissão já processada') === false) {
-                    throw new Exception($resultado);
-                }
-
-                // Registrar a movimentação do admin
-                $descricao_comissao_admin = sprintf(
-                    "Comissão administrativa (%.1f%%) - Parcela #%d do empréstimo #%d para %s",
-                    (100 - $percentual_comissao),
-                    $parcela['numero'],
+            // 3. Se houve complemento do administrador, devolver o valor
+            if ($valor_complemento > 0) {
+                // Debitar da conta do investidor o valor que foi complementado
+                $descricao_devolucao = sprintf(
+                    "Devolução do capital complementar ao administrador - Empréstimo #%d para %s (quitado)",
                     $emprestimo_id,
                     $emprestimo['cliente_nome']
                 );
 
-                $stmt = $conn->prepare("
-                    INSERT INTO movimentacoes_contas (conta_id, tipo, valor, descricao, data_movimentacao) 
-                    VALUES (?, 'entrada', ?, ?, NOW())
-                ");
+                $stmt = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                      (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                      VALUES (?, 'saida', ?, ?, NOW())");
                 $stmt->bind_param("ids", 
-                    $emprestimo['conta_admin_id'], 
-                    $valor_comissao_parcela_admin, 
-                    $descricao_comissao_admin
+                    $emprestimo['conta_id'],
+                    $valor_complemento,
+                    $descricao_devolucao
                 );
-                $stmt->execute();
+                
+                if (!$stmt->execute()) {
+                    throw new Exception("Erro ao registrar devolução do capital complementar: " . $stmt->error);
+                }
+
+                // Creditar na conta do administrador o valor devolvido
+                $descricao_recebimento = sprintf(
+                    "Recebimento da devolução do capital complementar - Empréstimo #%d para %s (quitado)",
+                    $emprestimo_id,
+                    $emprestimo['cliente_nome']
+                );
+
+                $stmt = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                      (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                      VALUES (?, 'entrada', ?, ?, NOW())");
+                $stmt->bind_param("ids", 
+                    $emprestimo['conta_admin_id'],
+                    $valor_complemento,
+                    $descricao_recebimento
+                );
+                
+                if (!$stmt->execute()) {
+                    throw new Exception("Erro ao registrar recebimento da devolução do capital: " . $stmt->error);
+                }
             }
+
+            // 4. Debitar 60% da comissão do investidor
+            $valor_comissao_admin = round($lucro_total * 0.6, 2);
+            $descricao_debito = sprintf(
+                "Envio de comissão (60%%) ao administrador - Empréstimo #%d",
+                $emprestimo_id
+            );
+
+            $stmt = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                  (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                  VALUES (?, 'saida', ?, ?, NOW())");
+            $stmt->bind_param("ids", 
+                $emprestimo['conta_id'],
+                $valor_comissao_admin,
+                $descricao_debito
+            );
             
-            $parcelas_processadas++;
+            if (!$stmt->execute()) {
+                throw new Exception("Erro ao registrar débito de comissão do investidor: " . $stmt->error);
+            }
+
+            // 5. Creditar 60% da comissão para o administrador
+            $descricao_credito_admin = sprintf(
+                "Recebimento de comissão (60%%) - Empréstimo #%d para %s",
+                $emprestimo_id,
+                $emprestimo['cliente_nome']
+            );
+
+            $stmt = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                  (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                  VALUES (?, 'entrada', ?, ?, NOW())");
+            $stmt->bind_param("ids", 
+                $emprestimo['conta_admin_id'],
+                $valor_comissao_admin,
+                $descricao_credito_admin
+            );
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Erro ao registrar crédito de comissão do administrador: " . $stmt->error);
+            }
         }
 
         if ($start_transaction) {
             $conn->commit();
         }
         
-        if ($parcelas_processadas === 0 && $emprestimo['retorno_capital_processado'] > 0) {
-            return array(
-                'success' => true,
-                'message' => 'Todas as comissões e retorno de capital já foram processados anteriormente'
-            );
-        }
-        
-        return array(
-            'success' => true,
-            'message' => 'Comissões e retorno de capital processados com sucesso'
-        );
+        return array('success' => true, 'message' => 'Processamento concluído com sucesso');
         
     } catch (Exception $e) {
         if ($start_transaction) {
             $conn->rollback();
         }
-        return array(
-            'success' => false,
-            'message' => 'Erro ao processar comissões: ' . $e->getMessage()
-        );
+        return array('success' => false, 'message' => $e->getMessage());
     }
 }
 

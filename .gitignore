@@ -51,11 +51,15 @@ nbproject/
 *.swp
 *~
 
-# Arquivos temporários
+# Arquivos temporários e de dados
 *.log
 *.sql
 *.sqlite
 *.sqlite3
+*.zip
+*.ini
+*.xml
+*.txt
 .sass-cache/
 *.css.map
 *.js.map
@@ -63,9 +67,6 @@ nbproject/
 *.temp
 temp/
 tmp/
-
-# Exceções para o banco de dados de exemplo
-!/sql/*.sql
 
 # Arquivos específicos do projeto que não devem ser versionados
 /mensagens/api/vendor/
@@ -78,4 +79,4 @@ composer.lock
 *.p12
 
 # Exceções para manter a estrutura do projeto
-!.gitkeep 
+!.gitkeep

@@ -233,39 +233,21 @@ if (!empty($contas)) {
         $conn->begin_transaction();
         
         try {
-            $total_capital_retornado = 0;
             $emprestimos_processados = 0;
             
             while ($emp_quitado = $result_quitados->fetch_assoc()) {
-                $valor_capital = floatval($emp_quitado['valor_emprestado']);
-                $quitado_id = $emp_quitado['id'];
+                // Agora o processamento é feito pela função processarComissoesERetornos
+                $resultado_processamento = processarComissoesERetornos($conn, $emp_quitado['id']);
                 
-                // Não é mais necessário registrar na tabela retorno_capital
-                
-                // Adicionar valor do capital como entrada na conta
-                $descricao = "Retorno de capital - Empréstimo #{$quitado_id} para {$emp_quitado['cliente_nome']} (quitado)";
-                
-                $stmt_movimentacao = $conn->prepare("INSERT INTO movimentacoes_contas 
-                                                   (conta_id, tipo, valor, descricao, data_movimentacao) 
-                                                   VALUES (?, 'entrada', ?, ?, NOW())");
-                $stmt_movimentacao->bind_param("ids", 
-                                              $contas[0]['id'], 
-                                              $valor_capital, 
-                                              $descricao);
-                
-                if (!$stmt_movimentacao->execute()) {
-                    throw new Exception("Erro ao adicionar retorno de capital na conta: " . $conn->error);
+                if ($resultado_processamento['success']) {
+                    $emprestimos_processados++;
                 }
-                
-                $total_capital_retornado += $valor_capital;
-                $emprestimos_processados++;
             }
             
             $conn->commit();
             
             if ($emprestimos_processados > 0) {
-                $mensagem = "Seu capital de R$ " . number_format($total_capital_retornado, 2, ',', '.') . 
-                           " foi retornado de {$emprestimos_processados} empréstimo(s) quitado(s).";
+                $mensagem = "Processados $emprestimos_processados empréstimo(s) quitado(s).";
                 $tipo_alerta = "success";
             }
             

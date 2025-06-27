@@ -114,7 +114,7 @@ try {
         $lucro = max(0, $valor_parcela - $valor_principal_parcela);
         
         // Calcular comissão apenas sobre o lucro
-        $valor_comissao = $lucro * ($percentual_comissao / 100);
+        $valor_comissao = round($lucro * ($percentual_comissao / 100), 2);
         
         // Registra a comissão na tabela de controle
         $stmt = $conn->prepare("INSERT INTO controle_comissoes 

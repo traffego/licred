@@ -82,15 +82,109 @@ if (isset($_POST['confirmar'])) {
             
             $emprestimo_id = $conn->insert_id;
             
-            // Registra a movimentação de saída na conta do investidor, mesmo com saldo negativo
-            $sql_movimentacao = "INSERT INTO movimentacoes_contas (conta_id, tipo, valor, descricao, data_movimentacao) 
-                            VALUES (?, 'saida', ?, CONCAT('Empréstimo #', ?), NOW())";
-            $stmt_movimentacao = $conn->prepare($sql_movimentacao);
-            $stmt_movimentacao->bind_param("idi", $dados['conta_id'], $dados['valor_emprestado'], $emprestimo_id);
+            // Buscar a conta do administrador
+            $stmt_admin = $conn->prepare("SELECT id FROM contas WHERE usuario_id = 1 AND status = 'ativo' LIMIT 1");
+            $stmt_admin->execute();
+            $result_admin = $stmt_admin->get_result();
+            $conta_admin = $result_admin->fetch_assoc();
             
-            if (!$stmt_movimentacao->execute()) {
-                throw new Exception("Erro ao registrar movimentação: " . $stmt_movimentacao->error);
+            if (!$conta_admin) {
+                throw new Exception("Conta do administrador não encontrada");
             }
+            
+            $conta_admin_id = $conta_admin['id'];
+            
+            // Calcular valores
+            $valor_disponivel = max(0, $dados['saldo_atual']);
+            $valor_necessario = $dados['valor_emprestado'] - $valor_disponivel;
+            
+            // Log dos valores para debug
+            error_log("Debug empréstimo #{$emprestimo_id}:");
+            error_log("Valor total do empréstimo: " . $dados['valor_emprestado']);
+            error_log("Saldo atual do investidor: " . $dados['saldo_atual']);
+            error_log("Valor disponível: " . $valor_disponivel);
+            error_log("Valor necessário do admin: " . $valor_necessario);
+            error_log("Conta do investidor: " . $dados['conta_id']);
+            error_log("Conta do admin: " . $conta_admin_id);
+            
+            // 1. Se o investidor tem algum saldo, debitar o que tem disponível
+            if ($valor_disponivel > 0) {
+                $descricao = "Empréstimo #{$emprestimo_id} para {$cliente['nome']} (capital próprio) em " . date('d/m/Y', strtotime($dados['data_inicio']));
+                
+                $stmt_mov = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                          (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                          VALUES (?, 'saida', ?, ?, ?)");
+                $stmt_mov->bind_param("idss", 
+                                    $dados['conta_id'], 
+                                    $valor_disponivel, 
+                                    $descricao,
+                                    $dados['data_inicio']);
+                
+                if (!$stmt_mov->execute()) {
+                    throw new Exception("Erro ao registrar movimentação na conta do investidor: " . $stmt_mov->error);
+                }
+                error_log("Movimentação 1 - Débito do investidor realizada: " . $valor_disponivel);
+            }
+            
+            // 2. Creditar o valor do administrador na conta do investidor ANTES de debitar da conta do admin
+            $descricao_credito = "Recebimento de capital do administrador para Empréstimo #{$emprestimo_id} em " . date('d/m/Y', strtotime($dados['data_inicio']));
+            
+            // Verificar se a movimentação de crédito já existe
+            $stmt_check = $conn->prepare("SELECT COUNT(*) as total FROM movimentacoes_contas 
+                                        WHERE conta_id = ? AND tipo = 'entrada' 
+                                        AND valor = ? AND data_movimentacao = ?");
+            $stmt_check->bind_param("ids", $dados['conta_id'], $valor_necessario, $dados['data_inicio']);
+            $stmt_check->execute();
+            $result_check = $stmt_check->get_result();
+            $exists = $result_check->fetch_assoc()['total'] > 0;
+            
+            if (!$exists) {
+                $stmt_mov = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                          (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                          VALUES (?, 'entrada', ?, ?, ?)");
+                $stmt_mov->bind_param("idss", 
+                                    $dados['conta_id'], 
+                                    $valor_necessario, 
+                                    $descricao_credito,
+                                    $dados['data_inicio']);
+                
+                if (!$stmt_mov->execute()) {
+                    throw new Exception("Erro ao registrar crédito na conta do investidor: " . $stmt_mov->error);
+                }
+            }
+
+            // 2.1 Registrar a saída do valor total do empréstimo da conta do investidor
+            $descricao_saida = "Empréstimo #{$emprestimo_id} para {$cliente['nome']} em " . date('d/m/Y', strtotime($dados['data_inicio']));
+            
+            $stmt_mov = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                      (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                      VALUES (?, 'saida', ?, ?, ?)");
+            $stmt_mov->bind_param("idss", 
+                                $dados['conta_id'], 
+                                $dados['valor_emprestado'], 
+                                $descricao_saida,
+                                $dados['data_inicio']);
+            
+            if (!$stmt_mov->execute()) {
+                throw new Exception("Erro ao registrar saída do valor total na conta do investidor: " . $stmt_mov->error);
+            }
+            
+            // 3. Debitar da conta do administrador
+            $descricao_admin = "Empréstimo #{$emprestimo_id} para {$cliente['nome']} (complemento de capital) em " . date('d/m/Y', strtotime($dados['data_inicio']));
+            
+            $stmt_mov = $conn->prepare("INSERT INTO movimentacoes_contas 
+                                      (conta_id, tipo, valor, descricao, data_movimentacao) 
+                                      VALUES (?, 'saida', ?, ?, ?)");
+            $stmt_mov->bind_param("idss", 
+                                $conta_admin_id, 
+                                $valor_necessario, 
+                                $descricao_admin,
+                                $dados['data_inicio']);
+            
+            if (!$stmt_mov->execute()) {
+                throw new Exception("Erro ao registrar movimentação na conta do administrador: " . $stmt_mov->error);
+            }
+            error_log("Movimentação 3 - Débito do admin realizada: " . $valor_necessario);
             
             // Gerar as parcelas
             $parcelas_array = gerarParcelas(

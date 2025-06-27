@@ -215,36 +215,27 @@ try {
     
     $emprestimo_id = $conn->insert_id;
     
-    // Registrar movimentação de saída de capital na conta do investidor
-    $sql_conta = "SELECT id FROM contas WHERE usuario_id = ? AND status = 'ativo' LIMIT 1";
-    $stmt_conta = $conn->prepare($sql_conta);
-    $stmt_conta->bind_param("i", $investidor_id);
-    $stmt_conta->execute();
-    $result_conta = $stmt_conta->get_result();
+    // Buscar nome do cliente para usar nas descrições
+    $stmt_cliente = $conn->prepare("SELECT nome FROM clientes WHERE id = ?");
+    $stmt_cliente->bind_param("i", $cliente_id);
+    $stmt_cliente->execute();
+    $result_cliente = $stmt_cliente->get_result();
+    $cliente_nome = $result_cliente->fetch_assoc()['nome'];
     
-    if ($result_conta && $result_conta->num_rows > 0) {
-        $conta_id = $result_conta->fetch_assoc()['id'];
-        
-        // Buscar nome do cliente
-        $stmt_cliente = $conn->prepare("SELECT nome FROM clientes WHERE id = ?");
-        $stmt_cliente->bind_param("i", $cliente_id);
-        $stmt_cliente->execute();
-        $result_cliente = $stmt_cliente->get_result();
-        $cliente_nome = $result_cliente->fetch_assoc()['nome'];
-        
-        // Registrar saída de capital
-        $descricao = "Empréstimo #{$emprestimo_id} para {$cliente_nome} em " . date('d/m/Y', strtotime($data_inicio));
-        
-        $stmt_mov = $conn->prepare("INSERT INTO movimentacoes_contas 
-                                  (conta_id, tipo, valor, descricao, data_movimentacao) 
-                                  VALUES (?, 'saida', ?, ?, ?)");
-        $stmt_mov->bind_param("idss", 
-                             $conta_id, 
-                             $valor_emprestado, 
-                             $descricao,
-                             $data_inicio);
-        
-        $stmt_mov->execute();
+    // Registrar movimentação de saída de capital na conta do investidor
+    $descricao = "Empréstimo #{$emprestimo_id} para {$cliente_nome} em " . date('d/m/Y', strtotime($data_inicio));
+    
+    $stmt_mov = $conn->prepare("INSERT INTO movimentacoes_contas 
+                              (conta_id, tipo, valor, descricao, data_movimentacao) 
+                              VALUES (?, 'saida', ?, ?, ?)");
+    $stmt_mov->bind_param("idss", 
+                         $conta_id, 
+                         $valor_emprestado, 
+                         $descricao,
+                         $data_inicio);
+    
+    if (!$stmt_mov->execute()) {
+        throw new Exception("Erro ao registrar movimentação na conta do investidor: " . $stmt_mov->error);
     }
     
     // Gerar as parcelas no backend
