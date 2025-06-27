@@ -6,6 +6,7 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/includes/conexao.php';
 require_once __DIR__ . '/includes/autenticacao.php';
 require_once __DIR__ . '/includes/head.php';
+require_once __DIR__ . '/includes/funcoes_comissoes.php';
 
 // Verificar se o usuário logado é um investidor
 if (!isset($_SESSION['usuario_id'])) {
@@ -375,7 +376,6 @@ if (!empty($contas)) {
 }
 
 // Buscar status das comissões
-require_once __DIR__ . '/includes/funcoes_comissoes.php';
 $status_comissoes = buscarStatusComissoes($conn, $usuario_id);
 
 // Exibir mensagem de alerta se enviada via GET
