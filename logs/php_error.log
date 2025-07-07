@@ -4599,3 +4599,10 @@ Stack trace:
 [27-Jun-2025 17:27:00 America/Sao_Paulo] Total de empréstimos ativos (contagem): 0
 [27-Jun-2025 17:31:22 America/Sao_Paulo] Total de empréstimos ativos (IDs): 
 [27-Jun-2025 17:31:22 America/Sao_Paulo] Total de empréstimos ativos (contagem): 0
+[28-Jun-2025 17:33:37 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2
+[28-Jun-2025 17:33:37 America/Sao_Paulo] Total de empréstimos ativos (contagem): 2
+[28-Jun-2025 17:34:05 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2
+[28-Jun-2025 17:34:05 America/Sao_Paulo] Total de empréstimos ativos (contagem): 2
+[07-Jul-2025 14:57:01 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-07-07 14:57:01","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Safari\/537.36","session_id":"kj06k6qbo29fnefqs51r7uguh2","csrf_token":64}
+[07-Jul-2025 14:57:07 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52
+[07-Jul-2025 14:57:07 America/Sao_Paulo] Total de empréstimos ativos (contagem): 52
