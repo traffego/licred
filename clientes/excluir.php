@@ -11,7 +11,7 @@ foreach ($ids as $id) {
     $id = (int) $id;
 
     // Verificar se o cliente possui emprestimos
-    $stmt = $conn->prepare("SELECT COUNT(*) FROM emprestimos WHERE id_cliente = ?");
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM emprestimos WHERE cliente_id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $stmt->bind_result($temEmprestimos);

@@ -4606,3 +4606,10 @@ Stack trace:
 [07-Jul-2025 14:57:01 America/Sao_Paulo] LOGIN BEM-SUCEDIDO: {"time":"2025-07-07 14:57:01","email":"admin@teste.com","is_mobile":"Não","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Safari\/537.36","session_id":"kj06k6qbo29fnefqs51r7uguh2","csrf_token":64}
 [07-Jul-2025 14:57:07 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52
 [07-Jul-2025 14:57:07 America/Sao_Paulo] Total de empréstimos ativos (contagem): 52
+[08-Jul-2025 10:34:52 America/Sao_Paulo] Total de empréstimos ativos (IDs): 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76
+[08-Jul-2025 10:34:52 America/Sao_Paulo] Total de empréstimos ativos (contagem): 76
+[08-Jul-2025 10:35:03 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'id_cliente' in 'WHERE' in C:\xampp\htdocs\emprestimos\clientes\excluir.php:14
+Stack trace:
+#0 C:\xampp\htdocs\emprestimos\clientes\excluir.php(14): mysqli->prepare('SELECT COUNT(*)...')
+#1 {main}
+  thrown in C:\xampp\htdocs\emprestimos\clientes\excluir.php on line 14
