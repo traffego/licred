@@ -113,7 +113,7 @@ if ($parcelas_atualizadas) {
             WHERE id = ?
         ");
         $stmt_atualiza->bind_param("si", $parcela['status'], $parcela['id']);
-        $stmt_atualiza.execute();
+        $stmt_atualiza->execute();
     }
 }
 
